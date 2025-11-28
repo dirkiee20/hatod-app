@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Profile - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="restaurant_browse.html" class="flex items-center">
+                        <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                        <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="restaurant_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="restaurant_menu_management.html" class="text-text-secondary hover:text-primary transition-smooth">Menu</a>
+                    <a href="restaurant_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="restaurant_profile.html" class="text-primary font-medium border-b-2 border-primary pb-1">Account</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="profileDropdownBtn" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img id="headerProfileImage"
+                                 src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Restaurant logo"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium" id="headerRestaurantName">Loading...</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg border border-border hidden z-50">
+                            <div class="py-1">
+                                <button id="logoutDropdownBtn" class="flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-gray-50 transition-smooth">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Restaurant Profile</h2>
+            <p class="text-text-secondary">Manage your restaurant settings and information</p>
+        </div>
+
+        <!-- Banner Upload -->
+        <section class="mb-8 bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+            <div class="relative">
+                <img id="restaurantBannerImage"
+                     src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80"
+                     alt="Restaurant banner"
+                     class="w-full h-48 sm:h-64 object-cover"
+                     onerror="this.src='https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80'; this.onerror=null;">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-4 right-4 flex items-center space-x-3">
+                    <input type="file" id="bannerInput" accept="image/*" class="hidden">
+                    <button id="changeBannerBtn"
+                            class="bg-white/90 text-text-primary px-4 py-2 rounded-lg text-sm font-medium shadow-card hover:bg-white transition-smooth">
+                        Change banner photo
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 text-sm text-text-secondary">
+                <p>This banner appears on the customer browse page instead of your logo.</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Profile Sidebar -->
+            <aside class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
+                    <!-- Restaurant Logo -->
+                    <div class="text-center mb-6">
+                        <img id="sidebarLogo" src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                             alt="Restaurant logo"
+                             class="w-24 h-24 rounded-lg object-cover mx-auto mb-4"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <h3 class="text-xl font-bold text-text-primary mb-1" id="sidebarRestaurantName">Loading...</h3>
+                        <p class="text-text-secondary text-sm" id="sidebarCuisineType">Loading...</p>
+                        <input type="file" id="logoInput" accept="image/*" class="hidden">
+                        <button id="changeLogoBtn" class="mt-3 text-primary text-sm hover:text-primary-600 transition-smooth">Change logo</button>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-2">
+                        <a href="#restaurant" class="block px-4 py-2 bg-primary text-white rounded-lg">Restaurant Information</a>
+                        <a href="#hours" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Business Hours</a>
+                        <a href="#payment" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Payment Methods</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Profile Content -->
+            <div class="lg:col-span-2 space-y-4 lg:space-y-6 order-1 lg:order-2">
+                <!-- Restaurant Information -->
+                <section id="restaurant" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Restaurant Information</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Restaurant Name</label>
+                            <input type="text"
+                                    id="restaurantName"
+                                    name="restaurantName"
+                                    class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    placeholder="Enter restaurant name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Description</label>
+                            <textarea rows="3"
+                                       id="restaurantDescription"
+                                       name="restaurantDescription"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       placeholder="Describe your restaurant"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Phone Number</label>
+                                <input type="tel"
+                                        id="restaurantPhone"
+                                        name="restaurantPhone"
+                                        class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                        placeholder="Enter phone number">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Email Address</label>
+                                <input type="email"
+                                        id="restaurantEmail"
+                                        name="restaurantEmail"
+                                        class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                        placeholder="Enter email address">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Address</label>
+                            <div class="space-y-2">
+                                <textarea rows="3"
+                                           id="restaurantAddress"
+                                           name="restaurantAddress"
+                                           class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                           placeholder="Enter restaurant address"
+                                           readonly></textarea>
+                                <button type="button" onclick="openMapPicker()" 
+                                        class="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-smooth flex items-center justify-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span>Select Address on Map</span>
+                                </button>
+                                <input type="hidden" id="restaurantLatitude" name="latitude">
+                                <input type="hidden" id="restaurantLongitude" name="longitude">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Cuisine Type</label>
+                                <select id="restaurantCuisineType" name="cuisineType" class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="">Select cuisine type</option>
+                                    <option value="Italian">Italian</option>
+                                    <option value="Chinese">Chinese</option>
+                                    <option value="Mexican">Mexican</option>
+                                    <option value="American">American</option>
+                                    <option value="Japanese">Japanese</option>
+                                    <option value="Indian">Indian</option>
+                                    <option value="Thai">Thai</option>
+                                    <option value="Korean">Korean</option>
+                                    <option value="Vietnamese">Vietnamese</option>
+                                    <option value="French">French</option>
+                                    <option value="Mediterranean">Mediterranean</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Price Range</label>
+                                <select id="restaurantPriceRange" name="priceRange" class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="">Select price range</option>
+                                    <option value="$">$ - Budget friendly</option>
+                                    <option value="$$">$$ - Moderate</option>
+                                    <option value="$$$">$$$ - Expensive</option>
+                                    <option value="$$$$">$$$$ - Very expensive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            Save Changes
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Business Hours -->
+                <section id="hours" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Business Hours</h3>
+                    <form id="businessHoursForm" class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Monday</span>
+                            <input type="time" id="mondayOpen" name="mondayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="mondayClose" name="mondayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="mondayClosed" name="mondayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Tuesday</span>
+                            <input type="time" id="tuesdayOpen" name="tuesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="tuesdayClose" name="tuesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="tuesdayClosed" name="tuesdayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Wednesday</span>
+                            <input type="time" id="wednesdayOpen" name="wednesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="wednesdayClose" name="wednesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="wednesdayClosed" name="wednesdayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Thursday</span>
+                            <input type="time" id="thursdayOpen" name="thursdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="thursdayClose" name="thursdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="thursdayClosed" name="thursdayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Friday</span>
+                            <input type="time" id="fridayOpen" name="fridayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="fridayClose" name="fridayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="fridayClosed" name="fridayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Saturday</span>
+                            <input type="time" id="saturdayOpen" name="saturdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="saturdayClose" name="saturdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="saturdayClosed" name="saturdayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                            <span class="font-medium text-text-primary">Sunday</span>
+                            <input type="time" id="sundayOpen" name="sundayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <input type="time" id="sundayClose" name="sundayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="sundayClosed" name="sundayClosed" class="mr-2">
+                                <span class="text-sm text-text-secondary">Closed</span>
+                            </label>
+                        </div>
+                    </form>
+                    <button type="button" onclick="updateBusinessHours()" class="mt-4 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                        Update Hours
+                    </button>
+                </section>
+
+
+                <!-- Payment Methods -->
+                <section id="payment" class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-text-primary">Payment Methods</h3>
+                        <a href="restaurant_payment_setup.html" class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span>Add Payment Method</span>
+                        </a>
+                    </div>
+                    <div class="space-y-4">
+                        <!-- Empty State for Payment Methods -->
+                        <div class="border border-border rounded-lg p-8 text-center">
+                            <svg class="w-12 h-12 text-text-secondary mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                            <h4 class="text-sm font-medium text-text-primary mb-1">No payment methods set up</h4>
+                            <p class="text-xs text-text-secondary">Add a bank account to receive payments from customer orders.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center py-2 px-2">
+            <a href="restaurant_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Dashboard</span>
+            </a>
+            <a href="restaurant_menu_management.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Menu</span>
+            </a>
+            <a href="restaurant_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Orders</span>
+            </a>
+            <a href="restaurant_profile.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab flex-1 min-w-0">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary truncate">Account</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12 pb-20 lg:pb-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+    // API base URL
+    const API_BASE_URL = 'http://localhost:4000/api';
+    const DEFAULT_BANNER_URL = 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80';
+
+    // Authentication helper functions
+    function getAuthToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    function getUserRole() {
+        return localStorage.getItem('userRole');
+    }
+
+    // API helper functions
+    async function apiRequest(endpoint, options = {}) {
+        const token = getAuthToken();
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            }
+        };
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...defaultOptions,
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...options.headers
+            }
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'Network error' }));
+            throw new Error(error.message || `HTTP ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    // Get restaurant ID for current user
+    async function getRestaurantId() {
+        try {
+            const response = await apiRequest('/restaurants/current');
+            return response.data.id;
+        } catch (error) {
+            console.error('Error getting restaurant ID:', error);
+            return null;
+        }
+    }
+
+    function resolveImageUrl(url) {
+        if (!url || url.trim() === '') {
+            return null;
+        }
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        const path = url.startsWith('/') ? url : `/${url}`;
+        return `${API_BASE_URL.replace('/api', '')}${path}`;
+    }
+
+    // Fetch restaurant profile
+    async function fetchRestaurantProfile() {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            const response = await apiRequest(`/restaurants/${restaurantId}`);
+            const restaurant = response.data;
+
+            // Update header and sidebar
+            document.getElementById('headerRestaurantName').textContent = restaurant.name;
+            document.getElementById('sidebarRestaurantName').textContent = restaurant.name;
+            document.getElementById('sidebarCuisineType').textContent = restaurant.cuisineType || 'Restaurant';
+
+            // Update logo if available
+            if (restaurant.imageUrl) {
+                const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
+                if (resolvedImageUrl) {
+                    document.getElementById('sidebarLogo').src = resolvedImageUrl;
+                }
+            }
+
+            // Update header profile image
+            const headerProfileImage = document.getElementById('headerProfileImage');
+            if (headerProfileImage && restaurant.imageUrl) {
+                const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
+                if (resolvedImageUrl) {
+                    headerProfileImage.src = resolvedImageUrl;
+                }
+            }
+
+            const bannerImage = document.getElementById('restaurantBannerImage');
+            if (bannerImage) {
+                bannerImage.src = restaurant.bannerUrl || restaurant.imageUrl || DEFAULT_BANNER_URL;
+            }
+
+            // Check for address data from map picker first (URL parameters take precedence)
+            const urlParams = new URLSearchParams(window.location.search);
+            const mapAddress = urlParams.get('address');
+            const mapLat = urlParams.get('lat');
+            const mapLng = urlParams.get('lng');
+            const mapCity = urlParams.get('city');
+            const mapZipCode = urlParams.get('zipCode');
+            const mapApartment = urlParams.get('apartment');
+            
+            // Populate form
+            document.getElementById('restaurantName').value = restaurant.name || '';
+            document.getElementById('restaurantDescription').value = restaurant.description || '';
+            document.getElementById('restaurantPhone').value = restaurant.phone || '';
+            document.getElementById('restaurantEmail').value = restaurant.email || '';
+            
+            // Use address from map picker if available, otherwise use database value
+            if (mapAddress) {
+                // Build full address string from map picker
+                let fullAddress = decodeURIComponent(mapAddress);
+                if (mapApartment) {
+                    fullAddress = `${decodeURIComponent(mapApartment)}, ${fullAddress}`;
+                }
+                if (mapCity) {
+                    fullAddress += `, ${decodeURIComponent(mapCity)}`;
+                }
+                if (mapZipCode) {
+                    fullAddress += ` ${decodeURIComponent(mapZipCode)}`;
+                }
+                document.getElementById('restaurantAddress').value = fullAddress;
+                document.getElementById('restaurantLatitude').value = mapLat || '';
+                document.getElementById('restaurantLongitude').value = mapLng || '';
+                
+                // Show confirmation notification
+                showAddressNotification();
+                
+                // Clean up URL by removing the parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            } else {
+                // Use database values
+                document.getElementById('restaurantAddress').value = restaurant.address || '';
+                document.getElementById('restaurantLatitude').value = restaurant.latitude || '';
+                document.getElementById('restaurantLongitude').value = restaurant.longitude || '';
+            }
+            
+            document.getElementById('restaurantCuisineType').value = restaurant.cuisineType || '';
+            document.getElementById('restaurantPriceRange').value = restaurant.priceRange || '';
+
+            // Load business hours
+            await loadBusinessHours();
+
+        } catch (error) {
+            console.error('Error fetching restaurant profile:', error);
+            alert('Failed to load restaurant profile. Please try again.');
+        }
+    }
+
+    // Load business hours
+    async function loadBusinessHours() {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) return;
+
+            const response = await apiRequest(`/restaurants/${restaurantId}/business-hours`);
+            const businessHours = response.data || [];
+
+            // Map day of week: 0=Sunday, 1=Monday, ..., 6=Saturday
+            const dayMap = {
+                0: 'sunday',
+                1: 'monday',
+                2: 'tuesday',
+                3: 'wednesday',
+                4: 'thursday',
+                5: 'friday',
+                6: 'saturday'
+            };
+
+            // Initialize all days with empty values
+            for (let day = 0; day <= 6; day++) {
+                const dayName = dayMap[day];
+                const hours = businessHours.find(bh => bh.dayOfWeek === day);
+                
+                if (hours) {
+                    document.getElementById(`${dayName}Open`).value = hours.openTime || '';
+                    document.getElementById(`${dayName}Close`).value = hours.closeTime || '';
+                    document.getElementById(`${dayName}Closed`).checked = hours.isClosed || false;
+                } else {
+                    // Set default values if no hours set
+                    document.getElementById(`${dayName}Open`).value = '';
+                    document.getElementById(`${dayName}Close`).value = '';
+                    document.getElementById(`${dayName}Closed`).checked = false;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading business hours:', error);
+            // Set default values on error
+            const defaultHours = {
+                monday: { open: '11:00', close: '22:00' },
+                tuesday: { open: '11:00', close: '22:00' },
+                wednesday: { open: '11:00', close: '22:00' },
+                thursday: { open: '11:00', close: '22:00' },
+                friday: { open: '11:00', close: '23:00' },
+                saturday: { open: '11:00', close: '23:00' },
+                sunday: { open: '12:00', close: '21:00' }
+            };
+
+            for (const [day, hours] of Object.entries(defaultHours)) {
+                const openField = document.getElementById(`${day}Open`);
+                const closeField = document.getElementById(`${day}Close`);
+                if (openField) openField.value = hours.open;
+                if (closeField) closeField.value = hours.close;
+            }
+        }
+    }
+
+    // Handle closed checkbox changes
+    function setupBusinessHoursCheckboxes() {
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        
+        days.forEach(day => {
+            const closedCheckbox = document.getElementById(`${day}Closed`);
+            const openInput = document.getElementById(`${day}Open`);
+            const closeInput = document.getElementById(`${day}Close`);
+            
+            if (closedCheckbox && openInput && closeInput) {
+                closedCheckbox.addEventListener('change', function() {
+                    const isClosed = this.checked;
+                    openInput.disabled = isClosed;
+                    closeInput.disabled = isClosed;
+                    if (isClosed) {
+                        openInput.value = '';
+                        closeInput.value = '';
+                    }
+                });
+                
+                // Set initial state
+                openInput.disabled = closedCheckbox.checked;
+                closeInput.disabled = closedCheckbox.checked;
+            }
+        });
+    }
+
+    // Update business hours
+    window.updateBusinessHours = async function() {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            // Collect business hours data
+            const businessHours = [];
+            const dayMap = {
+                monday: 1,
+                tuesday: 2,
+                wednesday: 3,
+                thursday: 4,
+                friday: 5,
+                saturday: 6,
+                sunday: 0
+            };
+
+            for (const [dayName, dayOfWeek] of Object.entries(dayMap)) {
+                const isClosed = document.getElementById(`${dayName}Closed`).checked;
+                const openTime = document.getElementById(`${dayName}Open`).value;
+                const closeTime = document.getElementById(`${dayName}Close`).value;
+
+                businessHours.push({
+                    dayOfWeek: dayOfWeek,
+                    openTime: isClosed ? null : openTime,
+                    closeTime: isClosed ? null : closeTime,
+                    isClosed: isClosed
+                });
+            }
+
+            const response = await apiRequest(`/restaurants/${restaurantId}/business-hours`, {
+                method: 'PUT',
+                body: JSON.stringify({ businessHours })
+            });
+
+            alert('Business hours updated successfully!');
+            await loadBusinessHours(); // Refresh
+
+        } catch (error) {
+            console.error('Error updating business hours:', error);
+            alert('Failed to update business hours: ' + (error.message || 'Please try again.'));
+        }
+    };
+
+    // Update restaurant profile
+    async function updateRestaurantProfile(formData) {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            // Get address directly from the textarea element to ensure we have the latest value
+            const addressField = document.getElementById('restaurantAddress');
+            const latField = document.getElementById('restaurantLatitude');
+            const lngField = document.getElementById('restaurantLongitude');
+
+            // Get address and coordinates - ensure we get the actual values
+            const addressValue = addressField ? addressField.value.trim() : '';
+            const latValue = latField && latField.value ? latField.value.trim() : '';
+            const lngValue = lngField && lngField.value ? lngField.value.trim() : '';
+
+            const updateData = {
+                name: formData.get('restaurantName'),
+                description: formData.get('restaurantDescription'),
+                phone: formData.get('restaurantPhone'),
+                email: formData.get('restaurantEmail'),
+                address: addressValue || null,
+                latitude: latValue ? parseFloat(latValue) : null,
+                longitude: lngValue ? parseFloat(lngValue) : null,
+                cuisineType: formData.get('cuisineType'),
+                priceRange: formData.get('priceRange')
+            };
+
+            console.log('Updating restaurant profile with data:', updateData);
+            console.log('Address field value:', addressValue);
+            console.log('Latitude field value:', latValue);
+            console.log('Longitude field value:', lngValue);
+
+            // Validate that address data is present if coordinates are provided
+            if ((latValue || lngValue) && !addressValue) {
+                alert('Address is required when coordinates are provided. Please select an address from the map.');
+                return;
+            }
+
+            const response = await apiRequest(`/restaurants/${restaurantId}`, {
+                method: 'PATCH',
+                body: JSON.stringify(updateData)
+            });
+
+            console.log('Update response:', response);
+
+            // Verify the saved data
+            if (response.data) {
+                console.log('Saved address:', response.data.address);
+                console.log('Saved latitude:', response.data.latitude);
+                console.log('Saved longitude:', response.data.longitude);
+            }
+
+            alert('Restaurant profile updated successfully!');
+            fetchRestaurantProfile(); // Refresh the data
+
+        } catch (error) {
+            console.error('Error updating restaurant profile:', error);
+            console.error('Error details:', error.message);
+            alert('Failed to update restaurant profile: ' + (error.message || 'Please try again.'));
+        }
+    }
+
+    // Upload restaurant logo
+    async function uploadRestaurantLogo(file) {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/logo`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+                throw new Error(error.message || `HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+            alert('Restaurant logo updated successfully!');
+
+            // Update the logo display
+            document.getElementById('sidebarLogo').src = result.data.imageUrl;
+            fetchRestaurantProfile(); // Refresh other data
+
+        } catch (error) {
+            console.error('Error uploading restaurant logo:', error);
+            alert('Failed to upload restaurant logo. Please try again.');
+        }
+    }
+
+    // Show address selection notification
+    function showAddressNotification() {
+        // Remove any existing notification
+        const existing = document.getElementById('addressNotification');
+        if (existing) {
+            existing.remove();
+        }
+        
+        // Create new notification
+        const notification = document.createElement('div');
+        notification.id = 'addressNotification';
+        notification.className = 'fixed top-4 right-4 bg-success text-white px-4 py-3 rounded-lg shadow-lg z-50';
+        notification.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Address selected! Click "Save Changes" to update.</span>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Open map picker for address selection
+    function openMapPicker() {
+        const currentLat = document.getElementById('restaurantLatitude').value;
+        const currentLng = document.getElementById('restaurantLongitude').value;
+        
+        // Use full URL to preserve any existing query parameters
+        const callbackUrl = encodeURIComponent(window.location.href);
+        let mapUrl = `../shared/map_address_picker.html?callback=${callbackUrl}`;
+        if (currentLat && currentLng) {
+            mapUrl += `&lat=${currentLat}&lng=${currentLng}`;
+        }
+        
+        // Redirect to map picker page
+        window.location.href = mapUrl;
+    }
+
+    // Receive address data from map picker via URL parameters
+    function receiveAddressFromMap() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const address = urlParams.get('address');
+        const lat = urlParams.get('lat');
+        const lng = urlParams.get('lng');
+        const city = urlParams.get('city');
+        const zipCode = urlParams.get('zipCode');
+        const apartment = urlParams.get('apartment');
+        
+        console.log('receiveAddressFromMap called with:', { address, lat, lng, city, zipCode, apartment });
+        
+        if (address) {
+            // Build full address string
+            let fullAddress = decodeURIComponent(address);
+            if (apartment) {
+                fullAddress = `${decodeURIComponent(apartment)}, ${fullAddress}`;
+            }
+            if (city) {
+                fullAddress += `, ${decodeURIComponent(city)}`;
+            }
+            if (zipCode) {
+                fullAddress += ` ${decodeURIComponent(zipCode)}`;
+            }
+            
+            console.log('Built full address:', fullAddress);
+            
+            // Update address field
+            const addressField = document.getElementById('restaurantAddress');
+            if (addressField) {
+                addressField.value = fullAddress;
+                console.log('Updated address field value to:', addressField.value);
+            } else {
+                console.error('Address field not found!');
+            }
+            
+            // Update latitude and longitude
+            const latField = document.getElementById('restaurantLatitude');
+            const lngField = document.getElementById('restaurantLongitude');
+            if (latField && lat) {
+                latField.value = lat;
+                console.log('Updated latitude field value to:', latField.value);
+            }
+            if (lngField && lng) {
+                lngField.value = lng;
+                console.log('Updated longitude field value to:', lngField.value);
+            }
+            
+            // Show confirmation notification
+            showAddressNotification();
+            
+            // Clean up URL by removing the parameters
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        } else {
+            console.log('No address parameter found in URL');
+        }
+    }
+
+    async function uploadRestaurantBanner(file) {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('banner', file);
+
+            const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/banner`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+                throw new Error(error.message || `HTTP ${response.status}`);
+            }
+
+            const result = await response.json();
+            alert('Restaurant banner updated successfully!');
+
+            if (result.data?.bannerUrl) {
+                document.getElementById('restaurantBannerImage').src = result.data.bannerUrl;
+            }
+
+            fetchRestaurantProfile();
+        } catch (error) {
+            console.error('Error uploading restaurant banner:', error);
+            alert('Failed to upload restaurant banner. Please try again.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check authentication
+        if (!getAuthToken() || getUserRole() !== 'restaurant') {
+            window.location.href = '../login.html';
+            return;
+        }
+
+        // Setup business hours checkboxes
+        setupBusinessHoursCheckboxes();
+
+        // Load restaurant profile (this will also check for address from map picker)
+        fetchRestaurantProfile();
+
+        // Handle profile dropdown
+        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+
+        if (profileDropdownBtn && profileDropdown) {
+            // Toggle dropdown on button click
+            profileDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileDropdownBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+
+            // Handle logout from dropdown
+            document.getElementById('logoutDropdownBtn').addEventListener('click', function() {
+                // Clear all authentication data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                sessionStorage.removeItem('isLoggedIn');
+
+                // Redirect to login page
+                window.location.href = '../login.html';
+            });
+        }
+
+        // Handle logout from separate button (if exists)
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                // Clear all authentication data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                sessionStorage.removeItem('isLoggedIn');
+
+                // Redirect to login page
+                window.location.href = '../login.html';
+            });
+        }
+
+        // Handle form submission
+        const restaurantForm = document.querySelector('section#restaurant form');
+        restaurantForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            await updateRestaurantProfile(formData);
+        });
+
+        // Handle logo upload
+        const changeLogoBtn = document.getElementById('changeLogoBtn');
+        const logoInput = document.getElementById('logoInput');
+
+        if (changeLogoBtn && logoInput) {
+            changeLogoBtn.addEventListener('click', function() {
+                logoInput.click();
+            });
+
+            logoInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select a valid image file.');
+                        return;
+                    }
+
+                    // Validate file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB.');
+                        return;
+                    }
+
+                    await uploadRestaurantLogo(file);
+                }
+            });
+        }
+
+        // Handle banner upload
+        const changeBannerBtn = document.getElementById('changeBannerBtn');
+        const bannerInput = document.getElementById('bannerInput');
+
+        if (changeBannerBtn && bannerInput) {
+            changeBannerBtn.addEventListener('click', function() {
+                bannerInput.click();
+            });
+
+            bannerInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select a valid image file.');
+                        return;
+                    }
+
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB.');
+                        return;
+                    }
+
+                    await uploadRestaurantBanner(file);
+                }
+            });
+        }
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

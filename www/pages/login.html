@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - HATOD</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/pages.css">
+
+  <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Frestaurant2067back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.9"></script>
+  <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.1"></script>
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="../index.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                            <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                        </svg>
+                        <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="restaurants/restaurant_browse.html" class="text-text-secondary hover:text-primary transition-smooth">Browse Restaurants</a>
+                    <a href="login.html" class="text-primary font-medium border-b-2 border-primary pb-1">Sign In</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-md mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-text-primary mb-2">Welcome Back!</h2>
+                <p class="text-text-secondary">Sign in to continue with HATOD</p>
+            </div>
+
+
+            <!-- Login Form -->
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <form id="loginForm" class="space-y-6">
+                    <!-- Social Login Options -->
+                    <div class="space-y-3">
+                        <button type="button" class="w-full flex items-center justify-center space-x-3 bg-white border border-border rounded-lg px-4 py-3 hover:bg-gray-50 transition-smooth btn-hover">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_18021bfd1-1762793904543.png"
+                                 alt="Google logo for social login"
+                                 class="w-5 h-5"
+                                 onerror="this.style.display='none';">
+                            <span class="text-text-primary font-medium">Continue with Google</span>
+                        </button>
+                        <button type="button" class="w-full flex items-center justify-center space-x-3 bg-secondary text-white rounded-lg px-4 py-3 hover:bg-secondary-700 transition-smooth btn-hover">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span class="font-medium">Continue with Facebook</span>
+                        </button>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-border"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-surface text-text-secondary">Or sign in with email</span>
+                        </div>
+                    </div>
+
+                    <!-- Email Address -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-text-primary mb-1">Email Address</label>
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               required
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-smooth"
+                               placeholder="Enter your email address">
+                        <div id="emailError" class="text-error text-xs mt-1 hidden">Please enter a valid email address</div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="password" class="block text-sm font-medium text-text-primary">Password</label>
+                            <a href="javascript:void(0)" class="text-sm text-primary hover:text-primary-600 transition-smooth">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   required
+                                   class="w-full px-3 py-2 pr-10 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-smooth"
+                                   placeholder="Enter your password">
+                            <button type="button"
+                                    id="togglePassword"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary transition-smooth">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="passwordError" class="text-error text-xs mt-1 hidden">Incorrect password</div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               id="remember"
+                               name="remember"
+                               class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                        <label for="remember" class="ml-2 text-sm text-text-secondary">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                            id="submitBtn"
+                            class="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-smooth btn-hover disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="submitText">Sign In</span>
+                        <svg id="loadingSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden inline" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Customer Registration Link -->
+            <div class="text-center mt-6">
+                <p class="text-text-secondary">
+                    Don't have an account?
+                    <a href="customers/customer_registration.html" class="text-primary hover:text-primary-600 font-medium transition-smooth">Sign up here</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to determine user role based on email (simulating backend logic)
+        function determineUserRole(email) {
+            const emailLower = email.toLowerCase();
+
+            // Admin detection - emails ending with @hatod.com or @admin.hatod.com
+            if (emailLower.endsWith('@hatod.com') || emailLower.endsWith('@admin.hatod.com')) {
+                return 'admin';
+            }
+
+            // Restaurant detection - common restaurant email patterns
+            if (emailLower.includes('restaurant') || emailLower.includes('pizza') ||
+                emailLower.includes('burger') || emailLower.includes('cafe') ||
+                emailLower.includes('diner') || emailLower.includes('grill')) {
+                return 'restaurant';
+            }
+
+            // Delivery driver detection - common delivery email patterns
+            if (emailLower.includes('delivery') || emailLower.includes('rider') ||
+                emailLower.includes('driver') || emailLower.includes('courier')) {
+                return 'delivery';
+            }
+
+            // Default to customer for all other emails
+            return 'customer';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Password visibility toggle
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                const icon = togglePassword.querySelector('svg');
+                if (type === 'text') {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>';
+                } else {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const emailError = document.getElementById('emailError');
+                const passwordError = document.getElementById('passwordError');
+
+                let isValid = true;
+
+                // Validate email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+?$/;
+                if (!email || !emailRegex.test(email)) {
+                    emailError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    emailError.classList.add('hidden');
+                }
+
+                // Validate password
+                if (!password || password.length < 6) {
+                    passwordError.classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    passwordError.classList.add('hidden');
+                }
+
+                if (isValid) {
+                    // Determine user role based on email
+                    const userRole = determineUserRole(email);
+
+                    // Show loading state
+                    const submitText = document.getElementById('submitText');
+                    const loadingSpinner = document.getElementById('loadingSpinner');
+
+                    submitBtn.disabled = true;
+                    submitText.textContent = 'Signing in...';
+                    loadingSpinner.classList.remove('hidden');
+
+                    // Simulate API call delay
+                    setTimeout(() => {
+                        // In a real app, this would come from the backend response
+                        console.log('User role detected:', userRole, 'for email:', email);
+
+                        // Redirect based on detected role
+                        switch(userRole) {
+                            case 'customer':
+                                window.location.href = 'customers/shopping_cart.html';
+                                break;
+                            case 'restaurant':
+                                window.location.href = 'restaurants/restaurant_dashboard.html';
+                                break;
+                            case 'delivery':
+                                window.location.href = 'delivery/rider_dashboard.html';
+                                break;
+                            case 'admin':
+                                window.location.href = 'admin/admin_dashboard.html';
+                                break;
+                            default:
+                                // Fallback to customer
+                                window.location.href = 'customers/shopping_cart.html';
+                                break;
+                        }
+                    }, 1500);
+                }
+            });
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

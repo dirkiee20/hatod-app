@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.app",
+  "appName": "hatod",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

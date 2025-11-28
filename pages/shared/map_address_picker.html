@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Address on Map - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+    <!-- Mapbox GL CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+            min-height: 500px;
+        }
+        
+        main {
+            height: 100vh;
+            overflow: hidden;
+        }
+        .map-address-form {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            border-top: 2px solid #e5e7eb;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 85vh;
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+            touch-action: pan-y;
+        }
+        
+        .map-address-form.minimized {
+            transform: translateY(calc(100% - 80px));
+            overflow-y: hidden;
+        }
+        
+        .map-address-form.minimized form {
+            opacity: 0;
+            pointer-events: none;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .map-address-form.minimized .form-header {
+            opacity: 0.3;
+            pointer-events: auto;
+        }
+        
+        .map-address-form.minimized .form-header h3 {
+            display: none;
+        }
+        
+        .map-address-form.minimized .minimize-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .map-address-form.minimized .drag-handle {
+            opacity: 1;
+            pointer-events: auto;
+            cursor: grab;
+        }
+        
+        .map-address-form.minimized .drag-handle:hover {
+            background: #9ca3af;
+        }
+        
+        .drag-handle {
+            width: 40px;
+            height: 4px;
+            background: #d1d5db;
+            border-radius: 2px;
+            margin: 0 auto 16px;
+            cursor: grab;
+            transition: background 0.2s;
+            pointer-events: auto;
+        }
+        
+        .drag-handle:hover {
+            background: #9ca3af;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+            background: #9ca3af;
+        }
+        
+        /* Ensure drag handle is always visible and accessible when minimized */
+        .map-address-form.minimized .drag-handle {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .minimize-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+        
+        .minimize-btn:hover {
+            color: #374151;
+        }
+        
+        .minimize-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            background: #3B82F6;
+            transform: rotate(-45deg);
+            border: 3px solid white;
+        }
+        .marker-pin::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            margin: 8px 0 0 8px;
+            background: white;
+            position: absolute;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Back Button -->
+                <button onclick="window.history.back()" class="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-smooth">
+                    <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">Select Address</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative">
+        <!-- Map Container -->
+        <div id="map"></div>
+
+        <!-- Address Form -->
+        <div id="mapAddressForm" class="map-address-form">
+            <!-- Drag Handle -->
+            <div class="drag-handle" id="dragHandle"></div>
+            
+            <!-- Form Header -->
+            <div class="form-header">
+                <h3 class="text-lg font-semibold text-text-primary">Address Details</h3>
+                <button type="button" class="minimize-btn" id="minimizeBtn" onclick="toggleForm()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="addressForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="label" class="block text-sm font-medium text-text-primary mb-1">Label</label>
+                        <select id="label" name="label" class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="apartment" class="block text-sm font-medium text-text-primary mb-1">Apartment/Unit (Optional)</label>
+                        <input type="text" id="apartment" name="apartment" 
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                               placeholder="Apt 4B">
+                    </div>
+                </div>
+                <div>
+                    <label for="streetAddress" class="block text-sm font-medium text-text-primary mb-1">Street Address</label>
+                    <input type="text" id="streetAddress" name="streetAddress" required
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                           placeholder="Click on map to select location">
+                    <p class="text-xs text-text-secondary mt-1">Click on the map to set your address</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="city" class="block text-sm font-medium text-text-primary mb-1">City</label>
+                        <input type="text" id="city" name="city" required
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label for="zipCode" class="block text-sm font-medium text-text-primary mb-1">Zip Code</label>
+                        <input type="text" id="zipCode" name="zipCode" required
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="window.history.back()" 
+                            class="flex-1 px-4 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">
+                        Cancel
+                    </button>
+                    <button type="submit" id="saveBtn"
+                            class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="saveBtnText">Save Address</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+    
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia3JpZGxsbCIsImEiOiJjbWljdzdmYXUwb3I1MmpwcTJyNWVsN252In0.2lBD_f8wyFrpViRg8n6cOw';
+
+        let map;
+        let marker;
+        let selectedCoordinates = null;
+        let isFormMinimized = false;
+        let dragStartY = 0;
+        let formStartY = 0;
+        let isDragging = false;
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const callbackUrl = urlParams.get('callback') || '../customers/customer_profile.html';
+        const initialLat = parseFloat(urlParams.get('lat'));
+        const initialLng = parseFloat(urlParams.get('lng'));
+
+        function initMap() {
+            // Default center (adjust to your service area)
+            const defaultCenter = initialLat && initialLng 
+                ? [initialLng, initialLat]
+                : [125.5, 9.8]; // Default coordinates
+
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: defaultCenter,
+                zoom: initialLat && initialLng ? 15 : 12
+            });
+
+            // Add geocoder (search box)
+            const geocoder = new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                mapboxgl: mapboxgl,
+                placeholder: 'Search for an address',
+                marker: false
+            });
+
+            map.addControl(geocoder, 'top-left');
+            map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+            // Add click handler to place marker
+            map.on('click', (e) => {
+                const { lng, lat } = e.lngLat;
+                setMarker(lng, lat);
+                reverseGeocode(lng, lat);
+            });
+
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { longitude, latitude } = position.coords;
+                        map.setCenter([longitude, latitude]);
+                        map.setZoom(15);
+                        setMarker(longitude, latitude);
+                        reverseGeocode(longitude, latitude);
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        // Set initial marker if coordinates provided
+                        if (initialLat && initialLng) {
+                            setMarker(initialLng, initialLat);
+                            reverseGeocode(initialLng, initialLat);
+                        }
+                    }
+                );
+            } else if (initialLat && initialLng) {
+                setMarker(initialLng, initialLat);
+                reverseGeocode(initialLng, initialLat);
+            }
+
+            // Handle geocoder result
+            geocoder.on('result', (e) => {
+                const { center, place_name } = e.result;
+                setMarker(center[0], center[1]);
+                updateAddressFields(place_name, center[1], center[0]);
+            });
+        }
+
+        function setMarker(lng, lat) {
+            if (marker) {
+                marker.remove();
+            }
+
+            const el = document.createElement('div');
+            el.className = 'marker-pin';
+
+            marker = new mapboxgl.Marker(el)
+                .setLngLat([lng, lat])
+                .addTo(map);
+
+            selectedCoordinates = { lng, lat };
+        }
+
+        async function reverseGeocode(lng, lat) {
+            try {
+                const response = await fetch(
+                    `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}`
+                );
+                const data = await response.json();
+                
+                if (data.features && data.features.length > 0) {
+                    const feature = data.features[0];
+                    updateAddressFields(feature.place_name, lat, lng, feature);
+                }
+            } catch (error) {
+                console.error('Error reverse geocoding:', error);
+            }
+        }
+
+        function updateAddressFields(placeName, lat, lng, feature = null) {
+            document.getElementById('streetAddress').value = placeName || '';
+            
+            if (feature && feature.context) {
+                // Extract city and zip code from context
+                const context = feature.context;
+                const city = context.find(c => c.id.startsWith('place'))?.text || '';
+                const postcode = context.find(c => c.id.startsWith('postcode'))?.text || '';
+                
+                if (city) document.getElementById('city').value = city;
+                if (postcode) document.getElementById('zipCode').value = postcode;
+            }
+
+            selectedCoordinates = { lng, lat };
+        }
+
+        // Form submission
+        document.getElementById('addressForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!selectedCoordinates) {
+                alert('Please select a location on the map');
+                return;
+            }
+
+            const streetAddress = document.getElementById('streetAddress').value;
+            const city = document.getElementById('city').value;
+            const zipCode = document.getElementById('zipCode').value;
+
+            if (!streetAddress || !city || !zipCode) {
+                alert('Please fill in all required address fields');
+                return;
+            }
+
+            const formData = {
+                label: document.getElementById('label').value,
+                streetAddress: streetAddress,
+                apartment: document.getElementById('apartment').value || null,
+                city: city,
+                zipCode: zipCode,
+                state: null, // Will be extracted if available
+                latitude: selectedCoordinates.lat,
+                longitude: selectedCoordinates.lng
+            };
+
+            // Encode address data as URL parameters
+            // Note: URLSearchParams.set() automatically handles encoding, so we don't need encodeURIComponent
+            const params = new URLSearchParams();
+            params.set('address', formData.streetAddress);
+            params.set('lat', formData.latitude);
+            params.set('lng', formData.longitude);
+            params.set('city', formData.city || '');
+            params.set('zipCode', formData.zipCode || '');
+            if (formData.apartment) {
+                params.set('apartment', formData.apartment);
+            }
+            
+            // Decode callback URL if it was encoded
+            let decodedCallbackUrl = callbackUrl;
+            try {
+                decodedCallbackUrl = decodeURIComponent(callbackUrl);
+            } catch (e) {
+                // If decoding fails, use original
+                decodedCallbackUrl = callbackUrl;
+            }
+            
+            // Redirect back to the calling page with address data in URL
+            const separator = decodedCallbackUrl.includes('?') ? '&' : '?';
+            window.location.href = `${decodedCallbackUrl}${separator}${params.toString()}`;
+        });
+
+        // Toggle form minimize/maximize
+        function toggleForm() {
+            const form = document.getElementById('mapAddressForm');
+            const minimizeBtn = document.getElementById('minimizeBtn');
+            isFormMinimized = !isFormMinimized;
+            
+            if (isFormMinimized) {
+                form.classList.add('minimized');
+                minimizeBtn.innerHTML = `
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                `;
+            } else {
+                form.classList.remove('minimized');
+                minimizeBtn.innerHTML = `
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                `;
+            }
+        }
+
+        // Drag functionality
+        function initDragHandling() {
+            const dragHandle = document.getElementById('dragHandle');
+            const form = document.getElementById('mapAddressForm');
+            
+            dragHandle.addEventListener('mousedown', startDrag);
+            dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+            
+            function startDrag(e) {
+                isDragging = true;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                dragStartY = clientY;
+                formStartY = form.getBoundingClientRect().top;
+                
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                e.preventDefault();
+            }
+            
+            function onDrag(e) {
+                if (!isDragging) return;
+                
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const deltaY = clientY - dragStartY;
+                const windowHeight = window.innerHeight;
+                const formHeight = form.scrollHeight;
+                const minVisibleHeight = 60; // Minimum visible height when minimized
+                const maxTranslate = windowHeight - minVisibleHeight;
+                const minTranslate = windowHeight - formHeight;
+                
+                let newY = formStartY + deltaY;
+                newY = Math.max(minTranslate, Math.min(maxTranslate, newY));
+                
+                const translateY = newY - formStartY;
+                form.style.transform = `translateY(${translateY}px)`;
+                form.style.transition = 'none'; // Disable transition during drag
+            }
+            
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const formRect = form.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                const formHeight = form.scrollHeight;
+                const threshold = windowHeight - (formHeight * 0.4); // 40% threshold
+                
+                // Re-enable transition
+                form.style.transition = '';
+                
+                // Snap to minimized or maximized
+                if (formRect.top > threshold) {
+                    isFormMinimized = true;
+                    form.classList.add('minimized');
+                    updateMinimizeButton();
+                } else {
+                    isFormMinimized = false;
+                    form.classList.remove('minimized');
+                    updateMinimizeButton();
+                }
+                
+                form.style.transform = ''; // Reset inline transform
+                
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('touchmove', onDrag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            }
+            
+            function updateMinimizeButton() {
+                const minimizeBtn = document.getElementById('minimizeBtn');
+                if (isFormMinimized) {
+                    minimizeBtn.innerHTML = `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                        </svg>
+                    `;
+                } else {
+                    minimizeBtn.innerHTML = `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    `;
+                }
+            }
+        }
+
+        // Initialize map on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            initDragHandling();
+        });
+    </script>
+    <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
+

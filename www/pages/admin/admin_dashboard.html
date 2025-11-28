@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+
+  <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Frestaurant2067back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.9"></script>
+  <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.1"></script>
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-primary font-medium border-b-2 border-primary pb-1">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-text-secondary hover:text-primary transition-smooth">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Platform Overview</h2>
+            <p class="text-text-secondary">Monitor and manage your restaurant delivery platform</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Active Orders</p>
+                        <p id="activeOrdersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-2 h-2 bg-success rounded-full mr-2 status-pulse"></div>
+                            <span class="text-success text-sm font-medium">Live Updates</span>
+                        </div>
+                    </div>
+                    <div class="bg-secondary-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Registered Customers</p>
+                        <p id="registeredCustomersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-success text-sm font-medium">--</span>
+                            <span class="text-text-secondary text-sm ml-1">vs last month</span>
+                        </div>
+                    </div>
+                    <div class="bg-accent-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Avg Order Value</p>
+                        <p id="avgOrderValue" class="text-2xl font-bold text-text-primary mt-1">$--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-secondary-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Total Revenue</p>
+                        <p id="totalRevenue" class="text-2xl font-bold text-text-primary mt-1">$--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-success-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <section class="mb-8">
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button class="flex items-center justify-center space-x-2 bg-secondary text-white px-4 py-3 rounded-lg hover:bg-secondary-700 transition-smooth btn-hover">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span>Generate Report</span>
+                    </button>
+                    <button class="flex items-center justify-center space-x-2 bg-accent text-white px-4 py-3 rounded-lg hover:bg-accent-600 transition-smooth btn-hover">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                        <span>User Management</span>
+                    </button>
+                    <button class="flex items-center justify-center space-x-2 bg-success text-white px-4 py-3 rounded-lg hover:bg-success-600 transition-smooth btn-hover">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>System Health</span>
+                    </button>
+                    <button class="flex items-center justify-center space-x-2 bg-warning text-white px-4 py-3 rounded-lg hover:bg-warning-600 transition-smooth btn-hover">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>Settings</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Orders -->
+        <section class="mb-8">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-6 border-b border-border">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-text-primary">Recent Orders</h3>
+                            <p class="text-text-secondary text-sm mt-1">Latest orders across all restaurants</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table id="recentOrdersTable" class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Restaurant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-surface divide-y divide-border">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+        <!-- Real-time Order Monitoring -->
+        <section class="mb-8">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-6 border-b border-border">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-text-primary">Real-time Order Monitoring</h3>
+                            <p class="text-text-secondary text-sm mt-1">Live updates across all restaurants</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <!-- Filters -->
+                            <select class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option>All Status</option>
+                                <option>Pending</option>
+                                <option>Preparing</option>
+                                <option>Ready</option>
+                                <option>Delivered</option>
+                            </select>
+                            <select class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option>All Restaurants</option>
+                                <option>Pizza Palace</option>
+                                <option>Burger Barn</option>
+                                <option>Sushi Spot</option>
+                            </select>
+                            <button class="flex items-center space-x-2 text-primary hover:text-primary-600 transition-smooth">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <span class="text-sm">Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="hidden lg:block overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Restaurant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">ETA</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-surface divide-y divide-border">
+                            <tr class="hover:bg-gray-50 transition-smooth">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">#ORD-2024-001</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://img.rocket.new/generatedImages/rocket_gen_img_1c0e4fdaf-1762793904066.png" 
+                                             alt="Pizza Palace restaurant logo" 
+                                             class="w-8 h-8 rounded-full object-cover mr-3"
+                                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                        <span class="text-sm font-medium text-text-primary">Pizza Palace</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-text-primary">Sarah Johnson</div>
+                                    <div class="text-sm text-text-secondary">sarah.j@email.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-warning-100 text-warning-600">Preparing</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary font-medium">?24.99</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">15 min</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary hover:text-primary-600 transition-smooth">View Details</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">#ORD-2024-002</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://img.rocket.new/generatedImages/rocket_gen_img_1f3f1e84b-1762793905175.png" 
+                                             alt="Burger Barn restaurant logo" 
+                                             class="w-8 h-8 rounded-full object-cover mr-3"
+                                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                        <span class="text-sm font-medium text-text-primary">Burger Barn</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-text-primary">Mike Chen</div>
+                                    <div class="text-sm text-text-secondary">mike.c@email.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success-100 text-success-600">Ready</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary font-medium">?18.50</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">5 min</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary hover:text-primary-600 transition-smooth">View Details</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">#ORD-2024-003</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img src="https://img.rocket.new/generatedImages/rocket_gen_img_16a4ec197-1762793904536.png" 
+                                             alt="Sushi Spot restaurant logo" 
+                                             class="w-8 h-8 rounded-full object-cover mr-3"
+                                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                        <span class="text-sm font-medium text-text-primary">Sushi Spot</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-text-primary">Emma Davis</div>
+                                    <div class="text-sm text-text-secondary">emma.d@email.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-600">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary font-medium">?32.75</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">25 min</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary hover:text-primary-600 transition-smooth">View Details</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="lg:hidden">
+                    <div class="p-4 space-y-4">
+                        <!-- Order Card 1 -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-border">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-medium text-text-primary">#ORD-2024-001</span>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-warning-100 text-warning-600">Preparing</span>
+                            </div>
+                            <div class="flex items-center mb-2">
+                                <img src="https://img.rocket.new/generatedImages/rocket_gen_img_16238704a-1762793904066.png" 
+                                     alt="Pizza Palace restaurant logo" 
+                                     class="w-6 h-6 rounded-full object-cover mr-2"
+                                     onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                <span class="text-sm text-text-primary">Pizza Palace</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-text-secondary">Sarah Johnson</span>
+                                <span class="font-medium text-text-primary">?24.99</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-text-secondary">ETA: 15 min</span>
+                                <button class="text-primary text-xs hover:text-primary-600 transition-smooth">View Details</button>
+                            </div>
+                        </div>
+
+                        <!-- Order Card 2 -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-border">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-medium text-text-primary">#ORD-2024-002</span>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success-100 text-success-600">Ready</span>
+                            </div>
+                            <div class="flex items-center mb-2">
+                                <img src="https://img.rocket.new/generatedImages/rocket_gen_img_151b56cf5-1762793904682.png" 
+                                     alt="Burger Barn restaurant logo" 
+                                     class="w-6 h-6 rounded-full object-cover mr-2"
+                                     onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                <span class="text-sm text-text-primary">Burger Barn</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-text-secondary">Mike Chen</span>
+                                <span class="font-medium text-text-primary">?18.50</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-text-secondary">ETA: 5 min</span>
+                                <button class="text-primary text-xs hover:text-primary-600 transition-smooth">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Charts -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Daily Order Volume -->
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <h3 class="text-lg font-semibold text-text-primary mb-4">Daily Order Volume</h3>
+                <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                    <svg class="w-full h-full" viewBox="0 0 400 200">
+                        <!-- Chart Background -->
+                        <rect width="400" height="200" fill="#f9fafb"/>
+                        
+                        <!-- Grid Lines -->
+                        <g stroke="#e5e7eb" stroke-width="1">
+                            <line x1="50" y1="20" x2="50" y2="180"/>
+                            <line x1="50" y1="180" x2="380" y2="180"/>
+                            <line x1="50" y1="140" x2="380" y2="140" opacity="0.5"/>
+                            <line x1="50" y1="100" x2="380" y2="100" opacity="0.5"/>
+                            <line x1="50" y1="60" x2="380" y2="60" opacity="0.5"/>
+                        </g>
+                        
+                        <!-- Chart Line -->
+                        <polyline fill="none" stroke="#FF6B35" stroke-width="3" 
+                                  points="50,160 100,140 150,120 200,100 250,80 300,90 350,70"/>
+                        
+                        <!-- Data Points -->
+                        <g fill="#FF6B35">
+                            <circle cx="50" cy="160" r="4"/>
+                            <circle cx="100" cy="140" r="4"/>
+                            <circle cx="150" cy="120" r="4"/>
+                            <circle cx="200" cy="100" r="4"/>
+                            <circle cx="250" cy="80" r="4"/>
+                            <circle cx="300" cy="90" r="4"/>
+                            <circle cx="350" cy="70" r="4"/>
+                        </g>
+                        
+                        <!-- Labels -->
+                        <g fill="#718096" font-size="12" text-anchor="middle">
+                            <text x="50" y="195">Mon</text>
+                            <text x="100" y="195">Tue</text>
+                            <text x="150" y="195">Wed</text>
+                            <text x="200" y="195">Thu</text>
+                            <text x="250" y="195">Fri</text>
+                            <text x="300" y="195">Sat</text>
+                            <text x="350" y="195">Sun</text>
+                        </g>
+                        
+                        <!-- Y-axis Labels -->
+                        <g fill="#718096" font-size="10" text-anchor="end">
+                            <text x="45" y="185">0</text>
+                            <text x="45" y="145">500</text>
+                            <text x="45" y="105">1000</text>
+                            <text x="45" y="65">1500</text>
+                            <text x="45" y="25">2000</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Revenue Trends -->
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <h3 class="text-lg font-semibold text-text-primary mb-4">Revenue Trends</h3>
+                <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                    <svg class="w-full h-full" viewBox="0 0 400 200">
+                        <!-- Chart Background -->
+                        <rect width="400" height="200" fill="#f9fafb"/>
+                        
+                        <!-- Grid Lines -->
+                        <g stroke="#e5e7eb" stroke-width="1">
+                            <line x1="50" y1="20" x2="50" y2="180"/>
+                            <line x1="50" y1="180" x2="380" y2="180"/>
+                            <line x1="50" y1="140" x2="380" y2="140" opacity="0.5"/>
+                            <line x1="50" y1="100" x2="380" y2="100" opacity="0.5"/>
+                            <line x1="50" y1="60" x2="380" y2="60" opacity="0.5"/>
+                        </g>
+                        
+                        <!-- Bar Chart -->
+                        <g fill="#2E86AB">
+                            <rect x="60" y="140" width="30" height="40"/>
+                            <rect x="110" y="120" width="30" height="60"/>
+                            <rect x="160" y="100" width="30" height="80"/>
+                            <rect x="210" y="80" width="30" height="100"/>
+                            <rect x="260" y="60" width="30" height="120"/>
+                            <rect x="310" y="70" width="30" height="110"/>
+                        </g>
+                        
+                        <!-- Labels -->
+                        <g fill="#718096" font-size="12" text-anchor="middle">
+                            <text x="75" y="195">Jan</text>
+                            <text x="125" y="195">Feb</text>
+                            <text x="175" y="195">Mar</text>
+                            <text x="225" y="195">Apr</text>
+                            <text x="275" y="195">May</text>
+                            <text x="325" y="195">Jun</text>
+                        </g>
+                        
+                        <!-- Y-axis Labels -->
+                        <g fill="#718096" font-size="10" text-anchor="end">
+                            <text x="45" y="185">?0</text>
+                            <text x="45" y="145">?25K</text>
+                            <text x="45" y="105">?50K</text>
+                            <text x="45" y="65">?75K</text>
+                            <text x="45" y="25">?100K</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = 'http://localhost:4000/api';
+
+        const elements = {
+            // Stats cards
+            activeOrdersValue: document.getElementById('activeOrdersValue'),
+            registeredCustomersValue: document.getElementById('registeredCustomersValue'),
+            avgOrderValue: document.getElementById('avgOrderValue'),
+            totalRevenue: document.getElementById('totalRevenue'),
+            // Recent orders table
+            recentOrdersTableBody: document.querySelector('#recentOrdersTable tbody'),
+        };
+
+        function formatNumber(value) {
+            if (value === null || value === undefined) return '0';
+            return new Intl.NumberFormat().format(Number(value));
+        }
+
+        function formatCurrency(value) {
+            if (value === null || value === undefined) return '$0';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(Number(value));
+        }
+
+        function getStatusBadge(status) {
+            switch (status?.toLowerCase()) {
+                case 'pending':
+                    return { label: 'Pending', classes: 'bg-warning-100 text-warning-600' };
+                case 'confirmed':
+                    return { label: 'Confirmed', classes: 'bg-primary-100 text-primary-600' };
+                case 'preparing':
+                    return { label: 'Preparing', classes: 'bg-warning-100 text-warning-600' };
+                case 'ready':
+                    return { label: 'Ready', classes: 'bg-success-100 text-success-600' };
+                case 'picked_up':
+                    return { label: 'Picked Up', classes: 'bg-primary-100 text-primary-600' };
+                case 'delivered':
+                    return { label: 'Delivered', classes: 'bg-success-100 text-success-600' };
+                case 'cancelled':
+                    return { label: 'Cancelled', classes: 'bg-error-100 text-error-600' };
+                default:
+                    return { label: 'Unknown', classes: 'bg-gray-200 text-text-secondary' };
+            }
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function fetchOverviewStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/overview`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load overview stats (${response.status})`);
+                }
+
+                const data = await response.json();
+                const stats = data.data || {};
+
+                // Update stats cards
+                if (elements.activeOrdersValue) {
+                    const activeOrders = (stats.orders?.pending_orders || 0) +
+                                       (stats.orders?.confirmed_orders || 0) +
+                                       (stats.orders?.preparing_orders || 0) +
+                                       (stats.orders?.ready_orders || 0);
+                    elements.activeOrdersValue.textContent = formatNumber(activeOrders);
+                }
+
+                if (elements.totalRevenue) {
+                    elements.totalRevenue.textContent = formatCurrency(stats.revenue?.total_revenue || 0);
+                }
+
+                // Calculate average order value
+                if (elements.avgOrderValue && stats.revenue?.total_revenue && stats.orders) {
+                    const totalOrders = (stats.orders?.pending_orders || 0) +
+                                      (stats.orders?.completed_orders || 0) +
+                                      (stats.orders?.cancelled_orders || 0);
+                    const avgValue = totalOrders > 0 ? (stats.revenue.total_revenue / totalOrders) : 0;
+                    elements.avgOrderValue.textContent = formatCurrency(avgValue);
+                }
+
+                // Update recent orders table
+                if (elements.recentOrdersTableBody && stats.recentOrders) {
+                    elements.recentOrdersTableBody.innerHTML = '';
+
+                    stats.recentOrders.slice(0, 5).forEach(order => {
+                        const statusBadge = getStatusBadge(order.status);
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-gray-50 transition-smooth';
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">#${order.id?.slice(-6) || 'N/A'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium text-text-primary">${order.restaurantName || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-text-primary">${order.customerName || 'Unknown'}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusBadge.classes}">${statusBadge.label}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary font-medium">${formatCurrency(order.totalAmount)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">${formatTime(order.createdAt)}</td>
+                        `;
+                        elements.recentOrdersTableBody.appendChild(row);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading overview stats:', error);
+                // Keep default values or show error
+            }
+        }
+
+        async function fetchUserStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users/stats`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load user stats (${response.status})`);
+                }
+
+                const data = await response.json();
+                const stats = data.data || {};
+
+                // Update registered customers
+                if (elements.registeredCustomersValue) {
+                    elements.registeredCustomersValue.textContent = formatNumber(stats.totals?.customers || 0);
+                }
+
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+            }
+        }
+
+
+        // Initial data load
+        fetchOverviewStats();
+        fetchUserStats();
+
+        // Refresh data every 30 seconds
+        setInterval(() => {
+            fetchOverviewStats();
+            fetchUserStats();
+        }, 30000);
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

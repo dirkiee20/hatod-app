@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-primary font-medium border-b-2 border-primary pb-1">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="admin_delivery_fees.html" class="text-text-secondary hover:text-primary transition-smooth">Delivery Fees</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="profileDropdownBtn" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg border border-border hidden z-50">
+                            <div class="py-1">
+                                <a href="admin_settings.html" class="flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-gray-50 transition-smooth">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    Settings
+                                </a>
+                                <button id="logoutDropdownBtn" class="flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-gray-50 transition-smooth">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-primary mb-2">Restaurant Management</h2>
+                    <p class="text-text-secondary">Manage all restaurants on the platform</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text"
+                           placeholder="Search restaurants..."
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="flex gap-2">
+                    <select class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Status</option>
+                        <option>Approved</option>
+                        <option>Pending</option>
+                        <option>Rejected</option>
+                    </select>
+                    <select class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Categories</option>
+                        <option>Italian</option>
+                        <option>Chinese</option>
+                        <option>Mexican</option>
+                        <option>American</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Cards Grid -->
+        <div id="restaurantsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Restaurants will be loaded here dynamically -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="restaurantsLoading" class="flex items-center justify-center py-12">
+            <div class="flex items-center space-x-3 text-text-secondary">
+                <svg class="w-6 h-6 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                <span class="text-sm font-medium">Loading restaurants...</span>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="restaurantsEmpty" class="text-center py-12 hidden">
+            <div class="text-text-secondary">
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <p class="text-lg font-medium mb-2">No restaurants available</p>
+                <p class="text-sm">There are no restaurants registered on the platform yet.</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="restaurantsError" class="text-center py-12 hidden">
+            <div class="rounded-lg border border-error bg-error-50 text-error px-6 py-4 max-w-md mx-auto">
+                <svg class="w-8 h-8 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="font-medium mb-1">Failed to load restaurants</p>
+                <p class="text-sm" id="restaurantsErrorMessage">Please try again later.</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">Previous</button>
+                <button class="px-3 py-2 bg-primary text-white border border-primary rounded-lg">1</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">2</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">3</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">Next</button>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+            <a href="admin_delivery_fees.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Fees</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = 'http://localhost:4000/api';
+
+        const elements = {
+            searchInput: document.querySelector('input[placeholder="Search restaurants..."]'),
+            statusFilter: document.querySelector('select:nth-of-type(1)'),
+            categoryFilter: document.querySelector('select:nth-of-type(2)'),
+            restaurantsGrid: document.getElementById('restaurantsGrid'),
+            loadingState: document.getElementById('restaurantsLoading'),
+            emptyState: document.getElementById('restaurantsEmpty'),
+            errorState: document.getElementById('restaurantsError'),
+            errorMessage: document.getElementById('restaurantsErrorMessage')
+        };
+
+        const state = {
+            search: '',
+            status: 'all',
+            category: 'all'
+        };
+
+        function showLoading() {
+            elements.loadingState.classList.remove('hidden');
+            elements.emptyState.classList.add('hidden');
+            elements.errorState.classList.add('hidden');
+        }
+
+        function hideLoading() {
+            elements.loadingState.classList.add('hidden');
+        }
+
+        function showError(message) {
+            elements.errorState.classList.remove('hidden');
+            elements.errorMessage.textContent = message;
+            elements.emptyState.classList.add('hidden');
+        }
+
+        function showEmpty() {
+            elements.emptyState.classList.remove('hidden');
+            elements.errorState.classList.add('hidden');
+        }
+
+        function hideStates() {
+            elements.emptyState.classList.add('hidden');
+            elements.errorState.classList.add('hidden');
+        }
+
+        function getStatusBadge(restaurant) {
+            if (restaurant.isOpen) {
+                return { label: 'Active', classes: 'bg-success-100 text-success-600' };
+            } else {
+                return { label: 'Inactive', classes: 'bg-gray-200 text-text-secondary' };
+            }
+        }
+
+        function formatNumber(value) {
+            if (value === null || value === undefined) return '0';
+            return new Intl.NumberFormat().format(Number(value));
+        }
+
+        function renderRestaurantCard(restaurant) {
+            const statusBadge = getStatusBadge(restaurant);
+            const ownerName = restaurant.ownerName || 'Unknown';
+            const ownerEmail = restaurant.ownerEmail || 'N/A';
+            const ordersToday = formatNumber(restaurant.ordersToday || 0);
+            const rating = restaurant.rating ? `${restaurant.rating} ⭐` : 'N/A';
+
+            const card = document.createElement('div');
+            card.className = 'bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth';
+
+            card.innerHTML = `
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="${restaurant.imageUrl || 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}"
+                                  alt="${restaurant.name}"
+                                  class="w-12 h-12 rounded-lg object-cover"
+                                  onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h3 class="font-semibold text-text-primary">${restaurant.name || 'Unknown Restaurant'}</h3>
+                                <p class="text-sm text-text-secondary">${restaurant.cuisineType || 'Unknown'} • ${restaurant.category || 'Restaurant'}</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusBadge.classes}">${statusBadge.label}</span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Owner:</span>
+                            <span class="text-text-primary">${ownerName}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Email:</span>
+                            <span class="text-text-primary">${ownerEmail}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Orders Today:</span>
+                            <span class="text-text-primary font-medium">${ordersToday}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Rating:</span>
+                            <span class="text-text-primary font-medium">${rating}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-primary text-white px-3 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover text-sm" onclick="viewRestaurantDetails('${restaurant.id}')">
+                            View Details
+                        </button>
+                        ${restaurant.isOpen ? `
+                            <!-- Restaurant is Active - Show Deactivate button only -->
+                            <button class="bg-error text-white p-2 rounded-lg hover:bg-error-600 transition-smooth btn-hover flex items-center justify-center" onclick="rejectRestaurant('${restaurant.id}')" title="Deactivate Restaurant">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        ` : `
+                            <!-- Restaurant is Inactive - Show Activate button only -->
+                            <button class="bg-success text-white p-2 rounded-lg hover:bg-success-600 transition-smooth btn-hover flex items-center justify-center" onclick="approveRestaurant('${restaurant.id}')" title="Activate Restaurant">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        async function fetchRestaurants() {
+            showLoading();
+
+            try {
+                const params = new URLSearchParams();
+                if (state.search) params.append('search', state.search);
+                if (state.status !== 'all') params.append('approvalStatus', state.status.toLowerCase());
+                if (state.category !== 'all') params.append('category', state.category);
+
+                const headers = {
+                    'Accept': 'application/json'
+                };
+
+                const authToken = localStorage.getItem('authToken');
+                if (authToken) {
+                    headers.Authorization = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/restaurants?${params.toString()}`, {
+                    headers
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load restaurants (${response.status})`);
+                }
+
+                const data = await response.json();
+                const restaurants = data.data || data.restaurants || [];
+
+                hideLoading();
+                hideStates();
+
+                elements.restaurantsGrid.innerHTML = '';
+
+                if (restaurants.length === 0) {
+                    showEmpty();
+                    return;
+                }
+
+                restaurants.forEach(restaurant => {
+                    const card = renderRestaurantCard(restaurant);
+                    elements.restaurantsGrid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error loading restaurants:', error);
+                hideLoading();
+                showError('Failed to load restaurants. Please try again later.');
+            }
+        }
+
+        // Event listeners
+        if (elements.searchInput) {
+            let searchTimeout;
+            elements.searchInput.addEventListener('input', (e) => {
+                state.search = e.target.value.trim();
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(fetchRestaurants, 300);
+            });
+        }
+
+        if (elements.statusFilter) {
+            elements.statusFilter.addEventListener('change', (e) => {
+                state.status = e.target.value;
+                fetchRestaurants();
+            });
+        }
+
+        if (elements.categoryFilter) {
+            elements.categoryFilter.addEventListener('change', (e) => {
+                state.category = e.target.value;
+                fetchRestaurants();
+            });
+        }
+
+        // Global functions for button clicks
+        async function approveRestaurant(restaurantId) {
+            if (!confirm('Are you sure you want to approve this restaurant?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to approve restaurant');
+                }
+
+                alert('Restaurant approved successfully!');
+                fetchRestaurants(); // Refresh the list
+            } catch (error) {
+                console.error('Error approving restaurant:', error);
+                alert('Failed to approve restaurant');
+            }
+        }
+
+        async function rejectRestaurant(restaurantId) {
+            if (!confirm('Are you sure you want to reject this restaurant?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to reject restaurant');
+                }
+
+                alert('Restaurant rejected successfully!');
+                fetchRestaurants(); // Refresh the list
+            } catch (error) {
+                console.error('Error rejecting restaurant:', error);
+                alert('Failed to reject restaurant');
+            }
+        }
+
+        window.viewRestaurantDetails = (restaurantId) => {
+            window.location.href = `admin_restaurant_details.html?id=${restaurantId}`;
+        };
+
+        window.editRestaurant = (restaurantId) => {
+            // TODO: Implement edit functionality
+            console.log('Edit restaurant:', restaurantId);
+        };
+
+        window.approveRestaurant = approveRestaurant;
+        window.rejectRestaurant = rejectRestaurant;
+
+        // Profile dropdown
+        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+
+        if (profileDropdownBtn && profileDropdown) {
+            profileDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!profileDropdownBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        if (logoutDropdownBtn) {
+            logoutDropdownBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = '../login.html';
+                }
+            });
+        }
+
+        // Initial load
+        fetchRestaurants();
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

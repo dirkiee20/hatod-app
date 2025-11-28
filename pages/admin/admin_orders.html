@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-text-secondary hover:text-primary transition-smooth">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-primary font-medium border-b-2 border-primary pb-1">Orders</a>
+                    <a href="admin_delivery_fees.html" class="text-text-secondary hover:text-primary transition-smooth">Delivery Fees</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-primary mb-2">Order Management</h2>
+                    <p class="text-text-secondary">Monitor and manage all orders across the platform</p>
+                </div>
+                <div class="mt-4 sm:mt-0 flex gap-2">
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Export Orders
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Total Orders Today</p>
+                        <p id="totalOrdersTodayValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="totalOrdersTodayDelta" class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-primary-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Pending Orders</p>
+                        <p id="pendingOrdersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-2 h-2 bg-warning rounded-full mr-2"></div>
+                            <span class="text-warning text-sm font-medium">Requires Attention</span>
+                        </div>
+                    </div>
+                    <div class="bg-warning-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Avg Order Value</p>
+                        <p id="avgOrderValue" class="text-2xl font-bold text-text-primary mt-1">$--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="avgOrderValueDelta" class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-secondary-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Disputed Orders</p>
+                        <p id="disputedOrdersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-2 h-2 bg-error rounded-full mr-2"></div>
+                            <span class="text-error text-sm font-medium">Action Required</span>
+                        </div>
+                    </div>
+                    <div class="bg-error-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text"
+                           placeholder="Search orders by ID, customer, or restaurant..."
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="flex gap-2">
+                    <select id="statusFilter" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="picked_up">Picked Up</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <select id="restaurantFilter" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="all">All Restaurants</option>
+                    </select>
+                    <input type="date" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Restaurant</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody" class="bg-surface divide-y divide-border"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-border">
+                <div class="flex items-center justify-between">
+                    <div id="ordersPaginationInfo" class="text-sm text-text-secondary">
+                        Showing -- orders
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth">Previous</button>
+                        <button class="px-3 py-1 bg-primary text-white border border-primary rounded text-sm">1</button>
+                        <button class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth">2</button>
+                        <button class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth">3</button>
+                        <button class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rider Deliveries Section -->
+        <section class="mt-12">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-6 border-b border-border">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-text-primary">Rider Deliveries</h3>
+                            <p class="text-text-secondary text-sm mt-1">Monitor active deliveries by riders</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                            <select class="border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option>All Riders</option>
+                                <option>John Rider</option>
+                                <option>Sarah Delivery</option>
+                                <option>Mike Express</option>
+                            </select>
+                            <button class="flex items-center space-x-2 text-primary hover:text-primary-600 transition-smooth">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <span class="text-sm">Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rider Deliveries Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Rider</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Restaurant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Pickup Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="riderDeliveriesTableBody" class="bg-surface divide-y divide-border"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Orders</span>
+            </a>
+            <a href="admin_delivery_fees.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Fees</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        const API_BASE_URL = 'http://localhost:4000/api';
+        const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
+        function resolveImageUrl(url) {
+            if (!url || url.trim() === '') {
+                return PLACEHOLDER_IMAGE;
+            }
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+            const path = url.startsWith('/') ? url : `/${url}`;
+            return `${API_ORIGIN}${path}`;
+        }
+
+        let currentPage = 1;
+        let currentFilters = {
+            status: 'all',
+            restaurantId: 'all',
+            search: '',
+            date: ''
+        };
+        let restaurants = [];
+        let allOrders = [];
+
+        function getStatusClass(status) {
+            const statusClasses = {
+                'pending': 'bg-warning-50 text-warning border-warning',
+                'confirmed': 'bg-blue-50 text-blue-600 border-blue-200',
+                'preparing': 'bg-purple-50 text-purple-600 border-purple-200',
+                'ready': 'bg-indigo-50 text-indigo-600 border-indigo-200',
+                'picked_up': 'bg-cyan-50 text-cyan-600 border-cyan-200',
+                'delivered': 'bg-success-50 text-success border-success',
+                'cancelled': 'bg-error-50 text-error border-error'
+            };
+            return statusClasses[status] || 'bg-gray-50 text-gray-600 border-gray-200';
+        }
+
+        function formatStatus(status) {
+            return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        async function fetchRestaurants() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/restaurants?pageSize=1000`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch restaurants');
+                }
+
+                const result = await response.json();
+                restaurants = result.data || [];
+                
+                // Populate restaurant filter dropdown
+                const restaurantSelect = document.getElementById('restaurantFilter');
+                if (restaurantSelect) {
+                    restaurantSelect.innerHTML = '<option value="all">All Restaurants</option>';
+                    restaurants.forEach(restaurant => {
+                        const option = document.createElement('option');
+                        option.value = restaurant.id;
+                        option.textContent = restaurant.name;
+                        restaurantSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching restaurants:', error);
+            }
+        }
+
+        async function fetchOrders() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                const params = new URLSearchParams({
+                    page: currentPage.toString(),
+                    pageSize: '20'
+                });
+
+                if (currentFilters.status !== 'all') {
+                    params.append('status', currentFilters.status);
+                }
+
+                if (currentFilters.restaurantId !== 'all') {
+                    params.append('restaurantId', currentFilters.restaurantId);
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/orders?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+
+                const result = await response.json();
+                allOrders = result.data || [];
+                
+                renderOrders();
+                updatePagination(result.meta);
+                updateStats();
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                alert('Failed to load orders. Please try again.');
+            }
+        }
+
+        async function fetchAllOrdersForStats() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return [];
+
+                const response = await fetch(`${API_BASE_URL}/admin/orders?pageSize=10000`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    return [];
+                }
+
+                const result = await response.json();
+                return result.data || [];
+            } catch (error) {
+                console.error('Error fetching all orders for stats:', error);
+                return [];
+            }
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            if (!tbody) return;
+
+            // Apply search filter
+            let filteredOrders = allOrders;
+            if (currentFilters.search) {
+                const searchLower = currentFilters.search.toLowerCase();
+                filteredOrders = allOrders.filter(order => 
+                    order.id.toLowerCase().includes(searchLower) ||
+                    (order.customerName && order.customerName.toLowerCase().includes(searchLower)) ||
+                    (order.restaurantName && order.restaurantName.toLowerCase().includes(searchLower))
+                );
+            }
+
+            // Apply date filter
+            if (currentFilters.date) {
+                const filterDate = new Date(currentFilters.date);
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate.toDateString() === filterDate.toDateString();
+                });
+            }
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-text-secondary">
+                            No orders found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredOrders.map(order => {
+                const orderDate = new Date(order.createdAt);
+                const restaurantLogo = resolveImageUrl(order.restaurantLogo);
+                
+                return `
+                    <tr class="hover:bg-gray-50 transition-smooth">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-text-primary">#${order.id.slice(-8).toUpperCase()}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-text-primary">${order.customerName || 'N/A'}</div>
+                            <div class="text-xs text-text-secondary">${order.customerEmail || ''}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <img src="${restaurantLogo}" 
+                                     alt="${order.restaurantName || 'Restaurant'}" 
+                                     class="w-8 h-8 rounded-full object-cover mr-2"
+                                     onerror="this.src='${PLACEHOLDER_IMAGE}'; this.onerror=null;">
+                                <div class="text-sm text-text-primary">${order.restaurantName || 'N/A'}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusClass(order.status)}">
+                                ${formatStatus(order.status)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-text-primary">₱${order.totalAmount.toFixed(2)}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-text-primary">${orderDate.toLocaleDateString()}</div>
+                            <div class="text-xs text-text-secondary">${orderDate.toLocaleTimeString()}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button onclick="viewOrderDetails('${order.id}')" 
+                                    class="text-primary hover:text-primary-600 transition-smooth">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePagination(meta) {
+            const paginationInfo = document.getElementById('ordersPaginationInfo');
+            if (paginationInfo) {
+                const start = ((meta.page - 1) * meta.pageSize) + 1;
+                const end = Math.min(meta.page * meta.pageSize, meta.total);
+                paginationInfo.textContent = `Showing ${start}-${end} of ${meta.total} orders`;
+            }
+
+            // Update pagination buttons (simplified - you can enhance this)
+            const paginationContainer = paginationInfo?.parentElement?.querySelector('.flex.items-center.space-x-2');
+            if (paginationContainer && meta.totalPages > 1) {
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <button onclick="changePage(${meta.page - 1})" 
+                            ${meta.page === 1 ? 'disabled class="px-3 py-1 border border-border rounded text-sm text-text-secondary opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth"'}
+                            ${meta.page === 1 ? 'disabled' : ''}>
+                        Previous
+                    </button>
+                `;
+
+                // Page numbers
+                for (let i = 1; i <= Math.min(meta.totalPages, 5); i++) {
+                    paginationHTML += `
+                        <button onclick="changePage(${i})" 
+                                class="px-3 py-1 ${i === meta.page ? 'bg-primary text-white border border-primary' : 'border border-border text-text-secondary hover:bg-gray-50'} rounded text-sm transition-smooth">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                // Next button
+                paginationHTML += `
+                    <button onclick="changePage(${meta.page + 1})" 
+                            ${meta.page === meta.totalPages ? 'disabled class="px-3 py-1 border border-border rounded text-sm text-text-secondary opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 border border-border rounded text-sm text-text-secondary hover:bg-gray-50 transition-smooth"'}
+                            ${meta.page === meta.totalPages ? 'disabled' : ''}>
+                        Next
+                    </button>
+                `;
+
+                paginationContainer.innerHTML = paginationHTML;
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                // Fetch overview stats
+                const overviewResponse = await fetch(`${API_BASE_URL}/admin/overview`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!overviewResponse.ok) {
+                    // Fallback to calculating from all orders
+                    await updateStatsFromOrders();
+                    return;
+                }
+
+                const overviewResult = await overviewResponse.json();
+                const stats = overviewResult.data;
+
+                // Fetch today's orders count
+                const todayResponse = await fetch(`${API_BASE_URL}/admin/orders?pageSize=10000`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                let todayOrdersCount = 0;
+                if (todayResponse.ok) {
+                    const todayResult = await todayResponse.json();
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const todayOrders = (todayResult.data || []).filter(order => {
+                        const orderDate = new Date(order.createdAt);
+                        orderDate.setHours(0, 0, 0, 0);
+                        return orderDate.getTime() === today.getTime();
+                    });
+                    todayOrdersCount = todayOrders.length;
+                }
+
+                // Calculate average order value from revenue data
+                const totalRevenue = stats.revenue?.total_revenue || 0;
+                const completedOrdersCount = stats.orders?.completed_orders || 0;
+                const avgOrderValue = completedOrdersCount > 0 
+                    ? totalRevenue / completedOrdersCount 
+                    : 0;
+
+                // Update UI
+                const totalOrdersTodayValue = document.getElementById('totalOrdersTodayValue');
+                if (totalOrdersTodayValue) {
+                    totalOrdersTodayValue.textContent = todayOrdersCount;
+                }
+
+                const pendingOrdersValue = document.getElementById('pendingOrdersValue');
+                if (pendingOrdersValue) {
+                    pendingOrdersValue.textContent = stats.orders?.pending_orders || 0;
+                }
+
+                const avgOrderValueEl = document.getElementById('avgOrderValue');
+                if (avgOrderValueEl) {
+                    avgOrderValueEl.textContent = `₱${avgOrderValue.toFixed(2)}`;
+                }
+
+                const disputedOrdersValue = document.getElementById('disputedOrdersValue');
+                if (disputedOrdersValue) {
+                    disputedOrdersValue.textContent = stats.orders?.cancelled_orders || 0;
+                }
+            } catch (error) {
+                console.error('Error updating stats:', error);
+                await updateStatsFromOrders();
+            }
+        }
+
+        async function updateStatsFromOrders() {
+            try {
+                const allOrdersForStats = await fetchAllOrdersForStats();
+                
+                // Calculate today's orders
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayOrders = allOrdersForStats.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    orderDate.setHours(0, 0, 0, 0);
+                    return orderDate.getTime() === today.getTime();
+                });
+
+                // Calculate pending orders
+                const pendingOrders = allOrdersForStats.filter(order => 
+                    ['pending', 'confirmed', 'preparing', 'ready'].includes(order.status)
+                );
+
+                // Calculate average order value
+                const completedOrders = allOrdersForStats.filter(order => 
+                    order.status === 'delivered'
+                );
+                const avgOrderValue = completedOrders.length > 0
+                    ? completedOrders.reduce((sum, order) => sum + order.totalAmount, 0) / completedOrders.length
+                    : 0;
+
+                // Calculate disputed orders
+                const disputedOrders = allOrdersForStats.filter(order => 
+                    order.status === 'cancelled'
+                );
+
+                // Update UI
+                const totalOrdersTodayValue = document.getElementById('totalOrdersTodayValue');
+                if (totalOrdersTodayValue) {
+                    totalOrdersTodayValue.textContent = todayOrders.length;
+                }
+
+                const pendingOrdersValue = document.getElementById('pendingOrdersValue');
+                if (pendingOrdersValue) {
+                    pendingOrdersValue.textContent = pendingOrders.length;
+                }
+
+                const avgOrderValueEl = document.getElementById('avgOrderValue');
+                if (avgOrderValueEl) {
+                    avgOrderValueEl.textContent = `₱${avgOrderValue.toFixed(2)}`;
+                }
+
+                const disputedOrdersValue = document.getElementById('disputedOrdersValue');
+                if (disputedOrdersValue) {
+                    disputedOrdersValue.textContent = disputedOrders.length;
+                }
+            } catch (error) {
+                console.error('Error updating stats from orders:', error);
+            }
+        }
+
+        function changePage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            fetchOrders();
+        }
+
+        function viewOrderDetails(orderId) {
+            window.location.href = `admin_order_details.html?id=${orderId}`;
+        }
+
+        // Make viewOrderDetails available globally
+        window.viewOrderDetails = viewOrderDetails;
+
+        // Filter handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchRestaurants();
+            fetchOrders();
+
+            // Status filter
+            const statusSelect = document.getElementById('statusFilter');
+            if (statusSelect) {
+                statusSelect.addEventListener('change', function(e) {
+                    currentFilters.status = e.target.value;
+                    currentPage = 1;
+                    fetchOrders();
+                });
+            }
+
+            // Restaurant filter
+            const restaurantSelect = document.getElementById('restaurantFilter');
+            if (restaurantSelect) {
+                restaurantSelect.addEventListener('change', function(e) {
+                    currentFilters.restaurantId = e.target.value;
+                    currentPage = 1;
+                    fetchOrders();
+                });
+            }
+
+            // Date filter
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.addEventListener('change', function(e) {
+                    currentFilters.date = e.target.value;
+                    renderOrders(); // Re-render with date filter
+                });
+            }
+
+            // Search filter
+            const searchInput = document.querySelector('input[type="text"][placeholder*="Search orders"]');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function(e) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        currentFilters.search = e.target.value;
+                        renderOrders(); // Re-render with search filter
+                    }, 300);
+                });
+            }
+        });
+    </script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
