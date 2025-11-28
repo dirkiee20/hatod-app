@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Fees Management - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="admin_dashboard.html" class="flex items-center">
+                        <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                        <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-text-secondary hover:text-primary transition-smooth">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="admin_delivery_fees.html" class="text-primary font-medium border-b-2 border-primary pb-1">Delivery Fees</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <span id="adminName" class="text-sm font-medium text-text-primary hidden sm:block">Admin</span>
+                    <button onclick="logout()" class="text-text-secondary hover:text-primary transition-smooth text-sm">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Delivery Fees Management</h2>
+            <p class="text-text-secondary">Manage delivery fees by barangay and order amount tiers</p>
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-primary mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div class="text-sm text-text-secondary">
+                    <p class="font-medium text-text-primary mb-1">Delivery Fee Tiers</p>
+                    <p>Delivery fees are calculated based on the customer's barangay and their order total amount. Each barangay has 3 tiers: ₱500 & below, ₱501-₱1,000, and ₱1,001-₱1,500.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barangay Selection -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <label for="barangayFilter" class="block text-sm font-medium text-text-primary mb-2">Filter by Barangay</label>
+            <select id="barangayFilter" class="w-full md:w-64 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="">All Barangays</option>
+                <option value="Barangay Tayaga">Barangay Tayaga</option>
+                <option value="Barangay Bagacay">Barangay Bagacay</option>
+                <option value="Barangay Ladgaron">Barangay Ladgaron</option>
+                <option value="Barangay Magallanes">Barangay Magallanes</option>
+                <option value="Barangay Daywan">Barangay Daywan</option>
+                <option value="Barangay Sabang">Barangay Sabang</option>
+                <option value="Barangay Panatao">Barangay Panatao</option>
+                <option value="Barangay Wangke">Barangay Wangke</option>
+                <option value="Barangay Cabugo">Barangay Cabugo</option>
+                <option value="Barangay Urbitundo">Barangay Urbitundo</option>
+                <option value="Barangay Taganito">Barangay Taganito</option>
+                <option value="Barangay Hayanggabon">Barangay Hayanggabon</option>
+                <option value="Barangay Cagdianao">Barangay Cagdianao</option>
+                <option value="PGMC">PGMC</option>
+            </select>
+        </div>
+
+        <!-- Delivery Fees List -->
+        <div id="deliveryFeesContainer" class="space-y-6">
+            <!-- Delivery fees will be loaded here -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <svg class="animate-spin h-8 w-8 text-primary mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-text-secondary">Loading delivery fees...</p>
+        </div>
+    </main>
+
+    <!-- Edit Tier Modal -->
+    <div id="editTierModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-text-primary">Edit Delivery Fee Tier</h3>
+                    <button onclick="closeEditModal()" class="text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="editTierForm" class="space-y-4">
+                    <input type="hidden" id="editTierId">
+                    <input type="hidden" id="editBarangay">
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Barangay</label>
+                        <input type="text" id="editTierBarangay" readonly
+                               class="w-full px-3 py-2 border border-border rounded-lg bg-gray-50 text-text-secondary">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Min Order Amount (₱)</label>
+                            <input type="number" id="editMinOrderAmount" step="0.01" min="0" required
+                                   class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Max Order Amount (₱)</label>
+                            <input type="number" id="editMaxOrderAmount" step="0.01" min="0" required
+                                   class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Delivery Fee (₱)</label>
+                        <input type="number" id="editDeliveryFee" step="0.01" min="0" required
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="editIsActive" class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                        <label for="editIsActive" class="ml-2 block text-sm text-text-primary">
+                            Active
+                        </label>
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" onclick="closeEditModal()"
+                                class="flex-1 bg-gray-100 text-text-secondary py-2 px-4 rounded-lg hover:bg-gray-200 transition-smooth">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-600 transition-smooth">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:4000/api';
+
+        function getAuthToken() {
+            return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        }
+
+        async function apiCall(endpoint, options = {}) {
+            const token = getAuthToken();
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` })
+                }
+            };
+
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ message: 'Request failed' }));
+                throw new Error(error.message || `API call failed: ${response.status}`);
+            }
+
+            return response.json();
+        }
+
+        async function loadDeliveryFees() {
+            const container = document.getElementById('deliveryFeesContainer');
+            const loadingState = document.getElementById('loadingState');
+            const barangayFilter = document.getElementById('barangayFilter').value;
+
+            try {
+                loadingState.classList.remove('hidden');
+                container.innerHTML = '';
+
+                const data = await apiCall('/delivery-fees/tiers');
+                const tiersByBarangay = data.data || {};
+
+                // Filter by barangay if selected
+                const filteredBarangays = barangayFilter
+                    ? { [barangayFilter]: tiersByBarangay[barangayFilter] || [] }
+                    : tiersByBarangay;
+
+                if (Object.keys(filteredBarangays).length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
+                            <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-text-secondary text-lg font-medium">No delivery fees found</p>
+                            <p class="text-text-secondary text-sm mt-2">Delivery fees will appear here once configured</p>
+                        </div>
+                    `;
+                    loadingState.classList.add('hidden');
+                    return;
+                }
+
+                // Render each barangay's tiers
+                Object.keys(filteredBarangays).sort().forEach(barangay => {
+                    const tiers = filteredBarangays[barangay];
+                    if (!tiers || tiers.length === 0) return;
+
+                    const barangayCard = document.createElement('div');
+                    barangayCard.className = 'bg-surface rounded-lg p-6 shadow-card border border-border';
+                    barangayCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-text-primary">${barangay}</h3>
+                        </div>
+                        <div class="space-y-3">
+                            ${tiers.map(tier => `
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-border">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-1">
+                                            <span class="text-sm font-medium text-text-primary">
+                                                ₱${parseFloat(tier.minOrderAmount).toFixed(2)} - ₱${parseFloat(tier.maxOrderAmount).toFixed(2)}
+                                            </span>
+                                            ${!tier.isActive ? '<span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">Inactive</span>' : ''}
+                                        </div>
+                                        <p class="text-lg font-bold text-primary">₱${parseFloat(tier.deliveryFee).toFixed(2)}</p>
+                                    </div>
+                                    <button onclick="openEditModal('${tier.id}', '${barangay}', ${tier.minOrderAmount}, ${tier.maxOrderAmount}, ${tier.deliveryFee}, ${tier.isActive})"
+                                            class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth text-sm">
+                                        Edit
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(barangayCard);
+                });
+
+                loadingState.classList.add('hidden');
+            } catch (error) {
+                console.error('Error loading delivery fees:', error);
+                loadingState.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="bg-error-50 border border-error-200 rounded-lg p-4">
+                        <p class="text-error">Failed to load delivery fees: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function openEditModal(tierId, barangay, minOrderAmount, maxOrderAmount, deliveryFee, isActive) {
+            document.getElementById('editTierId').value = tierId;
+            document.getElementById('editBarangay').value = barangay;
+            document.getElementById('editTierBarangay').value = barangay;
+            document.getElementById('editMinOrderAmount').value = minOrderAmount;
+            document.getElementById('editMaxOrderAmount').value = maxOrderAmount;
+            document.getElementById('editDeliveryFee').value = deliveryFee;
+            document.getElementById('editIsActive').checked = isActive;
+            document.getElementById('editTierModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editTierModal').classList.add('hidden');
+            document.getElementById('editTierForm').reset();
+        }
+
+        function logout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '../login.html';
+        }
+
+        // Form submission
+        document.getElementById('editTierForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const barangay = document.getElementById('editBarangay').value;
+            const minOrderAmount = parseFloat(document.getElementById('editMinOrderAmount').value);
+            const maxOrderAmount = parseFloat(document.getElementById('editMaxOrderAmount').value);
+            const deliveryFee = parseFloat(document.getElementById('editDeliveryFee').value);
+            const isActive = document.getElementById('editIsActive').checked;
+
+            if (minOrderAmount >= maxOrderAmount) {
+                alert('Min order amount must be less than max order amount');
+                return;
+            }
+
+            try {
+                await apiCall('/delivery-fees/tiers', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        barangay,
+                        minOrderAmount,
+                        maxOrderAmount,
+                        deliveryFee,
+                        isActive
+                    })
+                });
+
+                alert('Delivery fee tier updated successfully!');
+                closeEditModal();
+                loadDeliveryFees();
+            } catch (error) {
+                alert('Failed to update delivery fee tier: ' + error.message);
+            }
+        });
+
+        // Filter change
+        document.getElementById('barangayFilter').addEventListener('change', loadDeliveryFees);
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDeliveryFees();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('editTierModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    </script>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+            <a href="admin_delivery_fees.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Fees</span>
+            </a>
+        </div>
+    </nav>
+
+    <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
+

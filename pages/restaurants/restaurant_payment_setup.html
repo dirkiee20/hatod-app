@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Setup - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="restaurant_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="restaurant_menu_management.html" class="text-text-secondary hover:text-primary transition-smooth">Menu</a>
+                    <a href="restaurant_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="restaurant_profile.html" class="text-primary font-medium border-b-2 border-primary pb-1">Account</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <button onclick="goBack()" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    <span>Back to Profile</span>
+                </button>
+            </div>
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Payment Setup</h2>
+            <p class="text-text-secondary">Set up your bank account to receive payments from customer orders</p>
+        </div>
+
+        <!-- Payment Setup Form -->
+        <div class="bg-surface rounded-lg p-6 lg:p-8 shadow-card border border-border">
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-text-primary mb-2">Bank Account Information</h3>
+                <p class="text-text-secondary">This account will receive cumulative daily payments from all your orders processed through the platform.</p>
+            </div>
+
+            <form id="paymentSetupForm" class="space-y-6">
+                <!-- Account Holder Name -->
+                <div>
+                    <label for="accountHolderName" class="block text-sm font-medium text-text-primary mb-2">Account Holder Name *</label>
+                    <input type="text" id="accountHolderName" name="accountHolderName" required
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Enter the name on the bank account">
+                </div>
+
+                <!-- Bank Name -->
+                <div>
+                    <label for="bankName" class="block text-sm font-medium text-text-primary mb-2">Bank Name *</label>
+                    <input type="text" id="bankName" name="bankName" required
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Enter your bank name">
+                </div>
+
+                <!-- Account Number -->
+                <div>
+                    <label for="accountNumber" class="block text-sm font-medium text-text-primary mb-2">Account Number *</label>
+                    <input type="text" id="accountNumber" name="accountNumber" required pattern="[0-9]{8,17}"
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Enter your account number (8-17 digits)">
+                    <p class="text-xs text-text-secondary mt-1">Account number should be 8-17 digits long</p>
+                </div>
+
+                <!-- Routing Number -->
+                <div>
+                    <label for="routingNumber" class="block text-sm font-medium text-text-primary mb-2">Routing Number *</label>
+                    <input type="text" id="routingNumber" name="routingNumber" required pattern="[0-9]{9}"
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                           placeholder="Enter 9-digit routing number">
+                    <p class="text-xs text-text-secondary mt-1">9-digit routing number (ABA routing number)</p>
+                </div>
+
+                <!-- Account Type -->
+                <div>
+                    <label for="accountType" class="block text-sm font-medium text-text-primary mb-2">Account Type *</label>
+                    <select id="accountType" name="accountType" required
+                            class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">Select account type</option>
+                        <option value="checking">Checking Account</option>
+                        <option value="savings">Savings Account</option>
+                        <option value="business_checking">Business Checking</option>
+                        <option value="business_savings">Business Savings</option>
+                    </select>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="flex items-start space-x-3">
+                    <input type="checkbox" id="termsAccepted" name="termsAccepted" required
+                           class="mt-1 h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                    <label for="termsAccepted" class="text-sm text-text-primary">
+                        I agree to the <a href="#" class="text-primary hover:text-primary-600">Payment Terms</a> and
+                        <a href="#" class="text-primary hover:text-primary-600">Privacy Policy</a>.
+                        I authorize HATOD to deposit payments to this account.
+                    </label>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border">
+                    <button type="button" onclick="goBack()"
+                            class="px-6 py-2 text-text-secondary bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                        <span id="submitBtnText">Save Bank Account</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Information Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div class="flex items-start space-x-3">
+                <svg class="w-6 h-6 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h4 class="text-sm font-medium text-blue-900 mb-1">Payment Processing</h4>
+                    <p class="text-sm text-blue-800">
+                        Payments are processed daily. You'll receive cumulative payments from all orders completed the previous day.
+                        Funds typically arrive in your account within 1-3 business days after processing.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center py-2 px-2">
+            <a href="restaurant_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Dashboard</span>
+            </a>
+            <a href="restaurant_menu_management.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Menu</span>
+            </a>
+            <a href="restaurant_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors flex-1 min-w-0">
+                <svg class="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary truncate">Orders</span>
+            </a>
+            <a href="restaurant_profile.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab flex-1 min-w-0">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary truncate">Account</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12 pb-20 lg:pb-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    // API base URL
+    const API_BASE_URL = 'http://localhost:4000/api';
+
+    // Authentication helper functions
+    function getAuthToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    function getUserRole() {
+        return localStorage.getItem('userRole');
+    }
+
+    // API helper functions
+    async function apiRequest(endpoint, options = {}) {
+        const token = getAuthToken();
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            }
+        };
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...defaultOptions,
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...options.headers
+            }
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'Network error' }));
+            throw new Error(error.message || `HTTP ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    // Get restaurant ID for current user
+    async function getRestaurantId() {
+        try {
+            const response = await apiRequest('/restaurants/current');
+            return response.data.id;
+        } catch (error) {
+            console.error('Error getting restaurant ID:', error);
+            return null;
+        }
+    }
+
+    // Back button function
+    function goBack() {
+        window.location.href = 'restaurant_profile.html';
+    }
+
+    // Handle form submission
+    async function handlePaymentSetup(formData) {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) {
+                alert('Unable to determine restaurant. Please try logging in again.');
+                return;
+            }
+
+            const paymentData = {
+                accountHolderName: formData.get('accountHolderName'),
+                bankName: formData.get('bankName'),
+                accountNumber: formData.get('accountNumber'),
+                routingNumber: formData.get('routingNumber'),
+                accountType: formData.get('accountType'),
+                termsAccepted: formData.get('termsAccepted') === 'on'
+            };
+
+            // Here you would typically send this data to your backend
+            // For now, we'll simulate a successful save
+            console.log('Payment setup data:', paymentData);
+
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            alert('Bank account information saved successfully! You will now receive payments from customer orders.');
+            goBack();
+
+        } catch (error) {
+            console.error('Error saving payment information:', error);
+            alert('Failed to save payment information. Please try again.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check authentication
+        if (!getAuthToken() || getUserRole() !== 'restaurant') {
+            window.location.href = '../login.html';
+            return;
+        }
+
+        // Handle form submission
+        const paymentSetupForm = document.getElementById('paymentSetupForm');
+        paymentSetupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtnText');
+            const originalText = submitBtn.textContent;
+
+            // Disable form and show loading
+            submitBtn.textContent = 'Saving...';
+            const formElements = paymentSetupForm.querySelectorAll('input, select, button');
+            formElements.forEach(element => element.disabled = true);
+
+            try {
+                const formData = new FormData(this);
+                await handlePaymentSetup(formData);
+            } catch (error) {
+                console.error('Form submission error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                // Re-enable form
+                submitBtn.textContent = originalText;
+                formElements.forEach(element => element.disabled = false);
+            }
+        });
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

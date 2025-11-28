@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Frestaurant2067back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.9"></script>
+  <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.1"></script>
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-primary font-medium border-b-2 border-primary pb-1">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_13f4e4a2e-1762273617377.png"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-primary mb-2">Restaurant Management</h2>
+                    <p class="text-text-secondary">Manage all restaurants on the platform</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Restaurant
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text"
+                           placeholder="Search restaurants..."
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="flex gap-2">
+                    <select class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Pending</option>
+                        <option>Suspended</option>
+                    </select>
+                    <select class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option>All Categories</option>
+                        <option>Italian</option>
+                        <option>Chinese</option>
+                        <option>Mexican</option>
+                        <option>American</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Restaurant Card 1 -->
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_1ed889588-1762793904564.png"
+                                 alt="Pizza Palace"
+                                 class="w-12 h-12 rounded-lg object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h3 class="font-semibold text-text-primary">Pizza Palace</h3>
+                                <p class="text-sm text-text-secondary">Italian • Pizza</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success-100 text-success-600">Active</span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Owner:</span>
+                            <span class="text-text-primary">Mario Rossi</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Email:</span>
+                            <span class="text-text-primary">mario@pizzapalace.com</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Orders Today:</span>
+                            <span class="text-text-primary font-medium">24</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Rating:</span>
+                            <span class="text-text-primary font-medium">4.8 ⭐</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-primary text-white text-sm py-2 px-3 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            View Details
+                        </button>
+                        <button class="flex-1 bg-text-secondary text-white text-sm py-2 px-3 rounded-lg hover:bg-gray-600 transition-smooth btn-hover">
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 2 -->
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_1c0e4fdaf-1762793904066.png"
+                                 alt="Burger Barn"
+                                 class="w-12 h-12 rounded-lg object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h3 class="font-semibold text-text-primary">Burger Barn</h3>
+                                <p class="text-sm text-text-secondary">American • Burgers</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-success-100 text-success-600">Active</span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Owner:</span>
+                            <span class="text-text-primary">John Smith</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Email:</span>
+                            <span class="text-text-primary">john@burgerbarn.com</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Orders Today:</span>
+                            <span class="text-text-primary font-medium">18</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Rating:</span>
+                            <span class="text-text-primary font-medium">4.6 ⭐</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-primary text-white text-sm py-2 px-3 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            View Details
+                        </button>
+                        <button class="flex-1 bg-text-secondary text-white text-sm py-2 px-3 rounded-lg hover:bg-gray-600 transition-smooth btn-hover">
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 3 -->
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_16a4ec197-1762793904536.png"
+                                 alt="Sushi Spot"
+                                 class="w-12 h-12 rounded-lg object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h3 class="font-semibold text-text-primary">Sushi Spot</h3>
+                                <p class="text-sm text-text-secondary">Japanese • Sushi</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-warning-100 text-warning-600">Pending</span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Owner:</span>
+                            <span class="text-text-primary">Yuki Tanaka</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Email:</span>
+                            <span class="text-text-primary">yuki@sushispot.com</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Orders Today:</span>
+                            <span class="text-text-primary font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Rating:</span>
+                            <span class="text-text-primary font-medium">N/A</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-success text-white text-sm py-2 px-3 rounded-lg hover:bg-success-600 transition-smooth btn-hover">
+                            Approve
+                        </button>
+                        <button class="flex-1 bg-error text-white text-sm py-2 px-3 rounded-lg hover:bg-error-600 transition-smooth btn-hover">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 4 -->
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5"
+                                 alt="Taco Town"
+                                 class="w-12 h-12 rounded-lg object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h3 class="font-semibold text-text-primary">Taco Town</h3>
+                                <p class="text-sm text-text-secondary">Mexican • Tacos</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-error-100 text-error-600">Suspended</span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Owner:</span>
+                            <span class="text-text-primary">Carlos Rodriguez</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Email:</span>
+                            <span class="text-text-primary">carlos@tacotown.com</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Orders Today:</span>
+                            <span class="text-text-primary font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-text-secondary">Rating:</span>
+                            <span class="text-text-primary font-medium">3.2 ⭐</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-success text-white text-sm py-2 px-3 rounded-lg hover:bg-success-600 transition-smooth btn-hover">
+                            Reactivate
+                        </button>
+                        <button class="flex-1 bg-text-secondary text-white text-sm py-2 px-3 rounded-lg hover:bg-gray-600 transition-smooth btn-hover">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">Previous</button>
+                <button class="px-3 py-2 bg-primary text-white border border-primary rounded-lg">1</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">2</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">3</button>
+                <button class="px-3 py-2 border border-border rounded-lg text-text-secondary hover:bg-gray-50 transition-smooth">Next</button>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+    </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-text-secondary hover:text-primary transition-smooth">Restaurants</a>
+                    <a href="admin_users.html" class="text-primary font-medium border-b-2 border-primary pb-1">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_13f4e4a2e-1762273617377.png"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">User Management</h2>
+            <p class="text-text-secondary">Manage all customers, restaurants, and delivery drivers</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="border-b border-border">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="usersListTab" class="tab-button active whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-primary text-primary">
+                        Users List
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="usersListContent" class="tab-content">
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Total Customers</p>
+                        <p id="totalCustomersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="totalCustomersDelta" class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-accent-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Restaurant Owners</p>
+                        <p id="restaurantOwnersValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="restaurantOwnersDelta" class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-primary-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-text-secondary text-sm font-medium">Active This Month</p>
+                        <p id="activeThisMonthValue" class="text-2xl font-bold text-text-primary mt-1">--</p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-success mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="activeThisMonthDelta" class="text-success text-sm font-medium">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-success-50 p-3 rounded-lg">
+                        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1">
+                    <input id="usersSearchInput" type="text"
+                           placeholder="Search users..."
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="flex gap-2">
+                    <select id="userTypeFilter" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="all">All Users</option>
+                        <option value="customer">Customers</option>
+                        <option value="restaurant">Restaurant Owners</option>
+                    </select>
+                    <select id="userStatusFilter" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+            <div class="px-6 py-4 border-b border-border">
+                <h3 class="text-lg font-semibold text-text-primary">All Users</h3>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Joined</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Orders</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="bg-surface divide-y divide-border"></tbody>
+                </table>
+            </div>
+
+            <div id="usersTableLoading" class="px-6 py-8 border-t border-border hidden">
+                <div class="flex items-center justify-center space-x-3 text-text-secondary">
+                    <svg class="w-5 h-5 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Loading users...</span>
+                </div>
+            </div>
+
+            <div id="usersTableEmpty" class="px-6 py-10 border-t border-border text-center hidden">
+                <div class="text-text-secondary text-sm">
+                    No users found for the selected filters.
+                </div>
+            </div>
+
+            <div id="usersTableError" class="px-6 py-6 border-t border-border hidden">
+                <div class="rounded-lg border border-error bg-error-50 text-error px-4 py-3 text-sm">
+                    <span id="usersTableErrorMessage">We couldn't load users right now. Please try again later.</span>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-border">
+                <div class="flex items-center justify-between flex-col sm:flex-row gap-4">
+                    <div id="usersPaginationInfo" class="text-sm text-text-secondary">
+                        Showing -- users
+                    </div>
+                    <div id="usersPaginationControls" class="flex items-center space-x-2"></div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+    // Dynamic navigation bar adjustment for mobile devices
+    function adjustForNavigationBar() {
+        const mobileNav = document.querySelector('nav.lg\\:hidden');
+        if (!mobileNav) return;
+
+        let bottomPadding = 32; // 2rem default
+
+        // iOS safe area
+        const safeAreaBottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)')) || 0;
+        if (safeAreaBottom > 0) {
+            bottomPadding = Math.max(bottomPadding, safeAreaBottom);
+        }
+
+        // Android navigation bar detection
+        if (/Android/.test(navigator.userAgent)) {
+            const windowHeight = window.innerHeight;
+            const screenHeight = screen.height;
+            const navBarHeight = screenHeight - windowHeight;
+
+            if (navBarHeight > 0) {
+                bottomPadding = Math.max(bottomPadding, navBarHeight + 16); // nav bar + 16px buffer
+            }
+        }
+
+        mobileNav.style.paddingBottom = bottomPadding + 'px';
+    }
+
+    // Adjust on load, resize, and orientation change
+    window.addEventListener('load', adjustForNavigationBar);
+    window.addEventListener('resize', adjustForNavigationBar);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(adjustForNavigationBar, 100);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = 'http://localhost:4000/api';
+        const DEFAULT_PAGE_SIZE = 10;
+
+
+        const usersState = {
+            currentPage: 1,
+            pageSize: DEFAULT_PAGE_SIZE,
+            search: '',
+            userType: 'all',
+            status: 'all',
+            total: 0
+        };
+
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const usersListTab = document.getElementById('usersListTab');
+        const usersListContent = document.getElementById('usersListContent');
+
+        const elements = {
+            searchInput: document.getElementById('usersSearchInput'),
+            userTypeFilter: document.getElementById('userTypeFilter'),
+            userStatusFilter: document.getElementById('userStatusFilter'),
+            tableBody: document.getElementById('usersTableBody'),
+            loadingIndicator: document.getElementById('usersTableLoading'),
+            emptyState: document.getElementById('usersTableEmpty'),
+            errorContainer: document.getElementById('usersTableError'),
+            errorMessage: document.getElementById('usersTableErrorMessage'),
+            paginationInfo: document.getElementById('usersPaginationInfo'),
+            paginationControls: document.getElementById('usersPaginationControls'),
+            totalCustomersValue: document.getElementById('totalCustomersValue'),
+            totalCustomersDelta: document.getElementById('totalCustomersDelta'),
+            restaurantOwnersValue: document.getElementById('restaurantOwnersValue'),
+            restaurantOwnersDelta: document.getElementById('restaurantOwnersDelta'),
+            activeThisMonthValue: document.getElementById('activeThisMonthValue'),
+            activeThisMonthDelta: document.getElementById('activeThisMonthDelta')
+        };
+
+        function toggleHidden(element, shouldHide) {
+            if (!element) return;
+            if (shouldHide) {
+                element.classList.add('hidden');
+            } else {
+                element.classList.remove('hidden');
+            }
+        }
+
+        function resetErrorState() {
+            toggleHidden(elements.errorContainer, true);
+            if (elements.errorMessage) {
+                elements.errorMessage.textContent = '';
+            }
+        }
+
+        function notify(message, isError = false) {
+            if (window.Toastify) {
+                window.Toastify({
+                    text: message,
+                    className: isError ? 'bg-error text-white' : 'bg-success text-white',
+                    gravity: 'top',
+                    position: 'center',
+                    duration: 4000
+                }).showToast();
+                return;
+            }
+            window.alert(message);
+        }
+
+        function setLoading(isLoading) {
+            if (elements.loadingIndicator) {
+                toggleHidden(elements.loadingIndicator, !isLoading);
+            }
+            if (elements.tableBody) {
+                elements.tableBody.classList.toggle('opacity-50', isLoading);
+            }
+        }
+
+        function userTypeLabel(type) {
+            switch (type) {
+                case 'restaurant':
+                    return 'Restaurant Owner';
+                case 'delivery':
+                    return 'Delivery Driver';
+                default:
+                    return 'Customer';
+            }
+        }
+
+        function userTypeBadge(type) {
+            switch (type) {
+                case 'restaurant':
+                    return 'bg-primary-100 text-primary-600';
+                case 'delivery':
+                    return 'bg-secondary-50 text-secondary';
+                default:
+                    return 'bg-accent-100 text-accent-600';
+            }
+        }
+
+        function statusBadge(status) {
+            switch ((status || '').toLowerCase()) {
+                case 'inactive':
+                    return { label: 'Inactive', classes: 'bg-gray-200 text-text-secondary' };
+                case 'suspended':
+                    return { label: 'Suspended', classes: 'bg-warning-100 text-warning-600' };
+                case 'pending':
+                    return { label: 'Pending', classes: 'bg-accent-50 text-accent' };
+                default:
+                    return { label: 'Active', classes: 'bg-success-100 text-success-600' };
+            }
+        }
+
+        function formatDate(value) {
+            if (!value) return '--';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+            return date.toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function formatNumber(value) {
+            if (value === null || value === undefined || value === '') {
+                return '--';
+            }
+            const number = Number(value);
+            if (Number.isNaN(number)) {
+                return String(value);
+            }
+            return new Intl.NumberFormat().format(number);
+        }
+
+        function cleanPayload(payload) {
+            return Object.entries(payload).reduce((acc, [key, value]) => {
+                if (value !== '' && value !== null && value !== undefined) {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+        }
+
+        function renderUsers(users) {
+            const tbody = elements.tableBody;
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (!Array.isArray(users) || users.length === 0) {
+                toggleHidden(elements.emptyState, false);
+                return;
+            }
+
+            toggleHidden(elements.emptyState, true);
+
+            users.forEach((user) => {
+                const {
+                    avatarUrl,
+                    fullName,
+                    firstName,
+                    lastName,
+                    userType,
+                    email,
+                    status,
+                    joinedAt,
+                    createdAt,
+                    ordersCount,
+                    totalOrders,
+                    id
+                } = user;
+
+                const displayName = fullName || [firstName, lastName].filter(Boolean).join(' ') || 'Unknown';
+                const displayUserType = userTypeLabel(userType);
+                const avatar = avatarUrl || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?q=80&w=150&auto=format&fit=crop';
+                const badgeClasses = userTypeBadge(userType);
+                const statusInfo = statusBadge(status);
+                const joinedDate = formatDate(joinedAt || createdAt);
+                const orders = formatNumber(totalOrders ?? ordersCount ?? '--');
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-smooth';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <img class="h-10 w-10 rounded-full object-cover" src="${avatar}" alt="${displayName}">
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-text-primary">${displayName}</div>
+                                <div class="text-sm text-text-secondary">${displayUserType}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${badgeClasses}">${displayUserType}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary">${email || '--'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusInfo.classes}">${statusInfo.label}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">${joinedDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-primary font-medium">${orders}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-primary hover:text-primary-600 transition-smooth" data-user-id="${id ?? ''}">View</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createPaginationButton(label, page, options = {}) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+
+            const baseClasses = ['px-3', 'py-1', 'border', 'border-border', 'rounded', 'text-sm', 'transition-smooth'];
+            baseClasses.forEach((cls) => button.classList.add(cls));
+
+            if (options.active) {
+                button.classList.add('bg-primary', 'text-white', 'border-primary');
+            } else {
+                button.classList.add('text-text-secondary', 'hover:bg-gray-50');
+            }
+
+            if (options.disabled) {
+                button.disabled = true;
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                button.addEventListener('click', () => {
+                    usersState.currentPage = page;
+                    fetchUsers();
+                });
+            }
+
+            return button;
+        }
+
+        function updatePagination(meta = {}) {
+            const info = elements.paginationInfo;
+            const controls = elements.paginationControls;
+            if (!info || !controls) return;
+
+            const total = meta.total ?? usersState.total ?? 0;
+            const page = meta.page ?? usersState.currentPage;
+            const pageSize = meta.pageSize ?? usersState.pageSize;
+            const totalPages = meta.totalPages ?? Math.max(1, Math.ceil((total || 0) / pageSize));
+
+            if (total === 0) {
+                info.textContent = 'No users to display';
+            } else {
+                const start = (page - 1) * pageSize + 1;
+                const end = Math.min(total, page * pageSize);
+                info.textContent = `Showing ${start} to ${end} of ${total} users`;
+            }
+
+            controls.innerHTML = '';
+
+            if (totalPages <= 1) {
+                controls.classList.add('hidden');
+                return;
+            }
+
+            controls.classList.remove('hidden');
+            controls.appendChild(createPaginationButton('Previous', Math.max(1, page - 1), { disabled: page === 1 }));
+
+            const maxButtons = 5;
+            let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage + 1 < maxButtons) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            for (let p = startPage; p <= endPage; p += 1) {
+                controls.appendChild(createPaginationButton(String(p), p, { active: p === page }));
+            }
+
+            controls.appendChild(createPaginationButton('Next', Math.min(totalPages, page + 1), { disabled: page === totalPages }));
+        }
+
+        function showError(message) {
+            if (!elements.errorContainer || !elements.errorMessage) return;
+            elements.errorMessage.textContent = message;
+            toggleHidden(elements.errorContainer, false);
+        }
+
+        function applyStats(stats) {
+            const totals = stats?.totals ?? {};
+            const deltas = stats?.deltas ?? {};
+
+            if (elements.totalCustomersValue) {
+                elements.totalCustomersValue.textContent = formatNumber(totals.customers);
+            }
+            if (elements.totalCustomersDelta) {
+                elements.totalCustomersDelta.textContent = deltas.customers ?? '--';
+            }
+            if (elements.restaurantOwnersValue) {
+                elements.restaurantOwnersValue.textContent = formatNumber(totals.restaurants);
+            }
+            if (elements.restaurantOwnersDelta) {
+                elements.restaurantOwnersDelta.textContent = deltas.restaurants ?? '--';
+            }
+            if (elements.activeThisMonthValue) {
+                elements.activeThisMonthValue.textContent = formatNumber(totals.activeThisMonth);
+            }
+            if (elements.activeThisMonthDelta) {
+                elements.activeThisMonthDelta.textContent = deltas.activeThisMonth ?? '--';
+            }
+        }
+
+        async function fetchUsers() {
+            setLoading(true);
+            resetErrorState();
+            toggleHidden(elements.emptyState, true);
+
+            try {
+                const params = new URLSearchParams({
+                    page: String(usersState.currentPage),
+                    pageSize: String(usersState.pageSize)
+                });
+
+                if (usersState.search) {
+                    params.append('search', usersState.search);
+                }
+                if (usersState.userType !== 'all') {
+                    params.append('userType', usersState.userType);
+                }
+                if (usersState.status !== 'all') {
+                    params.append('status', usersState.status);
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/users?${params.toString()}`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load users (${response.status})`);
+                }
+
+                const payload = await response.json();
+                const users = payload?.data ?? payload?.users ?? [];
+                const meta = payload?.meta ?? {
+                    total: payload?.total ?? users.length,
+                    page: payload?.page ?? usersState.currentPage,
+                    pageSize: payload?.pageSize ?? usersState.pageSize,
+                    totalPages: payload?.totalPages
+                };
+
+                usersState.total = meta.total ?? users.length;
+
+                renderUsers(users);
+                updatePagination(meta);
+            } catch (error) {
+                console.error('Error loading users', error);
+                renderUsers([]);
+                usersState.currentPage = 1;
+                usersState.total = 0;
+                updatePagination({
+                    total: 0,
+                    page: 1,
+                    pageSize: usersState.pageSize,
+                    totalPages: 1
+                });
+                showError('Unable to load users. Please check your connection and try again.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function fetchUserStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users/stats`, {
+                    headers: {
+                        Accept: 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load stats (${response.status})`);
+                }
+
+                const payload = await response.json();
+                applyStats(payload?.data ?? payload);
+            } catch (error) {
+                console.error('Error loading user stats', error);
+                // Keep default values (--) when stats can't be loaded
+            }
+        }
+
+
+        function switchTab(activeTab, activeContent) {
+            tabButtons.forEach((btn) => {
+                btn.classList.remove('active');
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-text-secondary');
+                btn.setAttribute('aria-selected', 'false');
+            });
+
+            document.querySelectorAll('.tab-content').forEach((content) => {
+                content.classList.add('hidden');
+            });
+
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.classList.remove('border-transparent', 'text-text-secondary');
+                activeTab.classList.add('border-primary', 'text-primary');
+                activeTab.setAttribute('aria-selected', 'true');
+            }
+
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+            }
+        }
+
+        usersListTab?.addEventListener('click', () => {
+            switchTab(usersListTab, usersListContent);
+        });
+
+        if (elements.searchInput) {
+            let searchTimer;
+            elements.searchInput.addEventListener('input', (event) => {
+                const value = event.target.value.trim();
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => {
+                    usersState.search = value;
+                    usersState.currentPage = 1;
+                    fetchUsers();
+                }, 300);
+            });
+        }
+
+        if (elements.userTypeFilter) {
+            elements.userTypeFilter.addEventListener('change', (event) => {
+                usersState.userType = event.target.value;
+                usersState.currentPage = 1;
+                fetchUsers();
+            });
+        }
+
+        if (elements.userStatusFilter) {
+            elements.userStatusFilter.addEventListener('change', (event) => {
+                usersState.status = event.target.value;
+                usersState.currentPage = 1;
+                fetchUsers();
+            });
+        }
+
+
+        // Set default visible tab and load data
+        switchTab(usersListTab, usersListContent);
+        fetchUsers();
+        fetchUserStats();
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Profile - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  <script type="module" async src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Frestaurant2067back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.9"></script>
+  <script type="module" defer src="https://static.rocket.new/rocket-shot.js?v=0.0.1"></script>
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="rider_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="rider_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="rider_profile.html" class="text-primary font-medium border-b-2 border-primary pb-1">Profile</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://img.rocket.new/generatedImages/rocket_gen_img_18511f091-1762273782119.png"
+                                 alt="Rider profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">John Rider</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Rider Profile</h2>
+            <p class="text-text-secondary">Manage your account settings and information</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Profile Sidebar -->
+            <aside class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
+                    <!-- Rider Photo -->
+                    <div class="text-center mb-6">
+                        <img src="https://img.rocket.new/generatedImages/rocket_gen_img_18511f091-1762273782119.png"
+                             alt="Rider profile picture"
+                             class="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <h3 class="text-xl font-bold text-text-primary mb-1">John Rider</h3>
+                        <p class="text-text-secondary text-sm">Delivery Rider</p>
+                        <button class="mt-3 text-primary text-sm hover:text-primary-600 transition-smooth">Change photo</button>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-2">
+                        <a href="#personal" class="block px-4 py-2 bg-primary text-white rounded-lg">Personal Information</a>
+                        <a href="#vehicle" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Vehicle Information</a>
+                        <a href="#earnings" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Earnings</a>
+                        <a href="#settings" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Account Settings</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Profile Content -->
+            <div class="lg:col-span-2 space-y-4 lg:space-y-6 order-1 lg:order-2">
+                <!-- Personal Information -->
+                <section id="personal" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Personal Information</h3>
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">First Name</label>
+                                <input type="text"
+                                       value="John"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Last Name</label>
+                                <input type="text"
+                                       value="Rider"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Email Address</label>
+                            <input type="email"
+                                   value="john.rider@email.com"
+                                   class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Phone Number</label>
+                                <input type="tel"
+                                       value="(555) 123-4567"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Date of Birth</label>
+                                <input type="date"
+                                       value="1990-01-01"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Address</label>
+                            <textarea rows="3"
+                                      class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">123 Main Street
+New York, NY 10001
+United States</textarea>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            Save Changes
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Vehicle Information -->
+                <section id="vehicle" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Vehicle Information</h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Vehicle Type</label>
+                                <select class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option>Motorcycle</option>
+                                    <option>Bicycle</option>
+                                    <option>Car</option>
+                                    <option>Scooter</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">License Plate</label>
+                                <input type="text"
+                                       value="ABC-1234"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Make/Model</label>
+                                <input type="text"
+                                       value="Honda CB300R"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-primary mb-2">Color</label>
+                                <input type="text"
+                                       value="Red"
+                                       class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="insurance" checked class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                                <label for="insurance" class="ml-2 text-sm text-text-primary">Vehicle is insured</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            Update Vehicle Info
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Earnings History -->
+                <section id="earnings" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Earnings Overview</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-primary">?1,247.50</p>
+                            <p class="text-sm text-text-secondary">This Week</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-secondary">?4,890.25</p>
+                            <p class="text-sm text-text-secondary">This Month</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-accent">?18,450.00</p>
+                            <p class="text-sm text-text-secondary">Total Earnings</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-text-primary">Recent Earnings</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b border-border">
+                                <div>
+                                    <p class="font-medium text-text-primary">Order #ORD-2024-045</p>
+                                    <p class="text-sm text-text-secondary">Today, 2:45 PM</p>
+                                </div>
+                                <span class="font-medium text-success">+?8.50</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-border">
+                                <div>
+                                    <p class="font-medium text-text-primary">Order #ORD-2024-044</p>
+                                    <p class="text-sm text-text-secondary">Today, 2:30 PM</p>
+                                </div>
+                                <span class="font-medium text-success">+?7.25</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-border">
+                                <div>
+                                    <p class="font-medium text-text-primary">Order #ORD-2024-043</p>
+                                    <p class="text-sm text-text-secondary">Today, 2:15 PM</p>
+                                </div>
+                                <span class="font-medium text-success">+?9.75</span>
+                            </div>
+                        </div>
+                        <button class="text-primary hover:text-primary-600 transition-smooth">View Full Earnings History</button>
+                    </div>
+                </section>
+
+                <!-- Account Settings -->
+                <section id="settings" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Account Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">Push Notifications</p>
+                                <p class="text-sm text-text-secondary">Receive delivery assignment alerts</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">SMS Notifications</p>
+                                <p class="text-sm text-text-secondary">Receive text alerts for assignments</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">Auto-accept Assignments</p>
+                                <p class="text-sm text-text-secondary">Automatically accept delivery assignments</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">Online Status</p>
+                                <p class="text-sm text-text-secondary">Appear available for deliveries</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="border-t border-border pt-4">
+                            <button class="text-error hover:text-error-600 transition-smooth">Deactivate Rider Account</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="rider_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="rider_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+            <a href="rider_profile.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

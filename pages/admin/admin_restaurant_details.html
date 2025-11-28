@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Details - HATOD Admin</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                    <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-primary font-medium border-b-2 border-primary pb-1">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="admin_delivery_fees.html" class="text-text-secondary hover:text-primary transition-smooth">Delivery Fees</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <button onclick="goBack()" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to Restaurants</span>
+            </button>
+        </div>
+
+        <!-- Restaurant Header -->
+        <div id="restaurantHeader" class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <!-- Restaurant header will be loaded here -->
+        </div>
+
+        <!-- Price Adjustment Section -->
+        <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
+            <h3 class="text-lg font-semibold text-text-primary mb-4">Price Adjustment</h3>
+            <div class="flex items-center space-x-4">
+                <div class="flex-1">
+                    <label for="priceAdjustment" class="block text-sm font-medium text-text-primary mb-2">
+                        Add percentage to all menu item prices
+                    </label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number"
+                               id="priceAdjustment"
+                               min="0"
+                               max="100"
+                               step="0.1"
+                               placeholder="0.0"
+                               class="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <span class="text-text-secondary">%</span>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="applyPriceAdjustment" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-secondary-600 transition-smooth">
+                        Apply Adjustment
+                    </button>
+                    <button id="resetPrices" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-smooth">
+                        Reset Prices
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Items -->
+        <div class="bg-surface rounded-lg shadow-card border border-border">
+            <div class="p-6 border-b border-border">
+                <h3 class="text-lg font-semibold text-text-primary">Menu Items</h3>
+                <p class="text-text-secondary text-sm">Review and adjust menu item prices</p>
+            </div>
+
+            <div id="menuItemsContainer" class="p-6">
+                <!-- Menu items will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex justify-end space-x-4">
+            <button id="rejectRestaurant" class="bg-error text-white px-6 py-3 rounded-lg hover:bg-error-600 transition-smooth">
+                Reject Restaurant
+            </button>
+            <button id="approveRestaurant" class="bg-success text-white px-6 py-3 rounded-lg hover:bg-success-600 transition-smooth">
+                Approve & Publish to Customers
+            </button>
+        </div>
+    </main>
+
+    <!-- Markup Modal -->
+    <div id="markupModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-lg max-w-md w-full p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-text-primary">Set Menu Item Markup</h3>
+                <button onclick="closeMarkupModal()" class="text-text-secondary hover:text-text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <p class="text-sm text-text-secondary mb-2">Item: <span id="markupItemName" class="font-medium text-text-primary"></span></p>
+                <p class="text-sm text-text-secondary">Original Price: <span id="markupOriginalPrice" class="font-medium text-text-primary"></span></p>
+            </div>
+
+            <form id="markupForm" class="space-y-4">
+                <input type="hidden" id="markupItemId">
+                
+                <div>
+                    <label for="markupAmount" class="block text-sm font-medium text-text-primary mb-2">
+                        Markup Amount (₱)
+                    </label>
+                    <input type="number" 
+                           id="markupAmount" 
+                           step="0.01" 
+                           min="0"
+                           placeholder="0.00"
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <p class="text-xs text-text-secondary mt-1">Fixed amount to add to the price</p>
+                </div>
+
+                <div>
+                    <label for="markupPercentage" class="block text-sm font-medium text-text-primary mb-2">
+                        Markup Percentage (%)
+                    </label>
+                    <input type="number" 
+                           id="markupPercentage" 
+                           step="0.01" 
+                           min="0"
+                           max="100"
+                           placeholder="0.00"
+                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <p class="text-xs text-text-secondary mt-1">Percentage to add to the original price</p>
+                </div>
+
+                <div>
+                    <label for="approvalStatus" class="block text-sm font-medium text-text-primary mb-2">
+                        Approval Status
+                    </label>
+                    <select id="approvalStatus" 
+                            class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div id="markupPreview" class="bg-gray-50 rounded-lg p-3 text-sm">
+                    <p class="text-text-secondary">Final Price: <span id="markupFinalPrice" class="font-semibold text-text-primary">₱0.00</span></p>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="button" 
+                            onclick="closeMarkupModal()" 
+                            class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-smooth">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-smooth">
+                        Save Markup
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="admin_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="admin_restaurants.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Restaurants</span>
+            </a>
+            <a href="admin_users.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Users</span>
+            </a>
+            <a href="admin_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE_URL = 'http://localhost:4000/api';
+            const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+
+            // Get restaurant ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const restaurantId = urlParams.get('id');
+
+            if (!restaurantId) {
+                alert('Restaurant ID is required');
+                window.location.href = 'admin_restaurants.html';
+                return;
+            }
+
+            let restaurantData = null;
+            let menuData = [];
+
+            // Elements
+            const restaurantHeader = document.getElementById('restaurantHeader');
+            const menuItemsContainer = document.getElementById('menuItemsContainer');
+            const priceAdjustmentInput = document.getElementById('priceAdjustment');
+            const applyPriceAdjustmentBtn = document.getElementById('applyPriceAdjustment');
+            const resetPricesBtn = document.getElementById('resetPrices');
+            const approveRestaurantBtn = document.getElementById('approveRestaurant');
+            const rejectRestaurantBtn = document.getElementById('rejectRestaurant');
+
+            function showLoading(element, message = 'Loading...') {
+                element.innerHTML = `
+                    <div class="flex items-center justify-center py-8">
+                        <div class="flex items-center space-x-3 text-text-secondary">
+                            <svg class="w-6 h-6 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">${message}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function getStatusBadge(restaurant) {
+                if (restaurant.isOpen) {
+                    return { label: 'Active', classes: 'bg-success-100 text-success-600' };
+                } else {
+                    return { label: 'Inactive', classes: 'bg-gray-200 text-text-secondary' };
+                }
+            }
+
+            function renderRestaurantHeader(restaurant) {
+                const statusBadge = getStatusBadge(restaurant);
+                const ownerName = restaurant.owner?.fullName || restaurant.owner?.firstName + ' ' + restaurant.owner?.lastName || 'Unknown';
+
+                restaurantHeader.innerHTML = `
+                    <div class="flex items-start space-x-6">
+                        <img src="${restaurant.imageUrl || 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}"
+                             alt="${restaurant.name}"
+                             class="w-24 h-24 rounded-lg object-cover"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h2 class="text-2xl font-bold text-text-primary">${restaurant.name || 'Unknown Restaurant'}</h2>
+                                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full ${statusBadge.classes}">${statusBadge.label}</span>
+                            </div>
+                            <p class="text-text-secondary mb-4">${restaurant.description || 'No description available'}</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <span class="text-text-secondary">Owner:</span>
+                                    <span class="text-text-primary font-medium">${ownerName}</span>
+                                </div>
+                                <div>
+                                    <span class="text-text-secondary">Cuisine:</span>
+                                    <span class="text-text-primary font-medium">${restaurant.cuisineType || 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-text-secondary">Phone:</span>
+                                    <span class="text-text-primary font-medium">${restaurant.phone || 'N/A'}</span>
+                                </div>
+                                <div>
+                                    <span class="text-text-secondary">Address:</span>
+                                    <span class="text-text-primary font-medium">${restaurant.address || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function resolveImageUrl(url) {
+                if (!url) return null;
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    return url;
+                }
+                return `${API_ORIGIN}${url}`;
+            }
+
+            function renderMenuItem(item) {
+                const availabilityText = item.isAvailable ? 'Available' : 'Unavailable';
+                const availabilityClass = item.isAvailable ? 'text-success-600' : 'text-error-600';
+                
+                // Approval status badge
+                const approvalStatus = item.approvalStatus || 'pending';
+                const approvalBadges = {
+                    'approved': { label: 'Approved', class: 'bg-success-100 text-success-600' },
+                    'pending': { label: 'Pending', class: 'bg-warning-100 text-warning-600' },
+                    'rejected': { label: 'Rejected', class: 'bg-error-100 text-error-600' }
+                };
+                const approvalBadge = approvalBadges[approvalStatus] || approvalBadges.pending;
+                
+                // Calculate markup info
+                const originalPrice = item.price ? parseFloat(item.price) : 0;
+                const markupAmount = item.adminMarkupAmount ? parseFloat(item.adminMarkupAmount) : 0;
+                const markupPercentage = item.adminMarkupPercentage ? parseFloat(item.adminMarkupPercentage) : 0;
+                const finalPrice = item.finalPrice ? parseFloat(item.finalPrice) : originalPrice;
+                const totalMarkup = markupAmount + (originalPrice * markupPercentage / 100);
+                
+                // Render price or variants
+                let priceDisplay = '';
+                if (item.hasVariants && item.variants && item.variants.length > 0) {
+                    const availableVariants = item.variants.filter(v => v.isAvailable);
+                    if (availableVariants.length > 0) {
+                        const prices = availableVariants.map(v => parseFloat(v.price || 0));
+                        const minPrice = Math.min(...prices);
+                        const maxPrice = Math.max(...prices);
+                        priceDisplay = `₱${minPrice.toFixed(2)}${minPrice !== maxPrice ? ` - ₱${maxPrice.toFixed(2)}` : ''}`;
+                    } else {
+                        priceDisplay = 'No variants available';
+                    }
+                } else {
+                    priceDisplay = `₱${originalPrice.toFixed(2)}`;
+                    if (totalMarkup > 0) {
+                        priceDisplay += ` → ₱${finalPrice.toFixed(2)}`;
+                    }
+                }
+
+                const imageUrl = resolveImageUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=1200&auto=format&fit=crop';
+
+                return `
+                    <div class="border border-border rounded-lg p-4 mb-4" data-item-id="${item.id}">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="md:w-40 w-full flex-shrink-0">
+                                <img src="${imageUrl}"
+                                     alt="${item.name}"
+                                     class="w-full h-32 object-cover rounded-lg border border-border"
+                                     onerror="this.src='https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=1200&auto=format&fit=crop'; this.onerror=null;">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2 flex-wrap">
+                                    <h4 class="font-semibold text-text-primary">${item.name}</h4>
+                                    <span class="text-sm ${availabilityClass}">${availabilityText}</span>
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${approvalBadge.class}">
+                                        ${approvalBadge.label}
+                                    </span>
+                                </div>
+                                <p class="text-text-secondary text-sm mb-2">${item.description || ''}</p>
+                                
+                                <!-- Price Display -->
+                                <div class="mb-3">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <div class="text-lg font-bold text-text-primary">${priceDisplay}</div>
+                                        ${totalMarkup > 0 ? `
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-700">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                                                </svg>
+                                                +₱${totalMarkup.toFixed(2)}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                    <div class="text-xs text-text-secondary">
+                                        Original: ₱${originalPrice.toFixed(2)}
+                                        ${totalMarkup > 0 ? ` | Final: ₱${finalPrice.toFixed(2)}` : ''}
+                                    </div>
+                                </div>
+                                
+                                ${item.hasVariants ? `
+                                    <div class="mt-2 mb-3">
+                                        <p class="text-xs text-text-secondary mb-1">Variants:</p>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${item.variants.filter(v => v.isAvailable).map(variant => `
+                                                <span class="inline-flex px-2 py-1 text-xs bg-primary-100 text-primary-700 rounded">
+                                                    ${variant.name}: ₱${parseFloat(variant.price || 0).toFixed(2)}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                <!-- Quick Add Price Section -->
+                                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-border">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <label class="text-xs font-medium text-text-primary">Quick Add Amount:</label>
+                                        <input type="number" 
+                                               step="0.01" 
+                                               min="0"
+                                               placeholder="0.00"
+                                               id="quickMarkup_${item.id}"
+                                               class="flex-1 px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                               value="${markupAmount > 0 ? markupAmount.toFixed(2) : ''}">
+                                        <span class="text-xs text-text-secondary">₱</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button onclick="saveQuickMarkup('${item.id}', ${originalPrice}, '${approvalStatus}')" 
+                                                class="flex-1 bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-smooth text-sm font-medium">
+                                            Save Amount
+                                        </button>
+                                        <button onclick="openMarkupModal('${item.id}', '${item.name}', ${originalPrice}, ${markupAmount}, ${markupPercentage}, '${approvalStatus}')" 
+                                                class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-300 transition-smooth text-sm">
+                                            Advanced
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderMenuItems() {
+                if (menuData.length === 0) {
+                    menuItemsContainer.innerHTML = `
+                        <div class="text-center py-8 text-text-secondary">
+                            <p>No menu items found for this restaurant.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                menuData.forEach(category => {
+                    if (category.items && category.items.length > 0) {
+                        html += `
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold text-text-primary mb-4">${category.name}</h4>
+                                <div class="space-y-4">
+                        `;
+
+                        category.items.forEach(item => {
+                            html += renderMenuItem(item);
+                        });
+
+                        html += `
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                menuItemsContainer.innerHTML = html;
+            }
+
+            async function fetchRestaurantData() {
+                try {
+                    showLoading(restaurantHeader, 'Loading restaurant details...');
+
+                    const headers = {
+                        'Accept': 'application/json'
+                    };
+
+                    const authToken = localStorage.getItem('authToken');
+                    if (authToken) {
+                        headers.Authorization = `Bearer ${authToken}`;
+                    }
+
+                    // Fetch restaurant details
+                    const restaurantResponse = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}`, {
+                        headers
+                    });
+
+                    if (!restaurantResponse.ok) {
+                        throw new Error(`Failed to load restaurant (${restaurantResponse.status})`);
+                    }
+
+                    restaurantData = await restaurantResponse.json();
+                    restaurantData = restaurantData.data || restaurantData;
+
+                    // Fetch menu items with markup info (admin endpoint)
+                    const menuResponse = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/menu-items`, {
+                        headers
+                    });
+
+                    if (menuResponse.ok) {
+                        const menuResult = await menuResponse.json();
+                        menuData = menuResult.data || [];
+                    }
+
+                    renderRestaurantHeader(restaurantData);
+                    renderMenuItems();
+
+                    // Update button states based on approval status
+                    updateButtonStates();
+
+                } catch (error) {
+                    console.error('Error loading restaurant data:', error);
+                    restaurantHeader.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="rounded-lg border border-error bg-error-50 text-error px-6 py-4 max-w-md mx-auto">
+                                <p class="font-medium mb-1">Failed to load restaurant details</p>
+                                <p class="text-sm">Please try again later.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            function updateButtonStates() {
+                const isActive = restaurantData?.isOpen === true;
+
+                approveRestaurantBtn.disabled = isActive;
+                rejectRestaurantBtn.disabled = !isActive;
+
+                if (isActive) {
+                    approveRestaurantBtn.textContent = 'Already Active';
+                    approveRestaurantBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    rejectRestaurantBtn.textContent = 'Deactivate Restaurant';
+                    rejectRestaurantBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    approveRestaurantBtn.textContent = 'Activate Restaurant';
+                    approveRestaurantBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    rejectRestaurantBtn.textContent = 'Already Inactive';
+                    rejectRestaurantBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Event listeners
+            applyPriceAdjustmentBtn.addEventListener('click', async () => {
+                const percentage = parseFloat(priceAdjustmentInput.value);
+                if (isNaN(percentage) || percentage < 0) {
+                    alert('Please enter a valid percentage');
+                    return;
+                }
+
+                if (confirm(`Are you sure you want to add ${percentage}% to all menu item prices?`)) {
+                    try {
+                        applyPriceAdjustmentBtn.disabled = true;
+                        applyPriceAdjustmentBtn.textContent = 'Applying...';
+
+                        const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/adjust-prices`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            },
+                            body: JSON.stringify({ percentage })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to adjust prices');
+                        }
+
+                        alert('Prices adjusted successfully!');
+                        priceAdjustmentInput.value = '';
+                        await fetchRestaurantData(); // Refresh data
+
+                    } catch (error) {
+                        console.error('Error adjusting prices:', error);
+                        alert('Failed to adjust prices. Please try again.');
+                    } finally {
+                        applyPriceAdjustmentBtn.disabled = false;
+                        applyPriceAdjustmentBtn.textContent = 'Apply Adjustment';
+                    }
+                }
+            });
+
+            resetPricesBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to reset all prices to their original values?')) {
+                    try {
+                        resetPricesBtn.disabled = true;
+                        resetPricesBtn.textContent = 'Resetting...';
+
+                        const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/reset-prices`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to reset prices');
+                        }
+
+                        alert('Prices reset successfully!');
+                        await fetchRestaurantData(); // Refresh data
+
+                    } catch (error) {
+                        console.error('Error resetting prices:', error);
+                        alert('Failed to reset prices. Please try again.');
+                    } finally {
+                        resetPricesBtn.disabled = false;
+                        resetPricesBtn.textContent = 'Reset Prices';
+                    }
+                }
+            });
+
+            approveRestaurantBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to activate this restaurant?')) {
+                    try {
+                        approveRestaurantBtn.disabled = true;
+                        approveRestaurantBtn.textContent = 'Activating...';
+
+                        const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/approve`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to activate restaurant');
+                        }
+
+                        alert('Restaurant activated successfully!');
+                        await fetchRestaurantData(); // Refresh data
+
+                    } catch (error) {
+                        console.error('Error activating restaurant:', error);
+                        alert('Failed to activate restaurant. Please try again.');
+                    } finally {
+                        approveRestaurantBtn.disabled = false;
+                        approveRestaurantBtn.textContent = 'Activate Restaurant';
+                    }
+                }
+            });
+
+            rejectRestaurantBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to deactivate this restaurant?')) {
+                    try {
+                        rejectRestaurantBtn.disabled = true;
+                        rejectRestaurantBtn.textContent = 'Deactivating...';
+
+                        const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/reject`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to deactivate restaurant');
+                        }
+
+                        alert('Restaurant deactivated successfully!');
+                        await fetchRestaurantData(); // Refresh data
+
+                    } catch (error) {
+                        console.error('Error deactivating restaurant:', error);
+                        alert('Failed to deactivate restaurant. Please try again.');
+                    } finally {
+                        rejectRestaurantBtn.disabled = false;
+                        rejectRestaurantBtn.textContent = 'Deactivate Restaurant';
+                    }
+                }
+            });
+
+            // Quick Save Markup (fixed amount only)
+            async function saveQuickMarkup(itemId, originalPrice, currentApprovalStatus) {
+                const input = document.getElementById(`quickMarkup_${itemId}`);
+                if (!input) {
+                    console.error('Input field not found');
+                    return;
+                }
+
+                const markupAmount = parseFloat(input.value) || 0;
+
+                if (markupAmount < 0) {
+                    alert('Markup amount cannot be negative');
+                    return;
+                }
+
+                try {
+                    // Find the save button for visual feedback
+                    const itemContainer = input.closest('[data-item-id]');
+                    const saveButton = itemContainer?.querySelector('button[onclick*="saveQuickMarkup"]');
+                    const originalButtonText = saveButton?.textContent || 'Save Amount';
+
+                    if (saveButton) {
+                        saveButton.disabled = true;
+                        saveButton.textContent = 'Saving...';
+                    }
+
+                    const payload = {
+                        markupAmount: markupAmount,
+                        approvalStatus: currentApprovalStatus || 'pending'
+                    };
+
+                    const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/menu-items/${itemId}/markup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update markup');
+                    }
+
+                    // Show success feedback
+                    if (saveButton) {
+                        saveButton.textContent = 'Saved!';
+                        saveButton.classList.remove('bg-primary', 'hover:bg-primary-600');
+                        saveButton.classList.add('bg-success');
+                        setTimeout(() => {
+                            saveButton.textContent = originalButtonText;
+                            saveButton.classList.remove('bg-success');
+                            saveButton.classList.add('bg-primary', 'hover:bg-primary-600');
+                            saveButton.disabled = false;
+                        }, 2000);
+                    }
+
+                    // Refresh data
+                    await fetchRestaurantData();
+
+                } catch (error) {
+                    console.error('Error updating markup:', error);
+                    alert('Failed to update markup. Please try again.');
+                    
+                    // Re-enable button on error
+                    const itemContainer = input.closest('[data-item-id]');
+                    const saveButton = itemContainer?.querySelector('button[onclick*="saveQuickMarkup"]');
+                    if (saveButton) {
+                        saveButton.disabled = false;
+                        saveButton.textContent = 'Save Amount';
+                    }
+                }
+            }
+
+            // Markup Modal Functions
+            function openMarkupModal(itemId, itemName, originalPrice, currentMarkupAmount, currentMarkupPercentage, currentApprovalStatus) {
+                document.getElementById('markupItemId').value = itemId;
+                document.getElementById('markupItemName').textContent = itemName;
+                document.getElementById('markupOriginalPrice').textContent = `₱${originalPrice.toFixed(2)}`;
+                document.getElementById('markupAmount').value = currentMarkupAmount || '';
+                document.getElementById('markupPercentage').value = currentMarkupPercentage || '';
+                document.getElementById('approvalStatus').value = currentApprovalStatus || 'pending';
+                
+                updateMarkupPreview(originalPrice, currentMarkupAmount || 0, currentMarkupPercentage || 0);
+                
+                document.getElementById('markupModal').classList.remove('hidden');
+            }
+
+            function closeMarkupModal() {
+                document.getElementById('markupModal').classList.add('hidden');
+                document.getElementById('markupForm').reset();
+            }
+
+            function updateMarkupPreview(originalPrice, markupAmount, markupPercentage) {
+                const amount = parseFloat(markupAmount) || 0;
+                const percentage = parseFloat(markupPercentage) || 0;
+                const percentageAmount = originalPrice * (percentage / 100);
+                const finalPrice = originalPrice + amount + percentageAmount;
+                
+                document.getElementById('markupFinalPrice').textContent = `₱${finalPrice.toFixed(2)}`;
+            }
+
+            // Add event listeners for markup preview
+            document.getElementById('markupAmount')?.addEventListener('input', function() {
+                const originalPrice = parseFloat(document.getElementById('markupOriginalPrice').textContent.replace('₱', '')) || 0;
+                const markupAmount = parseFloat(this.value) || 0;
+                const markupPercentage = parseFloat(document.getElementById('markupPercentage').value) || 0;
+                updateMarkupPreview(originalPrice, markupAmount, markupPercentage);
+            });
+
+            document.getElementById('markupPercentage')?.addEventListener('input', function() {
+                const originalPrice = parseFloat(document.getElementById('markupOriginalPrice').textContent.replace('₱', '')) || 0;
+                const markupAmount = parseFloat(document.getElementById('markupAmount').value) || 0;
+                const markupPercentage = parseFloat(this.value) || 0;
+                updateMarkupPreview(originalPrice, markupAmount, markupPercentage);
+            });
+
+            // Handle markup form submission
+            document.getElementById('markupForm')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const itemId = document.getElementById('markupItemId').value;
+                const markupAmount = document.getElementById('markupAmount').value;
+                const markupPercentage = document.getElementById('markupPercentage').value;
+                const approvalStatus = document.getElementById('approvalStatus').value;
+
+                try {
+                    const payload = {};
+                    if (markupAmount) payload.markupAmount = parseFloat(markupAmount);
+                    if (markupPercentage) payload.markupPercentage = parseFloat(markupPercentage);
+                    if (approvalStatus) payload.approvalStatus = approvalStatus;
+
+                    const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/menu-items/${itemId}/markup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update markup');
+                    }
+
+                    alert('Markup updated successfully!');
+                    closeMarkupModal();
+                    await fetchRestaurantData(); // Refresh data
+
+                } catch (error) {
+                    console.error('Error updating markup:', error);
+                    alert('Failed to update markup. Please try again.');
+                }
+            });
+
+            // Global functions
+            window.goBack = () => {
+                window.location.href = 'admin_restaurants.html';
+            };
+
+            window.openMarkupModal = openMarkupModal;
+            window.closeMarkupModal = closeMarkupModal;
+            window.saveQuickMarkup = saveQuickMarkup;
+
+            // Initial load
+            fetchRestaurantData();
+        });
+    </script>
+    <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

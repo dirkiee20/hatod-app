@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: hatod-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://your-frontend-domain.com

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="../restaurants/restaurant_browse.html" class="flex items-center">
+                        <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                        <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="../restaurants/restaurant_browse.html" class="text-text-secondary hover:text-primary transition-smooth">Browse</a>
+                    <a href="shopping_cart.html" class="text-text-secondary hover:text-primary transition-smooth">Cart</a>
+                    <a href="order_history.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="customer_profile.html" class="text-primary font-medium border-b-2 border-primary pb-1">Account</a>
+                </nav>
+
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-2">
+                    <img id="headerProfileImage"
+                         src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                         alt="Customer profile picture"
+                         class="w-8 h-8 rounded-full object-cover"
+                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                    <span id="headerUserName" class="text-sm font-medium text-text-primary hidden sm:block">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">My Profile</h2>
+            <p class="text-text-secondary">Manage your account settings and preferences</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Profile Sidebar -->
+            <aside class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
+                    <!-- Profile Picture -->
+                    <div class="text-center mb-6">
+                        <img id="profilePicture"
+                             src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                             alt="Profile picture"
+                             class="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <h3 id="profileName" class="text-xl font-bold text-text-primary mb-1">Loading...</h3>
+                        <p id="profileEmail" class="text-text-secondary text-sm">Loading...</p>
+                        <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+                        <button id="changePhotoBtn" class="mt-3 text-primary text-sm hover:text-primary-600 transition-smooth">Change photo</button>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-2">
+                        <a href="#personal" class="block px-4 py-2 bg-primary text-white rounded-lg">Personal Information</a>
+                        <a href="#addresses" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Saved Addresses</a>
+                        <a href="#orders" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Order History</a>
+
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Profile Content -->
+            <div class="lg:col-span-2 space-y-4 lg:space-y-6 order-1 lg:order-2">
+                <!-- Personal Information -->
+                <section id="personal" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Personal Information</h3>
+                    <form id="profileForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Full Name</label>
+                            <input type="text"
+                                   id="fullName"
+                                   name="fullName"
+                                   placeholder="Enter your full name"
+                                   required
+                                   class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Email Address</label>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="Enter your email"
+                                   disabled
+                                   class="w-full border border-border rounded-lg px-3 py-2 bg-gray-50 text-text-secondary cursor-not-allowed">
+                            <p class="text-xs text-text-secondary mt-1">Email cannot be changed</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">Phone Number</label>
+                            <input type="tel"
+                                   id="phone"
+                                   name="phone"
+                                   placeholder="Enter your phone number"
+                                   class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                            Save Changes
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Saved Addresses -->
+                <section id="addresses" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-text-primary">Saved Addresses</h3>
+                        <button onclick="openMapAddressPicker()" class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Add Address on Map</span>
+                        </button>
+                    </div>
+                    <div id="addresses-list" class="text-center py-8">
+                        <svg class="w-12 h-12 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <p class="text-text-secondary">No saved addresses yet</p>
+                        <p class="text-sm text-text-secondary mt-1">Add your delivery addresses for faster checkout</p>
+                    </div>
+                </section>
+
+
+                <!-- Account Settings -->
+                <section class="bg-surface rounded-lg p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Account Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">Email Notifications</p>
+                                <p class="text-sm text-text-secondary">Receive updates about your orders</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-text-primary">SMS Notifications</p>
+                                <p class="text-sm text-text-secondary">Receive text messages about your orders</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="border-t border-border pt-4 flex justify-between items-center">
+                            <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-smooth">
+                                Logout
+                            </button>
+                            <button onclick="deleteAccount()" class="text-error hover:text-error-600 transition-smooth font-medium">Delete Account</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="../restaurants/restaurant_browse.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Browse</span>
+            </a>
+            <a href="shopping_cart.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors relative">
+                <div class="relative">
+                    <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
+                    </svg>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center text-[10px]">0</span>
+                </div>
+                <span class="text-xs font-medium text-text-secondary">Cart</span>
+            </a>
+            <a href="order_history.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary orders-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+            <a href="customer_profile.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Account</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Address Details Modal (shown after map selection) -->
+    <div id="addressDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-text-primary">Confirm Address Details</h3>
+                    <button onclick="hideAddressDetailsModal()" class="text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="addressDetailsForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Label</label>
+                        <select name="label" class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Street Address</label>
+                        <input type="text"
+                               id="modalStreetAddress"
+                               name="streetAddress"
+                               required
+                               readonly
+                               class="w-full border border-border rounded-lg px-3 py-2 bg-gray-50">
+                        <p class="text-xs text-text-secondary mt-1">Selected from map</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">City</label>
+                            <input type="text"
+                                   id="modalCity"
+                                   name="city"
+                                   required
+                                   readonly
+                                   class="w-full border border-border rounded-lg px-3 py-2 bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-primary mb-2">ZIP Code</label>
+                            <input type="text"
+                                   id="modalZipCode"
+                                   name="zipCode"
+                                   required
+                                   readonly
+                                   class="w-full border border-border rounded-lg px-3 py-2 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Apartment/Unit (Optional)</label>
+                        <input type="text"
+                               name="apartment"
+                               placeholder="Apt 4B"
+                               class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">State/Province (Optional)</label>
+                        <input type="text"
+                               id="modalState"
+                               name="state"
+                               placeholder="State"
+                               class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox"
+                               name="isDefault"
+                               id="modalIsDefault"
+                               class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                        <label for="modalIsDefault" class="ml-2 block text-sm text-text-primary">
+                            Set as default address
+                        </label>
+                    </div>
+
+                    <!-- Hidden fields for coordinates -->
+                    <input type="hidden" id="modalLatitude" name="latitude">
+                    <input type="hidden" id="modalLongitude" name="longitude">
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button"
+                                onclick="hideAddressDetailsModal()"
+                                class="flex-1 bg-gray-100 text-text-secondary py-2 px-4 rounded-lg hover:bg-gray-200 transition-smooth">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-600 transition-smooth">
+                            Save Address
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12 pb-20 lg:pb-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:4000/api';
+        const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
+        function resolveImageUrl(url) {
+            if (!url || url.trim() === '') {
+                return PLACEHOLDER_IMAGE;
+            }
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+            const path = url.startsWith('/') ? url : `/${url}`;
+            return `${API_ORIGIN}${path}`;
+        }
+
+        let currentCustomerId = null;
+
+        async function getCustomerId() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return null;
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.sub;
+            } catch (error) {
+                console.error('Error getting customer ID:', error);
+                return null;
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const customerId = await getCustomerId();
+                if (!customerId) {
+                    alert('Please log in to view your profile');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                currentCustomerId = customerId;
+                const token = localStorage.getItem('authToken');
+
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load profile');
+                }
+
+                const result = await response.json();
+                const profile = result.data;
+
+                // Update form fields
+                document.getElementById('fullName').value = profile.fullName || '';
+                document.getElementById('email').value = profile.email || '';
+                document.getElementById('phone').value = profile.phone || '';
+
+                // Update sidebar
+                document.getElementById('profileName').textContent = profile.fullName || 'User';
+                document.getElementById('profileEmail').textContent = profile.email || '';
+
+                // Update header
+                const headerUserName = document.getElementById('headerUserName');
+                if (headerUserName) {
+                    headerUserName.textContent = profile.fullName || 'User';
+                }
+
+                // Update profile picture
+                if (profile.imageUrl) {
+                    const resolvedImageUrl = resolveImageUrl(profile.imageUrl);
+                    document.getElementById('profilePicture').src = resolvedImageUrl;
+                    const headerProfileImage = document.getElementById('headerProfileImage');
+                    if (headerProfileImage) {
+                        headerProfileImage.src = resolvedImageUrl;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                alert('Failed to load profile. Please try again.');
+            }
+        }
+
+        async function uploadProfileImage(file) {
+            try {
+                const customerId = await getCustomerId();
+                if (!customerId) {
+                    alert('Please log in to upload profile picture');
+                    return;
+                }
+
+                const token = localStorage.getItem('authToken');
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/profile/upload-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+                    throw new Error(error.message || 'Failed to upload image');
+                }
+
+                const result = await response.json();
+                const imageUrl = result.data.imageUrl;
+
+                // Update profile picture displays
+                const resolvedImageUrl = resolveImageUrl(imageUrl);
+                document.getElementById('profilePicture').src = resolvedImageUrl;
+                const headerProfileImage = document.getElementById('headerProfileImage');
+                if (headerProfileImage) {
+                    headerProfileImage.src = resolvedImageUrl;
+                }
+
+                alert('Profile picture updated successfully!');
+            } catch (error) {
+                console.error('Error uploading profile image:', error);
+                alert('Failed to upload profile picture: ' + error.message);
+            }
+        }
+
+        async function deleteAccount() {
+            // Double confirmation for account deletion
+            const confirmMessage = 'Are you sure you want to delete your account?\n\n' +
+                'This action cannot be undone. All your data including:\n' +
+                '• Orders\n' +
+                '• Addresses\n' +
+                '• Cart items\n' +
+                '• Favorites\n\n' +
+                'will be permanently deleted.';
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Second confirmation
+            const finalConfirm = prompt('Type "DELETE" to confirm account deletion:');
+            if (finalConfirm !== 'DELETE') {
+                alert('Account deletion cancelled.');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    alert('Please log in to delete your account');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const customerId = payload.sub;
+
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/account`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to delete account' }));
+                    throw new Error(errorData.message || 'Failed to delete account');
+                }
+
+                // Clear all local storage
+                localStorage.clear();
+                
+                // Show success message
+                alert('Your account has been deleted successfully. You will be redirected to the home page.');
+                
+                // Redirect to home/login page
+                window.location.href = '../login.html';
+
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                alert('Failed to delete account: ' + error.message);
+            }
+        }
+
+        function logout() {
+            // Clear stored authentication data
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            sessionStorage.removeItem('isLoggedIn');
+
+            // Redirect to login page
+            window.location.href = '../login.html';
+        }
+
+        function openMapAddressPicker() {
+            // Open the map address picker in a new window or redirect
+            const callbackUrl = encodeURIComponent(window.location.href);
+            window.location.href = `../shared/map_address_picker.html?callback=${callbackUrl}`;
+        }
+
+        function showAddressDetailsModal(addressData) {
+            // Populate form with address data from map
+            document.getElementById('modalStreetAddress').value = addressData.streetAddress || '';
+            document.getElementById('modalCity').value = addressData.city || '';
+            document.getElementById('modalZipCode').value = addressData.zipCode || '';
+            document.getElementById('modalState').value = addressData.state || '';
+            document.getElementById('modalLatitude').value = addressData.latitude || '';
+            document.getElementById('modalLongitude').value = addressData.longitude || '';
+            
+            // Show modal
+            document.getElementById('addressDetailsModal').classList.remove('hidden');
+        }
+
+        function hideAddressDetailsModal() {
+            document.getElementById('addressDetailsModal').classList.add('hidden');
+            document.getElementById('addressDetailsForm').reset();
+        }
+
+        // Check if returning from map picker via URL parameters
+        function checkForMapAddress() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const address = urlParams.get('address');
+            const lat = urlParams.get('lat');
+            const lng = urlParams.get('lng');
+            const city = urlParams.get('city');
+            const zipCode = urlParams.get('zipCode');
+            const apartment = urlParams.get('apartment');
+            
+            if (address) {
+                // Build address data object from URL parameters
+                const addressData = {
+                    streetAddress: decodeURIComponent(address),
+                    city: city ? decodeURIComponent(city) : '',
+                    zipCode: zipCode ? decodeURIComponent(zipCode) : '',
+                    apartment: apartment ? decodeURIComponent(apartment) : '',
+                    state: '',
+                    latitude: lat ? parseFloat(lat) : null,
+                    longitude: lng ? parseFloat(lng) : null
+                };
+                
+                // Show modal with address data
+                showAddressDetailsModal(addressData);
+                
+                // Clean up URL by removing the parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        }
+
+        // Handle address details form submission
+        document.getElementById('addressDetailsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Please log in to continue');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Get customer ID from JWT
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const customerId = payload.sub;
+
+            const formData = new FormData(e.target);
+            const addressData = {
+                label: formData.get('label') || 'Home',
+                streetAddress: formData.get('streetAddress'),
+                city: formData.get('city'),
+                zipCode: formData.get('zipCode'),
+                apartment: formData.get('apartment') || null,
+                state: formData.get('state') || null,
+                latitude: parseFloat(formData.get('latitude')) || null,
+                longitude: parseFloat(formData.get('longitude')) || null,
+                isDefault: formData.get('isDefault') === 'on'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(addressData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to add address');
+                }
+
+                const result = await response.json();
+                console.log('Address added:', result);
+
+                // Hide modal and reset form
+                hideAddressDetailsModal();
+
+                // Refresh addresses list
+                loadAddresses();
+
+                alert('Address added successfully!');
+
+            } catch (error) {
+                console.error('Error adding address:', error);
+                alert('Failed to add address: ' + error.message);
+            }
+        });
+
+        async function loadAddresses() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+
+            // Get customer ID from JWT
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const customerId = payload.sub;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load addresses');
+                }
+
+                const result = await response.json();
+                const addresses = result.data || [];
+
+                const addressesList = document.getElementById('addresses-list');
+
+                if (addresses.length === 0) {
+                    addressesList.innerHTML = `
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <p class="text-text-secondary">No saved addresses yet</p>
+                            <p class="text-sm text-text-secondary mt-1">Add your delivery addresses for faster checkout</p>
+                        </div>
+                    `;
+                } else {
+                    addressesList.innerHTML = addresses.map(address => `
+                        <div class="bg-gray-50 rounded-lg p-4 mb-3">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <p class="font-medium text-text-primary">${address.streetAddress}</p>
+                                        ${address.isDefault ? '<span class="bg-primary text-white text-xs px-2 py-1 rounded">Default</span>' : ''}
+                                    </div>
+                                    <p class="text-sm text-text-secondary">${address.city}, ${address.zipCode}</p>
+                                    ${address.apartment ? `<p class="text-sm text-text-secondary">${address.apartment}</p>` : ''}
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="editAddress('${address.id}')" class="text-primary text-sm hover:text-primary-600">Edit</button>
+                                    <button onclick="deleteAddress('${address.id}')" class="text-red-500 text-sm hover:text-red-600">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading addresses:', error);
+            }
+        }
+
+        // Load profile and addresses on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfile();
+            loadAddresses();
+            checkForMapAddress();
+
+            // Profile picture upload
+            const changePhotoBtn = document.getElementById('changePhotoBtn');
+            const profileImageInput = document.getElementById('profileImageInput');
+
+            if (changePhotoBtn && profileImageInput) {
+                changePhotoBtn.addEventListener('click', function() {
+                    profileImageInput.click();
+                });
+
+                profileImageInput.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        if (!file.type.startsWith('image/')) {
+                            alert('Please select an image file');
+                            return;
+                        }
+
+                        // Validate file size (5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('Image size must be less than 5MB');
+                            return;
+                        }
+
+                        await uploadProfileImage(file);
+                        profileImageInput.value = ''; // Reset input
+                    }
+                });
+            }
+
+            // Profile form submission
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const customerId = await getCustomerId();
+                    if (!customerId) {
+                        alert('Please log in to update your profile');
+                        return;
+                    }
+
+                    const token = localStorage.getItem('authToken');
+                    const formData = new FormData(e.target);
+                    const profileData = {
+                        fullName: formData.get('fullName'),
+                        phone: formData.get('phone') || null
+                    };
+
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(profileData)
+                        });
+
+                        if (!response.ok) {
+                            const error = await response.json().catch(() => ({ message: 'Update failed' }));
+                            throw new Error(error.message || 'Failed to update profile');
+                        }
+
+                        const result = await response.json();
+                        alert('Profile updated successfully!');
+                        
+                        // Reload profile to reflect changes
+                        loadProfile();
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        alert('Failed to update profile: ' + error.message);
+                    }
+                });
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('addressDetailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAddressDetailsModal();
+            }
+        });
+
+        // Placeholder function for edit (can be implemented later)
+        function editAddress(addressId) {
+            alert('Edit address functionality coming soon!');
+        }
+
+        async function deleteAddress(addressId) {
+            // Confirm deletion
+            if (!confirm('Are you sure you want to delete this address?')) {
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Please log in to delete address');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Get customer ID from JWT
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const customerId = payload.sub;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses/${addressId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to delete address' }));
+                    throw new Error(errorData.message || 'Failed to delete address');
+                }
+
+                // Show success message
+                alert('Address deleted successfully!');
+
+                // Refresh addresses list
+                loadAddresses();
+
+            } catch (error) {
+                console.error('Error deleting address:', error);
+                alert('Failed to delete address: ' + error.message);
+            }
+        }
+    </script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

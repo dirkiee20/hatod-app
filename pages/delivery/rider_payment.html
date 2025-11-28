@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment QR Code - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
+                    </svg>
+                    <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="rider_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="rider_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="rider_payment.html" class="text-primary font-medium border-b-2 border-primary pb-1">Payment</a>
+                    <a href="rider_profile.html" class="text-text-secondary hover:text-primary transition-smooth">Profile</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Rider profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span class="text-sm font-medium">John Rider</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-text-primary mb-2">Payment QR Code</h2>
+            <p class="text-text-secondary">Show this QR code to customers for payment collection</p>
+        </div>
+
+        <!-- QR Code Display Section -->
+        <section class="max-w-2xl mx-auto">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-6 border-b border-border">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <div>
+                                <h3 class="text-lg font-semibold text-text-primary">Payment Collection</h3>
+                                <p class="text-sm text-text-secondary">GCash QR Code for customer payments</p>
+                            </div>
+                        </div>
+                        <div class="ml-auto">
+                            <button id="refreshQrCodeBtn" class="flex items-center space-x-2 text-primary hover:text-primary-600 transition-smooth">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <span class="text-sm">Refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8">
+                    <div class="text-center">
+                        <div id="qrCodeDisplay" class="inline-block p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 mb-6">
+                            <svg class="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <p class="text-gray-500 text-lg font-medium">No QR code available</p>
+                            <p class="text-gray-400 text-sm mt-2">Admin has not uploaded a payment QR code yet</p>
+                        </div>
+
+                        <div class="max-w-lg mx-auto">
+                            <h4 class="text-lg font-medium text-text-primary mb-4">How to use this QR code:</h4>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-left">
+                                <div class="space-y-3 text-sm text-blue-800">
+                                    <div class="flex items-start">
+                                        <span class="font-bold mr-3 text-blue-600">1.</span>
+                                        <span>Show this QR code to the customer when they pay for their order</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-bold mr-3 text-blue-600">2.</span>
+                                        <span>Customer opens their GCash app and scans the QR code</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-bold mr-3 text-blue-600">3.</span>
+                                        <span>Payment is processed directly to the admin's account</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-bold mr-3 text-blue-600">4.</span>
+                                        <span>Admin will distribute payments to restaurants manually</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <div>
+                                        <p class="text-green-800 font-medium">Secure & Instant</p>
+                                        <p class="text-green-700 text-sm">Payments are processed immediately through GCash</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+        <div class="flex items-center justify-around py-2 px-4">
+            <a href="rider_dashboard.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Dashboard</span>
+            </a>
+            <a href="rider_orders.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Orders</span>
+            </a>
+            <a href="rider_payment.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors active-tab">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="text-xs font-medium text-primary">Payment</span>
+            </a>
+            <a href="rider_profile.html" class="flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium text-text-secondary">Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = 'http://localhost:4000/api';
+
+        const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+        const refreshQrCodeBtn = document.getElementById('refreshQrCodeBtn');
+
+        async function loadQrCode() {
+            try {
+                const headers = { 'Accept': 'application/json' };
+                const authToken = localStorage.getItem('authToken');
+                if (authToken) {
+                    headers.Authorization = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/payment/qr-code`, {
+                    headers
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data && data.data.qrCodeUrl) {
+                        qrCodeDisplay.innerHTML = `
+                            <img src="${data.data.qrCodeUrl}"
+                                 alt="Payment QR Code"
+                                 class="w-64 h-64 object-contain rounded-lg shadow-lg"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDZ2Nm0wIDB2Nm0wLTZoNm0tNiAwSDYiIHN0cm9rZT0iI2VmNDQ0NCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+'; this.onerror=null;">
+                            <p class="text-sm text-text-secondary mt-3 font-medium">Scan with GCash app</p>
+                        `;
+                    } else {
+                        qrCodeDisplay.innerHTML = `
+                            <svg class="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <p class="text-gray-500 text-lg font-medium">No QR code available</p>
+                            <p class="text-gray-400 text-sm mt-2">Admin has not uploaded a payment QR code yet</p>
+                        `;
+                    }
+                } else {
+                    qrCodeDisplay.innerHTML = `
+                        <svg class="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-gray-500 text-lg font-medium">Unable to load QR code</p>
+                        <p class="text-gray-400 text-sm mt-2">Please try again later</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading QR code:', error);
+                qrCodeDisplay.innerHTML = `
+                    <svg class="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="text-gray-500 text-lg font-medium">Unable to load QR code</p>
+                    <p class="text-gray-400 text-sm mt-2">Please check your connection</p>
+                `;
+            }
+        }
+
+        refreshQrCodeBtn.addEventListener('click', loadQrCode);
+
+        // Load QR code on page load
+        loadQrCode();
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
