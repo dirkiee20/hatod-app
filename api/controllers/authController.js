@@ -3,7 +3,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import {
   badRequest,
   conflict,
-  unauthorized
+  unauthorized,
+  internal
 } from '../utils/httpError.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import {
@@ -44,27 +45,33 @@ export const register = asyncHandler(async (req, res) => {
   );
 
   const user = result.rows[0];
-  const accessToken = signAccessToken({
-    sub: user.id,
-    email: user.email,
-    role: user.role
-  });
-  const refreshToken = signRefreshToken({
-    sub: user.id,
-    email: user.email,
-    role: user.role
-  });
+  
+  try {
+    const accessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role
+    });
+    const refreshToken = signRefreshToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role
+    });
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      user,
-      tokens: {
-        accessToken,
-        refreshToken
+    res.status(201).json({
+      status: 'success',
+      data: {
+        user,
+        tokens: {
+          accessToken,
+          refreshToken
+        }
       }
-    }
-  });
+    });
+  } catch (tokenError) {
+    console.error('Error generating tokens during registration:', tokenError);
+    throw internal('Failed to generate authentication tokens');
+  }
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -95,27 +102,32 @@ export const login = asyncHandler(async (req, res) => {
   user.role = mapDbRoleToClient(user.role);
   // Keep barangay in response for location-based redirects
 
-  const accessToken = signAccessToken({
-    sub: user.id,
-    email: user.email,
-    role: mapDbRoleToClient(user.role)
-  });
-  const refreshToken = signRefreshToken({
-    sub: user.id,
-    email: user.email,
-    role: mapDbRoleToClient(user.role)
-  });
+  try {
+    const accessToken = signAccessToken({
+      sub: user.id,
+      email: user.email,
+      role: mapDbRoleToClient(user.role)
+    });
+    const refreshToken = signRefreshToken({
+      sub: user.id,
+      email: user.email,
+      role: mapDbRoleToClient(user.role)
+    });
 
-  res.json({
-    status: 'success',
-    data: {
-      user,
-      tokens: {
-        accessToken,
-        refreshToken
+    res.json({
+      status: 'success',
+      data: {
+        user,
+        tokens: {
+          accessToken,
+          refreshToken
+        }
       }
-    }
-  });
+    });
+  } catch (tokenError) {
+    console.error('Error generating tokens:', tokenError);
+    throw internal('Failed to generate authentication tokens');
+  }
 });
 
 export const refresh = asyncHandler(async (req, res) => {

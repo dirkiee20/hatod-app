@@ -11,13 +11,31 @@ const {
   JWT_REFRESH_EXPIRES_IN = '7d'
 } = process.env;
 
-export const signAccessToken = (payload) =>
-  jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+export const signAccessToken = (payload) => {
+  if (!JWT_SECRET || JWT_SECRET === 'change-this-secret') {
+    throw new Error('JWT_SECRET is not configured. Please set JWT_SECRET environment variable.');
+  }
+  try {
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  } catch (error) {
+    console.error('Error signing access token:', error);
+    throw new Error('Failed to sign access token');
+  }
+};
 
-export const signRefreshToken = (payload) =>
-  jwt.sign(payload, JWT_REFRESH_SECRET, {
-    expiresIn: JWT_REFRESH_EXPIRES_IN
-  });
+export const signRefreshToken = (payload) => {
+  if (!JWT_REFRESH_SECRET || JWT_REFRESH_SECRET === 'change-this-refresh-secret') {
+    throw new Error('JWT_REFRESH_SECRET is not configured. Please set JWT_REFRESH_SECRET environment variable.');
+  }
+  try {
+    return jwt.sign(payload, JWT_REFRESH_SECRET, {
+      expiresIn: JWT_REFRESH_EXPIRES_IN
+    });
+  } catch (error) {
+    console.error('Error signing refresh token:', error);
+    throw new Error('Failed to sign refresh token');
+  }
+};
 
 export const verifyAccessToken = (token) => {
   try {
