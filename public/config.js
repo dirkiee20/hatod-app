@@ -14,11 +14,18 @@ const API_BASE_URL = isCapacitor
 // API Origin (base URL without /api)
 const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
 
+// Logo URLs - served from API server
+const LOGO_URLS = {
+    app_logo: `${API_ORIGIN}/public/logos/app_logo.png`,
+    logo_192x192: `${API_ORIGIN}/public/logos/logo_192x192.png`
+};
+
 // Export for use in other scripts
 window.HATOD_CONFIG = {
     API_BASE_URL: API_BASE_URL,
     API_ORIGIN: API_ORIGIN,
-    isCapacitor: isCapacitor
+    isCapacitor: isCapacitor,
+    LOGO_URLS: LOGO_URLS
 };
 
 // For backward compatibility
@@ -27,5 +34,32 @@ window.API_ORIGIN = API_ORIGIN;
 
 console.log('[HATOD Config] API Base URL:', API_BASE_URL);
 console.log('[HATOD Config] Running in Capacitor:', isCapacitor);
+console.log('[HATOD Config] Logo URLs:', LOGO_URLS);
+
+// Automatically update logo images when DOM is ready
+(function() {
+    function updateLogos() {
+        // Update all logo images
+        document.querySelectorAll('img[src*="public/logos/app_logo.png"]').forEach(img => {
+            img.src = LOGO_URLS.app_logo;
+        });
+        
+        document.querySelectorAll('img[src*="public/logos/logo_192x192.png"]').forEach(img => {
+            img.src = LOGO_URLS.logo_192x192;
+        });
+        
+        // Update favicon
+        const favicon = document.querySelector('link[rel="icon"][href*="logo_192x192"]');
+        if (favicon) {
+            favicon.href = LOGO_URLS.logo_192x192;
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateLogos);
+    } else {
+        updateLogos();
+    }
+})();
 
 

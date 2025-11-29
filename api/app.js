@@ -90,6 +90,19 @@ app.use('/uploads', (req, res, next) => {
   }
 }, express.static(path.join(__dirname, '..', 'uploads')));
 
+// Serve public static files (logos, etc.) with CORS headers
+app.use('/public', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+}, express.static(path.join(__dirname, '..', 'public')));
+
 app.get('/', (_req, res) => {
   res.json({ 
     message: 'HATOD API Server',
