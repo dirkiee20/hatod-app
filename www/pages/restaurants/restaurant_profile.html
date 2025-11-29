@@ -36,10 +36,10 @@
                     <div class="relative">
                         <button id="profileDropdownBtn" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
                             <img id="headerProfileImage"
-                                 src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 src=""
                                  alt="Restaurant logo"
                                  class="w-8 h-8 rounded-full object-cover"
-                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                 onerror="this.src=window.DEFAULT_AVATAR_URL || `${window.API_BASE_URL?.replace('/api', '') || ''}/public/default-avatar.svg`; this.onerror=null;">
                             <span class="text-sm font-medium" id="headerRestaurantName">Loading...</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -98,10 +98,10 @@
                 <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
                     <!-- Restaurant Logo -->
                     <div class="text-center mb-6">
-                        <img id="sidebarLogo" src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        <img id="sidebarLogo" src=""
                              alt="Restaurant logo"
                              class="w-24 h-24 rounded-lg object-cover mx-auto mb-4"
-                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                             onerror="this.src=window.DEFAULT_AVATAR_URL || `${window.API_BASE_URL?.replace('/api', '') || ''}/public/default-avatar.svg`; this.onerror=null;">
                         <h3 class="text-xl font-bold text-text-primary mb-1" id="sidebarRestaurantName">Loading...</h3>
                         <p class="text-text-secondary text-sm" id="sidebarCuisineType">Loading...</p>
                         <input type="file" id="logoInput" accept="image/*" class="hidden">
@@ -112,7 +112,6 @@
                     <nav class="space-y-2">
                         <a href="#restaurant" class="block px-4 py-2 bg-primary text-white rounded-lg">Restaurant Information</a>
                         <a href="#hours" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Business Hours</a>
-                        <a href="#payment" class="block px-4 py-2 text-text-secondary hover:bg-gray-50 rounded-lg transition-smooth">Payment Methods</a>
                     </nav>
                 </div>
             </aside>
@@ -287,30 +286,6 @@
                     </button>
                 </section>
 
-
-                <!-- Payment Methods -->
-                <section id="payment" class="bg-surface rounded-lg p-6 shadow-card border border-border">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-text-primary">Payment Methods</h3>
-                        <a href="restaurant_payment_setup.html" class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            <span>Add Payment Method</span>
-                        </a>
-                    </div>
-                    <div class="space-y-4">
-                        <!-- Empty State for Payment Methods -->
-                        <div class="border border-border rounded-lg p-8 text-center">
-                            <svg class="w-12 h-12 text-text-secondary mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                            </svg>
-                            <h4 class="text-sm font-medium text-text-primary mb-1">No payment methods set up</h4>
-                            <p class="text-xs text-text-secondary">Add a bank account to receive payments from customer orders.</p>
-                        </div>
-                    </div>
-                </section>
-
             </div>
         </div>
     </main>
@@ -361,8 +336,6 @@
 <script src="../../public/config.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
-        const API_BASE_URL = window.API_BASE_URL;
-        <script>
     // API base URL
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
     const DEFAULT_BANNER_URL = 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80';
@@ -452,10 +425,31 @@
 
             // Update header profile image
             const headerProfileImage = document.getElementById('headerProfileImage');
-            if (headerProfileImage && restaurant.imageUrl) {
-                const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
-                if (resolvedImageUrl) {
-                    headerProfileImage.src = resolvedImageUrl;
+            if (headerProfileImage) {
+                if (restaurant.imageUrl) {
+                    const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
+                    if (resolvedImageUrl) {
+                        headerProfileImage.src = resolvedImageUrl;
+                    } else {
+                        headerProfileImage.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
+                    }
+                } else {
+                    headerProfileImage.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
+                }
+            }
+            
+            // Update sidebar logo
+            const sidebarLogo = document.getElementById('sidebarLogo');
+            if (sidebarLogo) {
+                if (restaurant.imageUrl) {
+                    const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
+                    if (resolvedImageUrl) {
+                        sidebarLogo.src = resolvedImageUrl;
+                    } else {
+                        sidebarLogo.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
+                    }
+                } else {
+                    sidebarLogo.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
                 }
             }
 
@@ -902,6 +896,18 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Set default avatar initially
+        const profileImage = document.getElementById('headerProfileImage');
+        const sidebarLogo = document.getElementById('sidebarLogo');
+        if (profileImage && !profileImage.src) {
+            const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+            profileImage.src = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+        }
+        if (sidebarLogo && !sidebarLogo.src) {
+            const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+            sidebarLogo.src = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+        }
+        
         // Check authentication
         if (!getAuthToken() || getUserRole() !== 'restaurant') {
             window.location.href = '../login.html';

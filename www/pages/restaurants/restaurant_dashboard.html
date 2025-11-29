@@ -33,10 +33,10 @@
                     <div class="relative">
                         <button id="profileDropdownBtn" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
                             <img id="headerProfileImage"
-                                 src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 src=""
                                  alt="Restaurant logo"
                                  class="w-8 h-8 rounded-full object-cover"
-                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                 onerror="this.src=window.DEFAULT_AVATAR_URL || `${window.API_BASE_URL?.replace('/api', '') || ''}/public/default-avatar.svg`; this.onerror=null;">
                             <span id="headerRestaurantName" class="text-sm font-medium">Loading...</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -439,8 +439,6 @@
 <script src="../../public/config.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
-        const API_BASE_URL = window.API_BASE_URL;
-        <script>
     // API base URL
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
 
@@ -521,10 +519,16 @@
 
             // Update profile image with restaurant logo
             const profileImage = document.getElementById('headerProfileImage');
-            if (profileImage && restaurant.imageUrl) {
-                const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
-                if (resolvedImageUrl) {
-                    profileImage.src = resolvedImageUrl;
+            if (profileImage) {
+                if (restaurant.imageUrl) {
+                    const resolvedImageUrl = resolveImageUrl(restaurant.imageUrl);
+                    if (resolvedImageUrl) {
+                        profileImage.src = resolvedImageUrl;
+                    } else {
+                        profileImage.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
+                    }
+                } else {
+                    profileImage.src = window.DEFAULT_AVATAR_URL || `${API_BASE_URL.replace('/api', '')}/public/default-avatar.svg`;
                 }
             }
         } catch (error) {
@@ -745,6 +749,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Set default avatar initially
+        const profileImage = document.getElementById('headerProfileImage');
+        if (profileImage && !profileImage.src) {
+            const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+            profileImage.src = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+        }
+        
         // Update header profile
         updateHeaderProfile();
         

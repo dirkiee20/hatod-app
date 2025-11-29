@@ -149,10 +149,10 @@
                         <h3 class="text-lg font-semibold text-text-primary mb-4">Restaurant Information</h3>
                         <div class="flex items-center space-x-4 mb-4">
                             <img id="restaurantImage"
-                                 src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop"
+                                 src="https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop"
                                  alt="Restaurant"
                                  class="w-16 h-16 rounded-lg object-cover"
-                                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop'; this.onerror=null;">
+                                 onerror="this.src='https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop'; this.onerror=null;">
                             <div>
                                 <p class="text-base font-medium text-text-primary" id="restaurantName"></p>
                                 <p class="text-sm text-text-secondary" id="restaurantAddress"></p>
@@ -282,7 +282,7 @@
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
         const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
-        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop';
+        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop';
 
         function resolveImageUrl(url) {
             if (!url || url.trim() === '') {

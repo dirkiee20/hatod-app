@@ -37,6 +37,9 @@ const LOCAL_API_URL = 'http://localhost:4000/api';
         logo_192x192: `${window.API_ORIGIN}/public/logos/logo_192x192.png`
     };
     
+    // Default avatar for users without profile pictures
+    const DEFAULT_AVATAR_URL = `${window.API_ORIGIN}/public/default-avatar.svg`;
+    
     // Alternative: Use Supabase Storage URLs (uncomment after uploading logos)
     // Replace 'your-project-id' with your actual Supabase project ID
     // const SUPABASE_STORAGE_BASE = 'https://your-project-id.supabase.co/storage/v1/object/public/images';
@@ -50,8 +53,12 @@ const LOCAL_API_URL = 'http://localhost:4000/api';
         API_BASE_URL: API_BASE_URL,
         API_ORIGIN: window.API_ORIGIN,
         isCapacitor: isCapacitor,
-        LOGO_URLS: LOGO_URLS
+        LOGO_URLS: LOGO_URLS,
+        DEFAULT_AVATAR_URL: DEFAULT_AVATAR_URL
     };
+    
+    // Also set as a global constant for easy access
+    window.DEFAULT_AVATAR_URL = DEFAULT_AVATAR_URL;
     
     console.log('[HATOD Config] API Base URL:', API_BASE_URL);
     console.log('[HATOD Config] Running in Capacitor:', isCapacitor);
