@@ -17,8 +17,13 @@ export const errorHandler = (err, req, res, next) => {
     response.details = err.details;
   }
 
-  if (process.env.NODE_ENV !== 'production') {
+  // In development or if explicitly enabled, show more error details
+  if (process.env.NODE_ENV !== 'production' || process.env.SHOW_ERROR_DETAILS === 'true') {
     response.stack = err.stack;
+    // Include original error message if available
+    if (err.originalError) {
+      response.originalError = err.originalError.message;
+    }
   }
 
   // Add CORS headers for error responses
