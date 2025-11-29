@@ -6,7 +6,7 @@ import {
   unauthorized
 } from '../utils/httpError.js';
 import path from 'path';
-import fs from 'fs';
+import { uploadToSupabase } from '../utils/storage.js';
 
 const ensureSameUser = (reqUser, paramId) => {
   if (reqUser.role !== 'admin' && reqUser.sub !== paramId) {
@@ -394,8 +394,19 @@ export const uploadProfileImage = asyncHandler(async (req, res) => {
     throw badRequest('No image file provided');
   }
 
-  // Multer already saves the file, we just need to construct the URL
-  const imageUrl = `/uploads/profiles/${req.file.filename}`;
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `customer-${uniqueSuffix}${fileExtension}`;
+  const filePath = `profiles/${fileName}`;
+
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   const result = await query(
     `UPDATE users
@@ -403,7 +414,7 @@ export const uploadProfileImage = asyncHandler(async (req, res) => {
          updated_at = NOW()
      WHERE id = $2 AND user_type = 'customer'
      RETURNING id, image_url AS "imageUrl"`,
-    [imageUrl, customerId]
+    [url, customerId]
   );
 
   if (result.rowCount === 0) {

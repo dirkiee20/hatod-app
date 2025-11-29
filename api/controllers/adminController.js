@@ -2,6 +2,8 @@ import { query, withTransaction } from '../config/db.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { badRequest, conflict, notFound } from '../utils/httpError.js';
 import { hashPassword } from '../utils/password.js';
+import path from 'path';
+import { uploadToSupabase } from '../utils/storage.js';
 
 const mapFrontUserTypeToDb = (type) => {
   if (!type) return null;
@@ -810,8 +812,19 @@ export const uploadPaymentQrCode = asyncHandler(async (req, res) => {
     throw badRequest('No QR code image file provided');
   }
 
-  // Multer already saves the file, we just need to construct the URL
-  const qrCodeUrl = `/uploads/payment/${req.file.filename}`;
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `qr-code-${uniqueSuffix}${fileExtension}`;
+  const filePath = `payment/${fileName}`;
+
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   // Insert or update the QR code URL in payment_settings
   const result = await query(
@@ -822,7 +835,7 @@ export const uploadPaymentQrCode = asyncHandler(async (req, res) => {
        value = $1,
        updated_at = NOW()
      RETURNING value AS "qrCodeUrl", updated_at AS "updatedAt"`,
-    [qrCodeUrl]
+    [url]
   );
 
   res.json({
@@ -1006,8 +1019,19 @@ export const uploadAdminProfileImage = asyncHandler(async (req, res) => {
     throw badRequest('No image file provided');
   }
 
-  // Multer already saves the file, we just need to construct the URL
-  const imageUrl = `/uploads/profiles/${req.file.filename}`;
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `admin-${uniqueSuffix}${fileExtension}`;
+  const filePath = `profiles/${fileName}`;
+
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   const result = await query(
     `UPDATE users
@@ -1015,7 +1039,7 @@ export const uploadAdminProfileImage = asyncHandler(async (req, res) => {
          updated_at = NOW()
      WHERE id = $2 AND user_type = 'admin'
      RETURNING id, image_url AS "imageUrl"`,
-    [imageUrl, adminId]
+    [url, adminId]
   );
 
   if (result.rowCount === 0) {

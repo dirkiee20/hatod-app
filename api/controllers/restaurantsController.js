@@ -1,7 +1,7 @@
 import { query, withTransaction } from '../config/db.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import fs from 'fs';
 import path from 'path';
+import { uploadToSupabase } from '../utils/storage.js';
 import {
   badRequest,
   forbidden,
@@ -1168,14 +1168,19 @@ export const uploadRestaurantLogo = asyncHandler(async (req, res) => {
     throw badRequest('No logo file provided');
   }
 
-  // Create uploads/logos directory if it doesn't exist
-  const uploadDir = path.join(process.cwd(), 'uploads', 'logos');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `restaurant-${uniqueSuffix}${fileExtension}`;
+  const filePath = `logos/${fileName}`;
 
-  // Generate logo URL
-  const logoUrl = `/uploads/logos/${req.file.filename}`;
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   // Update restaurant with new logo URL
   const result = await query(
@@ -1184,7 +1189,7 @@ export const uploadRestaurantLogo = asyncHandler(async (req, res) => {
          updated_at = NOW()
      WHERE id = $2
      RETURNING id, image_url AS "imageUrl"`,
-    [logoUrl, restaurantId]
+    [url, restaurantId]
   );
 
   if (result.rowCount === 0) {
@@ -1208,12 +1213,19 @@ export const uploadRestaurantBanner = asyncHandler(async (req, res) => {
     throw badRequest('No banner file provided');
   }
 
-  const uploadDir = path.join(process.cwd(), 'uploads', 'banners');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `banner-${uniqueSuffix}${fileExtension}`;
+  const filePath = `banners/${fileName}`;
 
-  const bannerUrl = `/uploads/banners/${req.file.filename}`;
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   const result = await query(
     `UPDATE restaurants
@@ -1221,7 +1233,7 @@ export const uploadRestaurantBanner = asyncHandler(async (req, res) => {
          updated_at = NOW()
      WHERE id = $2
      RETURNING id, banner_url AS "bannerUrl"`,
-    [bannerUrl, restaurantId]
+    [url, restaurantId]
   );
 
   if (result.rowCount === 0) {
@@ -1245,17 +1257,24 @@ export const uploadMenuItemImage = asyncHandler(async (req, res) => {
     throw badRequest('No image file provided');
   }
 
-  const uploadDir = path.join(process.cwd(), 'uploads', 'menu-items');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  // Generate unique filename
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const fileExtension = path.extname(req.file.originalname);
+  const fileName = `menu-item-${uniqueSuffix}${fileExtension}`;
+  const filePath = `menu-items/${fileName}`;
 
-  const imageUrl = `/uploads/menu-items/${req.file.filename}`;
+  // Upload to Supabase Storage
+  const { url } = await uploadToSupabase(
+    req.file.buffer,
+    'uploads',
+    filePath,
+    req.file.mimetype
+  );
 
   res.json({
     status: 'success',
     data: {
-      imageUrl
+      imageUrl: url
     }
   });
 });

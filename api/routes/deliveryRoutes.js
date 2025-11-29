@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import {
   listAssignments,
   updateDeliveryStatus,
@@ -26,28 +23,9 @@ import {
 import { authenticate, requireRoles } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsRoot = path.resolve(__dirname, '..', '..', 'uploads');
-
-const ensureUploadDir = (subdir) => {
-  const uploadPath = path.join(uploadsRoot, subdir);
-  if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-  }
-  return uploadPath;
-};
-
-const createImageUpload = (subdir, prefix) => multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      cb(null, ensureUploadDir(subdir));
-    },
-    filename: (_req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, `${prefix}-${uniqueSuffix}${path.extname(file.originalname)}`);
-    }
-  }),
+// Use memory storage for Supabase uploads
+const profileImageUpload = multer({
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -58,9 +36,7 @@ const createImageUpload = (subdir, prefix) => multer({
       cb(new Error('Only image files are allowed'));
     }
   }
-});
-
-const profileImageUpload = createImageUpload('profiles', 'rider');
+}).single('image');
 
 const router = Router();
 
@@ -165,7 +141,7 @@ router.post(
   '/riders/:riderId/profile/upload-image',
   authenticate,
   requireRoles('delivery', 'admin'),
-  profileImageUpload.single('image'),
+  profileImageUpload,
   [param('riderId').isUUID()],
   validate,
   uploadRiderProfileImage
