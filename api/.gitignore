@@ -33,3 +33,8 @@ Thumbs.db
 # Deployment
 .vercel
 .railway
+
+# Secrets and credentials
+RAILWAY_ENV_VARS.md
+*_SECRETS.md
+*_CREDENTIALS.md

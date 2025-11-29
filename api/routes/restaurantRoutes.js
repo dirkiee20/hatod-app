@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import { body, param, query } from 'express-validator';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import {
   listRestaurants,
   getRestaurant,
@@ -32,28 +29,9 @@ import { validate } from '../middleware/validate.js';
 
 const router = Router();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadsRoot = path.resolve(__dirname, '..', '..', 'uploads');
-
-const ensureUploadDir = (subdir) => {
-  const uploadPath = path.join(uploadsRoot, subdir);
-  if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-  }
-  return uploadPath;
-};
-
-const createImageUpload = (subdir, prefix) => multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      cb(null, ensureUploadDir(subdir));
-    },
-    filename: (_req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, `${prefix}-${uniqueSuffix}${path.extname(file.originalname)}`);
-    }
-  }),
+// Use memory storage for Supabase uploads
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -66,9 +44,9 @@ const createImageUpload = (subdir, prefix) => multer({
   }
 });
 
-const logoUpload = createImageUpload('logos', 'restaurant');
-const bannerUpload = createImageUpload('banners', 'banner');
-const menuItemImageUpload = createImageUpload('menu-items', 'menu-item');
+const logoUpload = imageUpload.single('logo');
+const bannerUpload = imageUpload.single('banner');
+const menuItemImageUpload = imageUpload.single('image');
 
 // Public endpoints
 router.get(
@@ -199,7 +177,7 @@ router.post(
 
 router.post(
   '/:restaurantId/logo',
-  logoUpload.single('logo'),
+  logoUpload,
   [param('restaurantId').isUUID()],
   validate,
   uploadRestaurantLogo
@@ -207,7 +185,7 @@ router.post(
 
 router.post(
   '/:restaurantId/banner',
-  bannerUpload.single('banner'),
+  bannerUpload,
   [param('restaurantId').isUUID()],
   validate,
   uploadRestaurantBanner
@@ -215,7 +193,7 @@ router.post(
 
 router.post(
   '/:restaurantId/menu/items/upload-image',
-  menuItemImageUpload.single('image'),
+  menuItemImageUpload,
   [param('restaurantId').isUUID()],
   validate,
   uploadMenuItemImage
