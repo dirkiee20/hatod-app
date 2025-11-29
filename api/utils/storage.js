@@ -6,19 +6,25 @@ dotenv.config();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn('⚠️ Supabase Storage not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
-}
-
 // Create Supabase client with service role key (for server-side operations)
-const supabase = supabaseUrl && supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey, {
+let supabase = null;
+
+try {
+  if (supabaseUrl && supabaseServiceKey) {
+    supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
-    })
-  : null;
+    });
+    console.log('✅ Supabase Storage configured');
+  } else {
+    console.warn('⚠️ Supabase Storage not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
+  }
+} catch (error) {
+  console.warn('⚠️ Failed to initialize Supabase Storage:', error.message);
+  console.warn('⚠️ Image uploads will fail until Supabase is configured.');
+}
 
 /**
  * Upload file to Supabase Storage

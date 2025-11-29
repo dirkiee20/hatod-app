@@ -12,6 +12,8 @@ console.log('[STARTUP] PORT:', process.env.PORT);
 import app from './app.js';
 import { pool } from './config/db.js';
 
+console.log('[STARTUP] Modules imported successfully');
+
 const PORT = Number(process.env.PORT ?? 4000);
 console.log(`[STARTUP] Initializing server on port ${PORT}...`);
 
