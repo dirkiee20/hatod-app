@@ -545,10 +545,10 @@
                     document.getElementById(`${dayName}Close`).value = hours.closeTime || '';
                     document.getElementById(`${dayName}Closed`).checked = hours.isClosed || false;
                 } else {
-                    // Set default values if no hours set
+                    // Set default values if no hours set - default to closed
                     document.getElementById(`${dayName}Open`).value = '';
                     document.getElementById(`${dayName}Close`).value = '';
-                    document.getElementById(`${dayName}Closed`).checked = false;
+                    document.getElementById(`${dayName}Closed`).checked = true;
                 }
             }
         } catch (error) {
