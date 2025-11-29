@@ -7,12 +7,14 @@ dotenv.config();
 console.log('[STARTUP] Environment loaded');
 console.log('[STARTUP] NODE_ENV:', process.env.NODE_ENV);
 console.log('[STARTUP] PORT:', process.env.PORT);
+console.log('[STARTUP] Current working directory:', process.cwd());
 
 // Import after dotenv.config()
+console.log('[STARTUP] Importing modules...');
 import app from './app.js';
 import { pool } from './config/db.js';
 
-console.log('[STARTUP] Modules imported successfully');
+console.log('[STARTUP] All modules imported successfully');
 
 const PORT = Number(process.env.PORT ?? 4000);
 console.log(`[STARTUP] Initializing server on port ${PORT}...`);

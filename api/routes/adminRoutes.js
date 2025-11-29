@@ -31,6 +31,21 @@ import { authenticate, requireRoles } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 // Use memory storage for Supabase uploads
+// Use memory storage for Supabase uploads
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
 const qrCodeImageUpload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -44,6 +59,8 @@ const qrCodeImageUpload = multer({
     }
   }
 }).single('qrCode');
+
+const adminProfileImageUpload = imageUpload.single('image');
 
 const router = Router();
 // Temporarily disable authentication for development
@@ -226,12 +243,11 @@ router.patch(
   updateAdminProfile
 );
 
-const adminProfileImageUpload = createImageUpload('profiles', 'admin');
 router.post(
   '/profile/upload-image',
   authenticate,
   requireRoles('admin'),
-  adminProfileImageUpload.single('image'),
+  adminProfileImageUpload,
   uploadAdminProfileImage
 );
 
