@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "npm run server"
+startCommand = "npm start"
 healthcheckPath = "/health"
 restartPolicyType = "ON_FAILURE"
 
