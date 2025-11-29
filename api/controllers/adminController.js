@@ -196,6 +196,7 @@ export const createRestaurantUser = asyncHandler(async (req, res) => {
     const user = userInsert.rows[0];
 
     // Create basic restaurant record - owner will fill in details later
+    // Restaurant starts closed since business hours are not yet set
     const restaurantInsert = await client.query(
       `INSERT INTO restaurants (owner_id, name, email, address, is_open)
        VALUES ($1, $2, $3, $4, $5)
@@ -205,7 +206,7 @@ export const createRestaurantUser = asyncHandler(async (req, res) => {
         restaurantName,
         email.toLowerCase(),
         'Address to be updated by restaurant owner', // Placeholder address
-        isActive
+        false // Start closed until business hours are configured
       ]
     );
 
