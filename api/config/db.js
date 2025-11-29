@@ -46,7 +46,18 @@ export const query = async (text, params) => {
   try {
     return await pool.query(text, params);
   } catch (error) {
-    console.error('Database query failed', { text, error });
+    console.error('Database query failed', { 
+      text, 
+      params,
+      error: error.message,
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack
+    });
+    // In development, include the actual error message
+    if (process.env.NODE_ENV !== 'production') {
+      throw internal(`Database query failed: ${error.message}`);
+    }
     throw internal('Database query failed');
   }
 };
