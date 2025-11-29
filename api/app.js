@@ -90,6 +90,18 @@ app.use('/uploads', (req, res, next) => {
   }
 }, express.static(path.join(__dirname, '..', 'uploads')));
 
+app.get('/', (_req, res) => {
+  res.json({ 
+    message: 'HATOD API Server',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+      test: '/api/test'
+    }
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
