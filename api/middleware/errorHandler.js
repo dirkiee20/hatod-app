@@ -5,6 +5,11 @@ export const notFoundHandler = (req, res, next) => {
 };
 
 export const errorHandler = (err, req, res, next) => {
+  // Prevent sending response if headers already sent
+  if (res.headersSent) {
+    return next(err);
+  }
+
   const status = err instanceof HttpError ? err.statusCode : 500;
   const message =
     err instanceof HttpError ? err.message : 'Internal server error';
@@ -27,25 +32,41 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   // Add CORS headers for error responses
+  // Always set CORS headers, even for errors, to prevent connection reset issues
   const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:4000',
-    'http://127.0.0.1:4000',
-    'http://localhost:5501',
-    'http://127.0.0.1:5501',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500'
-  ];
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // If no origin (e.g., mobile app or direct API call), allow all
+    res.header('Access-Control-Allow-Origin', '*');
   }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // If this is an OPTIONS request, respond immediately
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
 
-  console.error(err);
-  res.status(status).json(response);
+  // Log error for debugging
+  console.error('Error handler:', {
+    message: err.message,
+    status,
+    stack: err.stack,
+    url: req.url,
+    method: req.method
+  });
+
+  // Ensure response is sent
+  try {
+    res.status(status).json(response);
+  } catch (sendError) {
+    console.error('Error sending error response:', sendError);
+    // Last resort - try to send a simple text response
+    if (!res.headersSent) {
+      res.status(500).send('Internal server error');
+    }
+  }
 };
 
