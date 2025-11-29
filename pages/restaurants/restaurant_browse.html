@@ -553,6 +553,36 @@
                         icon.classList.add('text-text-secondary');
                         button.setAttribute('title', 'Add to favorites');
                     }
+
+                    // Fetch updated restaurant data to get the new rating
+                    try {
+                        const restaurantResponse = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (restaurantResponse.ok) {
+                            const restaurantData = await restaurantResponse.json();
+                            const updatedRestaurant = restaurantData.data;
+                            
+                            // Find the card and update the rating display
+                            const card = button.closest('.bg-surface.rounded-lg');
+                            if (card) {
+                                // Find the rating element - it's in a div with flex items-center space-x-1
+                                const ratingContainer = card.querySelector('.flex.items-center.space-x-1');
+                                if (ratingContainer) {
+                                    const ratingElement = ratingContainer.querySelector('span.text-sm.text-text-secondary');
+                                    if (ratingElement) {
+                                        ratingElement.textContent = updatedRestaurant.rating ? updatedRestaurant.rating.toFixed(1) : 'N/A';
+                                    }
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error fetching updated restaurant rating:', error);
+                        // Don't show error to user, just log it
+                    }
                 } catch (error) {
                     console.error('Error toggling favorite:', error);
                     alert('Failed to update favorite. Please try again.');

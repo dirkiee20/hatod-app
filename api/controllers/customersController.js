@@ -309,6 +309,13 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
       'DELETE FROM favorites WHERE user_id = $1 AND restaurant_id = $2',
       [customerId, restaurantId]
     );
+    
+    // Delete the 5-star review that was created when favoriting
+    await query(
+      'DELETE FROM reviews WHERE customer_id = $1 AND restaurant_id = $2 AND order_id IS NULL AND rating = 5',
+      [customerId, restaurantId]
+    );
+    
     res.json({ status: 'success', data: { isFavorite: false } });
   } else {
     // Add favorite
@@ -316,6 +323,27 @@ export const toggleFavorite = asyncHandler(async (req, res) => {
       'INSERT INTO favorites (user_id, restaurant_id) VALUES ($1, $2)',
       [customerId, restaurantId]
     );
+    
+    // Check if a review already exists for this customer-restaurant pair (without order_id)
+    const existingReview = await query(
+      'SELECT id FROM reviews WHERE customer_id = $1 AND restaurant_id = $2 AND order_id IS NULL',
+      [customerId, restaurantId]
+    );
+    
+    // Create a 5-star review if one doesn't exist
+    if (existingReview.rowCount === 0) {
+      await query(
+        'INSERT INTO reviews (customer_id, restaurant_id, rating, comment, order_id, is_verified) VALUES ($1, $2, $3, $4, NULL, false)',
+        [customerId, restaurantId, 5, 'Favorite restaurant']
+      );
+    } else {
+      // Update existing review to 5 stars
+      await query(
+        'UPDATE reviews SET rating = 5, comment = COALESCE(comment, $1) WHERE customer_id = $2 AND restaurant_id = $3 AND order_id IS NULL',
+        ['Favorite restaurant', customerId, restaurantId]
+      );
+    }
+    
     res.json({ status: 'success', data: { isFavorite: true } });
   }
 });

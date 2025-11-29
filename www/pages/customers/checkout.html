@@ -334,8 +334,6 @@
     <script src="../../public/config.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
-        const API_BASE_URL = window.API_BASE_URL;
-        <script>
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -440,28 +438,6 @@
 
         async function loadCheckoutData() {
             try {
-                // Load cart data
-                const cartResponse = await fetch(`${API_BASE_URL}/cart`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                    }
-                });
-
-                if (!cartResponse.ok) {
-                    throw new Error('Failed to load cart');
-                }
-
-                const cartData = await cartResponse.json();
-                const cart = cartData.data || [];
-
-
-                if (cart.length === 0) {
-                    alert('Your cart is empty');
-                    window.location.href = 'shopping_cart.html';
-                    return;
-                }
-
-                // Load addresses
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     alert('Please log in to continue');
@@ -469,30 +445,62 @@
                     return;
                 }
 
+                console.log('[Checkout] Loading cart data...');
+                // Load cart data
+                const cartResponse = await fetch(`${API_BASE_URL}/cart`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!cartResponse.ok) {
+                    const errorData = await cartResponse.json().catch(() => ({ message: 'Failed to load cart' }));
+                    throw new Error(errorData.message || 'Failed to load cart');
+                }
+
+                const cartData = await cartResponse.json();
+                const cart = cartData.data || [];
+                console.log('[Checkout] Cart data loaded:', cart);
+
+                if (cart.length === 0) {
+                    alert('Your cart is empty');
+                    window.location.href = 'shopping_cart.html';
+                    return;
+                }
+
                 // Decode JWT to get customer ID (simple decode, not secure)
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const customerId = payload.sub;
 
+                console.log('[Checkout] Loading addresses for customer:', customerId);
                 const addressesResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                const addressesData = await addressesResponse.json();
-                const addresses = addressesData.data || [];
+                if (!addressesResponse.ok) {
+                    const errorData = await addressesResponse.json().catch(() => ({ message: 'Failed to load addresses' }));
+                    console.error('[Checkout] Failed to load addresses:', errorData);
+                    // Still show cart even if addresses fail
+                    updateAddressSelection([]);
+                } else {
+                    const addressesData = await addressesResponse.json();
+                    const addresses = addressesData.data || [];
+                    console.log('[Checkout] Addresses loaded:', addresses);
+                    updateAddressSelection(addresses);
+                }
 
                 // Update UI with real data
                 updateRestaurantInfo(cart);
-                updateOrderSummary(cart);
-                updateAddressSelection(addresses);
+                await updateOrderSummary(cart);
                 
                 // Validate barangay
                 await validateBarangay(token, customerId);
 
             } catch (error) {
-                console.error('Error loading checkout data:', error);
-                alert('Failed to load checkout data. Please try again.');
+                console.error('[Checkout] Error loading checkout data:', error);
+                alert('Failed to load checkout data: ' + error.message);
             }
         }
 
@@ -591,10 +599,24 @@
         }
 
         async function updateOrderSummary(cart) {
-            const orderItemsContainer = document.querySelector('.space-y-3');
+            // Find the order summary section more specifically
+            const orderSummarySection = document.querySelector('.lg\\:col-span-1 .space-y-3') || 
+                                       document.querySelector('.p-6.border-b .space-y-3');
+            
+            if (!orderSummarySection) {
+                console.error('Order summary container not found');
+                return;
+            }
 
-            // Find price elements more reliably
-            const priceBreakdown = document.querySelector('.space-y-2');
+            // Find price elements more reliably - look within the price breakdown section
+            const priceBreakdown = document.querySelector('.p-6:not(.border-b) .space-y-2') ||
+                                  document.querySelector('.lg\\:col-span-1 .space-y-2');
+            
+            if (!priceBreakdown) {
+                console.error('Price breakdown container not found');
+                return;
+            }
+            
             const priceElements = priceBreakdown.querySelectorAll('.flex.justify-between.text-sm span:last-child');
             const subtotalElement = priceElements[0]; // Subtotal
             const deliveryFeeElement = priceElements[1]; // Delivery fee
@@ -618,7 +640,7 @@
                 `;
             });
 
-            orderItemsContainer.innerHTML = orderItemsHtml;
+            orderSummarySection.innerHTML = orderItemsHtml;
 
             // Calculate delivery fee based on barangay and order amount
             let deliveryFee = 0;
@@ -687,12 +709,17 @@
         }
 
         function updateAddressSelection(addresses) {
-            const addressSelect = document.getElementById('delivery-address-select') || document.querySelector('select.w-full.border');
-            if (addresses.length === 0) {
-                addressSelect.innerHTML = '<option>No addresses available</option>';
+            const addressSelect = document.getElementById('delivery-address-select');
+            if (!addressSelect) {
+                console.error('[Checkout] Address select element not found');
                 return;
             }
-
+            
+            if (addresses.length === 0) {
+                addressSelect.innerHTML = '<option value="">No addresses available. Please add an address.</option>';
+                return;
+            }
+            
             let optionsHtml = '';
             addresses.forEach(address => {
                 // Use camelCase properties as returned by API
@@ -715,10 +742,12 @@
                     ? addressParts.join(', ')
                     : (label || 'Address');
                 
-                optionsHtml += `<option value="${address.id}">${fullAddress}</option>`;
+                const selected = address.isDefault ? ' selected' : '';
+                optionsHtml += `<option value="${address.id}"${selected}>${fullAddress}</option>`;
             });
-
+            
             addressSelect.innerHTML = optionsHtml;
+            console.log('[Checkout] Address selection updated with', addresses.length, 'addresses');
         }
 
         async function placeOrder() {

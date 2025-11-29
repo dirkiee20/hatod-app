@@ -35,10 +35,10 @@
                 <!-- User Profile -->
                 <div class="flex items-center space-x-2">
                     <img id="headerProfileImage"
-                         src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                         src="../../public/default-avatar.svg"
                          alt="Customer profile picture"
                          class="w-8 h-8 rounded-full object-cover"
-                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                         onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;">
                     <span id="headerUserName" class="text-sm font-medium text-text-primary hidden sm:block">Loading...</span>
                 </div>
             </div>
@@ -60,10 +60,10 @@
                     <!-- Profile Picture -->
                     <div class="text-center mb-6">
                         <img id="profilePicture"
-                             src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                             src="../../public/default-avatar.svg"
                              alt="Profile picture"
                              class="w-24 h-24 rounded-full object-cover mx-auto mb-4"
-                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                             onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;">
                         <h3 id="profileName" class="text-xl font-bold text-text-primary mb-1">Loading...</h3>
                         <p id="profileEmail" class="text-text-secondary text-sm">Loading...</p>
                         <input type="file" id="profileImageInput" accept="image/*" class="hidden">
@@ -332,7 +332,7 @@
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
         const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
-        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        const PLACEHOLDER_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
 
         function resolveImageUrl(url) {
             if (!url || url.trim() === '') {
