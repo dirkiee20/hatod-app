@@ -31,7 +31,8 @@
     "serve": "npx http-server . -p 3000 -o",
     "start": "npm run build:css && npm run serve",
     "server": "node api/server.js",
-    "dev:server": "nodemon api/server.js"
+    "dev:server": "nodemon api/server.js",
+    "generate:icons": "node scripts/generate-android-icons.js"
   },
   "author": "",
   "license": "MIT",
@@ -41,6 +42,7 @@
     "@tailwindcss/line-clamp": "^0.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "nodemon": "^3.1.4",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17"
   }
 }
