@@ -116,14 +116,10 @@ export const listRestaurants = asyncHandler(async (req, res) => {
     index += 1;
   }
 
-  // For public access (customers), only show active restaurants
+  // For public access (customers), show all restaurants
+  // The isOpen status will be calculated based on business hours and base status
   // For authenticated admins, show all restaurants regardless of status
-  if (req.user?.role !== 'admin') {
-    // Public access - only show active restaurants
-    filters.push(`r.is_open = $${index}`);
-    params.push(true);
-    index += 1;
-  }
+  // Note: We don't filter by is_open here - all restaurants are shown, but marked as open/closed based on business hours
   // Admins see all restaurants without filtering
 
   const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
