@@ -92,30 +92,42 @@ export const getDeliveryFeeTiers = asyncHandler(async (req, res) => {
 
 // Get all barangays with their delivery fee tiers
 export const listAllDeliveryFeeTiers = asyncHandler(async (req, res) => {
-  const result = await query(
-    `SELECT id,
-            barangay,
-            min_order_amount AS "minOrderAmount",
-            max_order_amount AS "maxOrderAmount",
-            delivery_fee AS "deliveryFee",
-            is_active AS "isActive",
-            created_at AS "createdAt",
-            updated_at AS "updatedAt"
-     FROM delivery_fee_tiers
-     WHERE is_active = true
-     ORDER BY barangay ASC, min_order_amount ASC`
-  );
+  try {
+    const result = await query(
+      `SELECT id,
+              barangay,
+              min_order_amount AS "minOrderAmount",
+              max_order_amount AS "maxOrderAmount",
+              delivery_fee AS "deliveryFee",
+              is_active AS "isActive",
+              created_at AS "createdAt",
+              updated_at AS "updatedAt"
+       FROM delivery_fee_tiers
+       WHERE is_active = true
+       ORDER BY barangay ASC, min_order_amount ASC`
+    );
 
-  // Group by barangay
-  const grouped = result.rows.reduce((acc, tier) => {
-    if (!acc[tier.barangay]) {
-      acc[tier.barangay] = [];
+    // Group by barangay
+    const grouped = result.rows.reduce((acc, tier) => {
+      if (!acc[tier.barangay]) {
+        acc[tier.barangay] = [];
+      }
+      acc[tier.barangay].push(tier);
+      return acc;
+    }, {});
+
+    res.json({ status: 'success', data: grouped });
+  } catch (error) {
+    // Check if table doesn't exist (error code 42P01 in PostgreSQL)
+    if (error.code === '42P01' || error.message?.includes('does not exist') || error.message?.includes('relation "delivery_fee_tiers"')) {
+      console.warn('⚠️ delivery_fee_tiers table does not exist. Please run the migration: database/migrations/20250102_1000_add_tiered_delivery_fees.sql');
+      // Return empty data instead of error so the admin page can still load
+      res.json({ status: 'success', data: {}, message: 'No delivery fee tiers configured. Please run the database migration.' });
+      return;
     }
-    acc[tier.barangay].push(tier);
-    return acc;
-  }, {});
-
-  res.json({ status: 'success', data: grouped });
+    // Re-throw other errors
+    throw error;
+  }
 });
 
 // Create or update delivery fee tier (admin only)
