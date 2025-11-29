@@ -159,9 +159,10 @@
         </div>
     </footer>
 
+    <script src="../public/config.js"></script>
     <script>
-        // API base URL
-        const API_BASE_URL = 'http://localhost:4000/api';
+        // API base URL (from config.js - automatically uses Railway URL in Capacitor/Android)
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
 
         // Authentication helper functions
         function storeAuthData(user, tokens) {

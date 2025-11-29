@@ -1,9 +1,16 @@
 import http from 'http';
 import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
+console.log('[STARTUP] Environment loaded');
+console.log('[STARTUP] NODE_ENV:', process.env.NODE_ENV);
+console.log('[STARTUP] PORT:', process.env.PORT);
+
+// Import after dotenv.config()
 import app from './app.js';
 import { pool } from './config/db.js';
-
-dotenv.config();
 
 const PORT = Number(process.env.PORT ?? 4000);
 console.log(`[STARTUP] Initializing server on port ${PORT}...`);
@@ -22,16 +29,21 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const start = async () => {
   try {
+    console.log('[STARTUP] Creating HTTP server...');
     // Start server first (healthcheck needs it)
     server.listen(PORT, '0.0.0.0', async () => {
       console.log(`✅ HATOD API server listening on port ${PORT}`);
+      console.log(`[STARTUP] Server bound to 0.0.0.0:${PORT}`);
+      console.log(`[STARTUP] Health check available at: http://0.0.0.0:${PORT}/health`);
       
       // Test database connection after server starts
       try {
+        console.log('[STARTUP] Testing database connection...');
         await pool.query('SELECT 1');
         console.log('✅ Database connection successful');
       } catch (error) {
         console.error('⚠️ Database connection failed (server still running):', error.message);
+        console.error('⚠️ Database error details:', error);
         // Don't exit - server can still serve healthcheck and other endpoints
         // Database will be checked on actual API calls
       }
