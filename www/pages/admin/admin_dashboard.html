@@ -7,14 +7,12 @@
     <link rel="stylesheet" href="../../css/main.css">
     <!-- SheetJS for Excel export -->
     <script src="../../public/config.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
-        const API_BASE_URL = window.API_BASE_URL;
-        <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
-  
-  
-  </head>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
+    </script>
+</head>
 <body class="bg-background min-h-screen">
     <!-- Header Navigation -->
     <header class="bg-surface shadow-card border-b border-border">

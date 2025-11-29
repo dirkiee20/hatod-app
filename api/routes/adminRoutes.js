@@ -94,7 +94,7 @@ router.get(
     query('search').optional().isString(),
     query('approvalStatus').optional().isIn(['all', 'pending', 'approved', 'rejected']),
     query('page').optional().isInt({ min: 1 }),
-    query('pageSize').optional().isInt({ min: 1, max: 100 })
+    query('pageSize').optional().isInt({ min: 1, max: 10000 })
   ],
   validate,
   getAdminRestaurants
@@ -104,7 +104,7 @@ router.get(
   [
     query('status').optional().isString(),
     query('page').optional().isInt({ min: 1 }),
-    query('pageSize').optional().isInt({ min: 1, max: 100 }),
+    query('pageSize').optional().isInt({ min: 1, max: 10000 }),
     query('restaurantId').optional().isUUID(),
     query('customerId').optional().isUUID()
   ],
