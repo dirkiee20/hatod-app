@@ -25,28 +25,39 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit on unhandled rejection - log and continue
+  // This prevents Railway from thinking the app crashed
 });
+
+// Test database connection (non-blocking)
+const testDatabaseConnection = async () => {
+  try {
+    console.log('[STARTUP] Testing database connection...');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection successful');
+  } catch (error) {
+    console.error('⚠️ Database connection failed (server still running):', error.message);
+    console.error('⚠️ Database error details:', error);
+    // Don't exit - server can still serve healthcheck and other endpoints
+    // Database will be checked on actual API calls
+  }
+};
 
 const start = async () => {
   try {
     console.log('[STARTUP] Creating HTTP server...');
     // Start server first (healthcheck needs it)
-    server.listen(PORT, '0.0.0.0', async () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ HATOD API server listening on port ${PORT}`);
       console.log(`[STARTUP] Server bound to 0.0.0.0:${PORT}`);
       console.log(`[STARTUP] Health check available at: http://0.0.0.0:${PORT}/health`);
       
-      // Test database connection after server starts
-      try {
-        console.log('[STARTUP] Testing database connection...');
-        await pool.query('SELECT 1');
-        console.log('✅ Database connection successful');
-      } catch (error) {
-        console.error('⚠️ Database connection failed (server still running):', error.message);
-        console.error('⚠️ Database error details:', error);
-        // Don't exit - server can still serve healthcheck and other endpoints
-        // Database will be checked on actual API calls
-      }
+      // Test database connection asynchronously (non-blocking)
+      // This allows Railway to see the server is ready immediately
+      testDatabaseConnection().catch((error) => {
+        // Already handled in testDatabaseConnection, but catch to prevent unhandled rejection
+        console.error('⚠️ Database test error:', error.message);
+      });
     });
     
     // Handle server errors
