@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+
+  
+  
+  </head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="bg-surface shadow-card border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="admin_dashboard.html" class="flex items-center">
+                        <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                        <h1 class="text-xl font-bold text-text-primary">HATOD Admin</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="admin_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
+                    <a href="admin_restaurants.html" class="text-text-secondary hover:text-primary transition-smooth">Restaurants</a>
+                    <a href="admin_users.html" class="text-text-secondary hover:text-primary transition-smooth">Users</a>
+                    <a href="admin_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                    <a href="admin_delivery_fees.html" class="text-text-secondary hover:text-primary transition-smooth">Delivery Fees</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="profileDropdownBtn" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img id="headerProfileImage"
+                                 src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                 alt="Admin profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src='../../public/default-avatar.svg'; this.onerror=null;">
+                            <span id="headerUserName" class="text-sm font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div id="profileDropdown" class="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg border border-border hidden z-50">
+                            <div class="py-1">
+                                <a href="admin_settings.html" class="flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-gray-50 transition-smooth">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    Settings
+                                </a>
+                                <button id="logoutDropdownBtn" class="flex items-center w-full px-4 py-2 text-sm text-text-primary hover:bg-gray-50 transition-smooth">
+                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-4">
+                <button onclick="window.history.back()" class="mr-4 p-2 text-text-secondary hover:text-primary hover:bg-gray-100 rounded-lg transition-smooth">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                </button>
+                <div>
+                    <h2 class="text-3xl font-bold text-text-primary mb-2">Admin Settings</h2>
+                    <p class="text-text-secondary">Manage your admin account settings</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Profile Sidebar -->
+            <aside class="lg:col-span-1 order-2 lg:order-1">
+                <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
+                    <!-- Profile Picture -->
+                    <div class="text-center mb-6">
+                        <img id="profilePicture"
+                             src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                             alt="Profile picture"
+                             class="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <h3 id="profileName" class="text-xl font-bold text-text-primary mb-1">Loading...</h3>
+                        <p id="profileEmail" class="text-text-secondary text-sm">Loading...</p>
+                        <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+                        <button id="changePhotoBtn" class="mt-3 text-primary text-sm hover:text-primary-600 transition-smooth">Change photo</button>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="space-y-2">
+                        <a href="#personal" class="block px-4 py-2 bg-primary text-white rounded-lg">Profile Picture</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Profile Content -->
+            <div class="lg:col-span-2 space-y-4 lg:space-y-6 order-1 lg:order-2">
+                <!-- Profile Picture Upload -->
+                <section id="personal" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                    <h3 class="text-lg font-semibold text-text-primary mb-4">Profile Picture</h3>
+                    <p class="text-text-secondary text-sm mb-4">Upload or change your profile picture. Supported formats: JPG, PNG, GIF. Maximum file size: 5MB.</p>
+                    <div class="flex items-center space-x-4">
+                        <img id="previewPicture"
+                             src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                             alt="Profile preview"
+                             class="w-32 h-32 rounded-full object-cover border-2 border-border"
+                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        <div class="flex-1">
+                            <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+                            <button id="changePhotoBtn" type="button" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                                Choose Photo
+                            </button>
+                            <p class="text-xs text-text-secondary mt-2">Click to select a new profile picture</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+
+<script>
+    const API_BASE_URL = window.__HATOD_API_BASE_URL__ || `${window.location.origin}/api`;
+    let currentAdminId = null;
+
+    function resolveImageUrl(imageUrl) {
+        if (!imageUrl) return 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+            return imageUrl;
+        }
+        if (imageUrl.startsWith('/')) {
+            return `${window.location.origin}${imageUrl}`;
+        }
+        return `${window.location.origin}/${imageUrl}`;
+    }
+
+    async function getAdminId() {
+        const token = localStorage.getItem('authToken');
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.sub;
+        } catch (error) {
+            console.error('Error getting admin ID:', error);
+            return null;
+        }
+    }
+
+    async function loadProfile() {
+        try {
+            const adminId = await getAdminId();
+            if (!adminId) {
+                alert('Please log in to view your profile');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            currentAdminId = adminId;
+            const token = localStorage.getItem('authToken');
+
+            const response = await fetch(`${API_BASE_URL}/admin/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                // If profile endpoint doesn't exist, just show default
+                console.warn('Profile endpoint not available, using defaults');
+                document.getElementById('profileName').textContent = 'Admin';
+                document.getElementById('profileEmail').textContent = 'admin@hatod.com';
+                return;
+            }
+
+            const result = await response.json();
+            const profile = result.data;
+
+            // Update sidebar
+            document.getElementById('profileName').textContent = profile.fullName || 'Admin';
+            document.getElementById('profileEmail').textContent = profile.email || '';
+
+            // Update header
+            const headerUserName = document.getElementById('headerUserName');
+            if (headerUserName) {
+                headerUserName.textContent = profile.fullName || 'Admin';
+            }
+
+            // Update profile picture
+            if (profile.imageUrl) {
+                const resolvedImageUrl = resolveImageUrl(profile.imageUrl);
+                document.getElementById('profilePicture').src = resolvedImageUrl;
+                document.getElementById('previewPicture').src = resolvedImageUrl;
+                const headerProfileImage = document.getElementById('headerProfileImage');
+                if (headerProfileImage) {
+                    headerProfileImage.src = resolvedImageUrl;
+                }
+            }
+
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            // Don't show alert, just use defaults
+            document.getElementById('profileName').textContent = 'Admin';
+            document.getElementById('profileEmail').textContent = 'admin@hatod.com';
+        }
+    }
+
+    async function uploadProfileImage(file) {
+        try {
+            const adminId = await getAdminId();
+            if (!adminId) {
+                alert('Please log in to upload profile picture');
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch(`${API_BASE_URL}/admin/profile/upload-image`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+                throw new Error(error.message || 'Failed to upload image');
+            }
+
+            const result = await response.json();
+            const imageUrl = result.data.imageUrl;
+
+            // Update profile picture displays
+            const resolvedImageUrl = resolveImageUrl(imageUrl);
+            document.getElementById('profilePicture').src = resolvedImageUrl;
+            document.getElementById('previewPicture').src = resolvedImageUrl;
+            const headerProfileImage = document.getElementById('headerProfileImage');
+            if (headerProfileImage) {
+                headerProfileImage.src = resolvedImageUrl;
+            }
+
+            alert('Profile picture updated successfully!');
+        } catch (error) {
+            console.error('Error uploading profile image:', error);
+            alert('Failed to upload profile picture: ' + error.message);
+        }
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '../login.html';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load profile on page load
+        loadProfile();
+
+        // Profile dropdown
+        const profileDropdownBtn = document.getElementById('profileDropdownBtn');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+
+        if (profileDropdownBtn && profileDropdown) {
+            profileDropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function() {
+                profileDropdown.classList.add('hidden');
+            });
+        }
+
+        if (logoutDropdownBtn) {
+            logoutDropdownBtn.addEventListener('click', logout);
+        }
+
+        // Profile picture upload
+        const changePhotoBtn = document.getElementById('changePhotoBtn');
+        const profileImageInput = document.getElementById('profileImageInput');
+
+        if (changePhotoBtn && profileImageInput) {
+            changePhotoBtn.addEventListener('click', function() {
+                profileImageInput.click();
+            });
+
+            profileImageInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file');
+                        return;
+                    }
+
+                    // Validate file size (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Image size must be less than 5MB');
+                        return;
+                    }
+
+                    await uploadProfileImage(file);
+                    profileImageInput.value = ''; // Reset input
+                }
+            });
+        }
+
+    });
+</script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
+

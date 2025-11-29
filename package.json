@@ -32,7 +32,10 @@
     "start": "npm run build:css && npm run serve",
     "server": "node api/server.js",
     "dev:server": "nodemon api/server.js",
-    "generate:icons": "node scripts/generate-android-icons.js"
+    "generate:icons": "node scripts/generate-android-icons.js",
+    "build:www": "npm run build:css && node scripts/build-www.js",
+    "build:apk": "npm run build:www && npx cap sync android",
+    "apk:build": "npm run build:apk && cd android && gradlew.bat assembleDebug"
   },
   "author": "",
   "license": "MIT",

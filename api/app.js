@@ -91,6 +91,7 @@ app.use('/uploads', (req, res, next) => {
 }, express.static(path.join(__dirname, '..', 'uploads')));
 
 // Serve public static files (logos, etc.) with CORS headers
+// Try api/public first (for Railway deployment), then fallback to project root
 app.use('/public', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -101,7 +102,7 @@ app.use('/public', (req, res, next) => {
   } else {
     next();
   }
-}, express.static(path.join(__dirname, '..', 'public')));
+}, express.static(path.join(__dirname, 'public')), express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (_req, res) => {
   res.json({ 
