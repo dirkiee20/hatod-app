@@ -1160,23 +1160,33 @@ export const updateBusinessHours = asyncHandler(async (req, res) => {
       [restaurantId]
     );
 
-    // Insert new business hours
-    for (const hours of businessHours) {
-      const isClosed = hours.isClosed || false;
-      const openTime = isClosed ? null : (hours.openTime || null);
-      const closeTime = isClosed ? null : (hours.closeTime || null);
+    // Insert new business hours (only if we have valid data to insert)
+    if (businessHours && businessHours.length > 0) {
+      for (const hours of businessHours) {
+        const isClosed = hours.isClosed || false;
+        
+        // Normalize time values: convert empty strings to null
+        let openTime = null;
+        let closeTime = null;
+        
+        if (!isClosed) {
+          // Only set times if not closed
+          openTime = (hours.openTime && hours.openTime.trim() !== '') ? hours.openTime.trim() : null;
+          closeTime = (hours.closeTime && hours.closeTime.trim() !== '') ? hours.closeTime.trim() : null;
+        }
 
-      await client.query(
-        `INSERT INTO business_hours (restaurant_id, day_of_week, open_time, close_time, is_closed)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (restaurant_id, day_of_week)
-         DO UPDATE SET
-           open_time = $3,
-           close_time = $4,
-           is_closed = $5,
-           updated_at = NOW()`,
-        [restaurantId, hours.dayOfWeek, openTime, closeTime, isClosed]
-      );
+        // Validate dayOfWeek is a valid integer
+        const dayOfWeek = Number.parseInt(hours.dayOfWeek, 10);
+        if (isNaN(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+          throw badRequest(`Invalid day of week: ${hours.dayOfWeek}. Must be 0-6.`);
+        }
+
+        await client.query(
+          `INSERT INTO business_hours (restaurant_id, day_of_week, open_time, close_time, is_closed)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [restaurantId, dayOfWeek, openTime, closeTime, isClosed]
+        );
+      }
     }
   });
 
