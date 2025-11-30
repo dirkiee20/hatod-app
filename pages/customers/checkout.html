@@ -578,9 +578,6 @@
                         // Disable place order button
                         disablePlaceOrder('Delivery not available to your location');
                     } else {
-                        // Update customer's profile barangay
-                        await updateCustomerBarangay(barangay);
-                        
                         // Show address display
                         addressDisplay.classList.remove('hidden');
                         if (barangayText) {
@@ -671,35 +668,6 @@
             } catch (error) {
                 console.error('[Checkout] Error loading checkout data:', error);
                 alert('Failed to load checkout data: ' + error.message);
-            }
-        }
-
-        // Update customer's profile barangay
-        async function updateCustomerBarangay(barangay) {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) return;
-
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const customerId = payload.sub;
-
-                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ barangay: barangay })
-                });
-
-                if (response.ok) {
-                    console.log('Customer barangay updated:', barangay);
-                } else {
-                    console.error('Failed to update customer barangay');
-                }
-            } catch (error) {
-                console.error('Error updating customer barangay:', error);
-                // Don't block the flow if update fails
             }
         }
 
