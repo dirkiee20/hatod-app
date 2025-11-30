@@ -63,6 +63,7 @@ router.get('/current/?', authenticate, requireRoles('restaurant', 'admin'), getC
 router.get('/:restaurantId', optionalAuthenticate, [param('restaurantId').isUUID()], validate, getRestaurant);
 router.get(
   '/:restaurantId/menu',
+  optionalAuthenticate,
   [param('restaurantId').isUUID()],
   validate,
   getRestaurantMenu
