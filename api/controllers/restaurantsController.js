@@ -28,7 +28,8 @@ const isRestaurantOpen = (businessHours, currentTime = new Date()) => {
     return false; // No hours set for today
   }
 
-  if (todayHours.isClosed) {
+  // Check if explicitly closed - handle boolean true or string "true"
+  if (todayHours.isClosed === true || todayHours.isClosed === 'true' || todayHours.isClosed === 1) {
     return false; // Explicitly closed
   }
 
@@ -1217,7 +1218,8 @@ export const updateBusinessHours = asyncHandler(async (req, res) => {
     // Insert new business hours (only if we have valid data to insert)
     if (businessHours && businessHours.length > 0) {
       for (const hours of businessHours) {
-        const isClosed = hours.isClosed || false;
+        // Explicitly convert to boolean - handle string "true"/"false", boolean, or undefined
+        const isClosed = hours.isClosed === true || hours.isClosed === 'true' || hours.isClosed === 1;
         
         // Normalize time values: convert empty strings to null
         let openTime = null;
