@@ -24,7 +24,7 @@ import {
   getBusinessHours,
   updateBusinessHours
 } from '../controllers/restaurantsController.js';
-import { authenticate, requireRoles } from '../middleware/auth.js';
+import { authenticate, optionalAuthenticate, requireRoles } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 
 const router = Router();
@@ -60,7 +60,7 @@ router.get(
   listRestaurants
 );
 router.get('/current/?', authenticate, requireRoles('restaurant', 'admin'), getCurrentUserRestaurant);
-router.get('/:restaurantId', [param('restaurantId').isUUID()], validate, getRestaurant);
+router.get('/:restaurantId', optionalAuthenticate, [param('restaurantId').isUUID()], validate, getRestaurant);
 router.get(
   '/:restaurantId/menu',
   [param('restaurantId').isUUID()],

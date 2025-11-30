@@ -18,6 +18,23 @@ export const authenticate = (req, res, next) => {
   }
 };
 
+// Optional authentication - sets req.user if token is present, but doesn't fail if missing
+export const optionalAuthenticate = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const payload = verifyAccessToken(token);
+      req.user = payload;
+    } catch (error) {
+      // Invalid token, but continue without setting req.user
+      req.user = undefined;
+    }
+  }
+  return next();
+};
+
 const normalizeRole = (role) => {
   if (role === 'delivery') return 'rider';
   return role;

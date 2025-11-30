@@ -692,9 +692,6 @@
                     <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
                 </div>
             </div>
-            <button id="logoutBtn" class="bg-error text-white px-3 py-1 rounded-lg hover:bg-error-600 transition-smooth text-sm">
-                Logout
-            </button>
         </div>
     </footer>
 <script>
@@ -1433,24 +1430,6 @@
             });
         }
 
-        // Handle logout from footer button (if exists)
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function() {
-                // Clear all authentication data
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('userId');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('userName');
-                localStorage.removeItem('userRole');
-                sessionStorage.removeItem('isLoggedIn');
-
-                // Redirect to login page
-                window.location.href = '../login.html';
-            });
-        }
-
         // Generate Report Function
         async function generateDailyReport() {
             try {
@@ -1575,4 +1554,3 @@
 <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
 </body>
 </html>
-                const stats

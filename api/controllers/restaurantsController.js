@@ -219,13 +219,31 @@ export const listRestaurants = asyncHandler(async (req, res) => {
 export const getRestaurant = asyncHandler(async (req, res) => {
   const { restaurantId } = req.params;
 
+  // Check if user is the restaurant owner
+  let isOwner = false;
+  if (req.user && req.user.role === 'restaurant') {
+    const ownerCheck = await query(
+      `SELECT id FROM restaurants WHERE id = $1 AND owner_id = $2`,
+      [restaurantId, req.user.sub]
+    );
+    isOwner = ownerCheck.rowCount > 0;
+  }
+
   // Build query based on user role
   let whereClause = 'r.id = $1';
   let params = [restaurantId];
 
   // For public access (customers), check both base is_open AND business hours
-  // For authenticated admins/restaurants, allow access to all
-  if (!req.user || req.user.role !== 'admin') {
+  // Admins can see all restaurants
+  // Restaurant owners can see their own restaurant even if closed
+  // Customers can only see open restaurants
+  if (req.user && req.user.role === 'admin') {
+    // Admins can see all - no additional filter needed
+  } else if (isOwner) {
+    // Restaurant owners can see their own restaurant even if closed
+    // No additional filter needed
+  } else {
+    // For customers/public, require restaurant to be open
     whereClause += ' AND r.is_open = $2';
     params.push(true);
   }
