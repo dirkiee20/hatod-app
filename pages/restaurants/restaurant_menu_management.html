@@ -366,6 +366,22 @@
         const statusText = item.isAvailable ? 'Active' : 'Inactive';
         const availabilityText = item.isAvailable ? 'Available' : 'Make Available';
 
+        // Check approval status
+        const approvalStatus = item.approvalStatus || 'approved'; // Default to approved if not present
+        const isPending = approvalStatus === 'pending';
+        const isRejected = approvalStatus === 'rejected';
+        
+        // Add opacity for pending/rejected items
+        const itemOpacity = (isPending || isRejected) ? 'opacity-75' : '';
+        
+        // Approval status badge
+        let approvalBadge = '';
+        if (isPending) {
+            approvalBadge = '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 ml-2">Pending Approval</span>';
+        } else if (isRejected) {
+            approvalBadge = '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-error-100 text-error-700 ml-2">Rejected</span>';
+        }
+
         // Render price or variants
         let priceDisplay = '';
         if (item.hasVariants && item.variants && item.variants.length > 0) {
@@ -386,13 +402,16 @@
         const imageMarkup = `<img src="${resolvedImage}" alt="${item.name}" class="w-full h-48 object-cover" onerror="this.src='${PLACEHOLDER_IMAGE}'; this.onerror=null;">`;
 
         return `
-            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth" data-item-id="${item.id}">
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth ${itemOpacity}" data-item-id="${item.id}">
                 <div class="aspect-w-16 aspect-h-12 bg-gray-200">
                     ${imageMarkup}
                 </div>
                 <div class="p-4">
                     <div class="flex items-start justify-between mb-2">
-                        <h3 class="font-semibold text-text-primary">${item.name}</h3>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-text-primary">${item.name}</h3>
+                            ${approvalBadge}
+                        </div>
                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
                     </div>
                     <p class="text-sm text-text-secondary mb-3">${item.description || ''}</p>

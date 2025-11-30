@@ -401,10 +401,28 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
     [restaurantId]
   );
 
-  // For customers, only show approved items with final price (restaurant price + admin markup)
-  // For admin, show all items with markup info
+  // Check if user is the restaurant owner
+  let isOwner = false;
+  if (req.user && req.user.role === 'restaurant') {
+    const ownerCheck = await query(
+      `SELECT id FROM restaurants WHERE id = $1 AND owner_id = $2`,
+      [restaurantId, req.user.sub]
+    );
+    isOwner = ownerCheck.rowCount > 0;
+  }
+
+  // Determine filter logic:
+  // - Admins: see all items
+  // - Restaurant owners: see all items (pending + approved)
+  // - Customers: see only approved items
   const isAdmin = req.user && req.user.role === 'admin';
-  const approvalFilter = isAdmin ? '' : `AND i.approval_status = 'approved'`;
+  const shouldShowAllItems = isAdmin || isOwner;
+  const approvalFilter = shouldShowAllItems ? '' : `AND i.approval_status = 'approved'`;
+
+  // Include approval_status in SELECT for admins and restaurant owners
+  const approvalStatusField = shouldShowAllItems 
+    ? `i.approval_status AS "approvalStatus",` 
+    : '';
 
   const items = await query(
     `SELECT i.id,
@@ -414,6 +432,7 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
             i.price,
             i.image_url AS "imageUrl",
             i.is_available AS "isAvailable",
+            ${approvalStatusField}
             i.is_vegetarian AS "isVegetarian",
             i.is_vegan AS "isVegan",
             i.is_gluten_free AS "isGlutenFree",
