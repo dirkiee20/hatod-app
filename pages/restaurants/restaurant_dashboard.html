@@ -536,38 +536,10 @@
         }
     }
 
-    // Load categories dynamically
-    async function loadCategories() {
-        try {
-            const restaurantId = await getRestaurantId();
-            if (!restaurantId) {
-                // Show default categories if no restaurant ID
-                showDefaultCategories();
-                return;
-            }
-
-            const response = await apiRequest(`/restaurants/${restaurantId}/menu`);
-            const categories = response.data || [];
-
-            const categorySelect = document.getElementById('itemCategory');
-            categorySelect.innerHTML = '<option value="">Select category</option>';
-
-            if (categories.length === 0) {
-                // Show default categories if no categories exist
-                showDefaultCategories();
-            } else {
-                categories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category.id;
-                    option.textContent = category.name;
-                    categorySelect.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Error loading categories:', error);
-            // Fallback to default categories on error
-            showDefaultCategories();
-        }
+    // Load categories - always show static default categories
+    // Categories will be created automatically when menu items are saved
+    function loadCategories() {
+        showDefaultCategories();
     }
 
     // Show default categories when no custom categories exist
@@ -921,21 +893,36 @@
 
                     let categoryId = formData.get('itemCategory') || null;
 
-                    // Handle default categories - create them if they don't exist
+                    // Handle default categories - find or create them if they don't exist
                     if (categoryId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId)) {
-                        // This is a default category name, create it first
+                        // This is a default category name (like "main-courses")
+                        const categoryDisplayName = getCategoryDisplayName(categoryId);
+                        
                         try {
-                            const categoryResponse = await apiRequest(`/restaurants/${restaurantId}/menu/categories`, {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    name: getCategoryDisplayName(categoryId),
-                                    description: null
-                                })
-                            });
-                            categoryId = categoryResponse.data.id;
+                            // First, try to find existing category by fetching menu
+                            const menuResponse = await apiRequest(`/restaurants/${restaurantId}/menu`);
+                            const existingCategories = menuResponse.data || [];
+                            const existingCategory = existingCategories.find(cat => 
+                                cat.name && cat.name.toLowerCase() === categoryDisplayName.toLowerCase()
+                            );
+                            
+                            if (existingCategory && existingCategory.id) {
+                                // Category already exists, use its ID
+                                categoryId = existingCategory.id;
+                            } else {
+                                // Category doesn't exist, create it
+                                const categoryResponse = await apiRequest(`/restaurants/${restaurantId}/menu/categories`, {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        name: categoryDisplayName,
+                                        description: null
+                                    })
+                                });
+                                categoryId = categoryResponse.data.id;
+                            }
                         } catch (error) {
-                            console.error('Error creating category:', error);
-                            alert('Failed to create category. Please try again.');
+                            console.error('Error handling category:', error);
+                            alert('Failed to handle category. Please try again.');
                             return;
                         }
                     }
