@@ -641,7 +641,7 @@
             };
 
             for (const [dayName, dayOfWeek] of Object.entries(dayMap)) {
-                const isClosed = document.getElementById(`${dayName}Closed`).checked;
+                const isClosed = Boolean(document.getElementById(`${dayName}Closed`).checked);
                 const openTime = document.getElementById(`${dayName}Open`).value;
                 const closeTime = document.getElementById(`${dayName}Close`).value;
 
@@ -649,9 +649,11 @@
                     dayOfWeek: dayOfWeek,
                     openTime: isClosed ? null : openTime,
                     closeTime: isClosed ? null : closeTime,
-                    isClosed: isClosed
+                    isClosed: isClosed // Explicitly boolean
                 });
             }
+            
+            console.log('Updating business hours:', JSON.stringify(businessHours, null, 2));
 
             const response = await apiRequest(`/restaurants/${restaurantId}/business-hours`, {
                 method: 'PUT',
