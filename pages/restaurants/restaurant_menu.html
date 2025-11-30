@@ -540,8 +540,20 @@
 
             itemCard.className = 'bg-surface rounded-lg p-4 shadow-card border border-border mb-4';
 
-            // Check if item is already in cart
-            const isInCart = cartItems.some(cartItem => cartItem.menuItemId === item.id);
+            // Check if item is already in cart (for items without variants)
+            const isInCart = !item.hasVariants && cartItems.some(cartItem => 
+                cartItem.menuItemId === item.id && !cartItem.variantId
+            );
+
+            // Check which variants are in cart
+            const variantsInCart = {};
+            if (item.hasVariants && item.variants) {
+                item.variants.forEach(variant => {
+                    variantsInCart[variant.id] = cartItems.some(cartItem => 
+                        cartItem.menuItemId === item.id && cartItem.variantId === variant.id
+                    );
+                });
+            }
 
 
 
@@ -627,17 +639,30 @@
 
                                     <p class="text-xs text-text-secondary mb-1">Available options:</p>
 
-                                    <div class="flex flex-wrap gap-1">
+                                    <div class="flex flex-wrap gap-2">
 
-                                        ${item.variants.filter(v => v.isAvailable).map(variant => `
-
-                                            <span class="inline-flex px-2 py-1 text-xs bg-primary-100 text-primary-700 rounded">
-
-                                                ${variant.name}: ₱${parseFloat(variant.price).toFixed(2)}
-
-                                            </span>
-
-                                        `).join('')}
+                                        ${item.variants.filter(v => v.isAvailable).map(variant => {
+                                            const isVariantInCart = variantsInCart[variant.id] || false;
+                                            return `
+                                                <button onclick="addVariantToCart(this, '${variant.id}', '${item.id}')"
+                                                        data-variant-id="${variant.id}"
+                                                        data-item-id="${item.id}"
+                                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+                                                            isVariantInCart 
+                                                                ? 'bg-success text-white cursor-default' 
+                                                                : 'bg-primary-100 text-primary-700 hover:bg-primary-200 active:bg-primary-300'
+                                                        } ${!variant.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}"
+                                                        ${!variant.isAvailable || isVariantInCart ? 'disabled' : ''}
+                                                        title="${isVariantInCart ? 'Added to cart' : `Add ${variant.name} to cart`}">
+                                                    ${isVariantInCart ? `
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                    ` : ''}
+                                                    <span>${variant.name}: ₱${parseFloat(variant.price).toFixed(2)}</span>
+                                                </button>
+                                            `;
+                                        }).join('')}
 
                                     </div>
 
@@ -665,6 +690,7 @@
 
                         </div>
 
+                        ${!item.hasVariants ? `
                         <button onclick="addToCart(this)"
 
                                 data-item-id="${item.id}"
@@ -686,6 +712,7 @@
                             `}
 
                         </button>
+                        ` : ''}
 
                     </div>
 
@@ -942,6 +969,12 @@
                         });
                     }
 
+                    // Update cart items to track the new item
+                    await fetchCartItems();
+
+                    // Re-render menu to update cart states
+                    renderMenu();
+
                     // Update cart count in header
 
                     updateCartCount();
@@ -970,7 +1003,70 @@
 
             };
 
+            // Add variant to cart function
+            window.addVariantToCart = async function(button, variantId, menuItemId) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        alert('Please log in to add items to cart');
+                        window.location.href = '../login.html';
+                        return;
+                    }
 
+                    // Store original button content for restoration
+                    const originalHTML = button.innerHTML;
+                    const variantName = button.querySelector('span')?.textContent || button.textContent;
+                    const variantPriceMatch = variantName.match(/₱[\d.]+/);
+                    const variantPriceText = variantPriceMatch ? variantPriceMatch[0] : '';
+
+                    // Disable button and show loading state
+                    button.disabled = true;
+                    button.innerHTML = `
+                        <svg class="w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Adding...</span>
+                    `;
+
+                    const response = await fetch(`${API_BASE_URL}/cart`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            menuItemId: menuItemId,
+                            variantId: variantId,
+                            quantity: 1
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: 'Failed to add item to cart' }));
+                        throw new Error(errorData.message || 'Failed to add item to cart');
+                    }
+
+                    // Update cart items to track the new variant
+                    await fetchCartItems();
+
+                    // Update cart count
+                    updateCartCount();
+
+                    // Re-render menu to update all variant button states
+                    renderMenu();
+
+                    // Note: Button will be updated by re-render, so we don't need to update it manually here
+
+                } catch (error) {
+                    console.error('Error adding variant to cart:', error);
+                    alert('Failed to add item to cart: ' + (error.message || 'Please try again.'));
+                    
+                    // Restore button state
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                }
+            };
 
             async function updateCartCount() {
 
