@@ -74,18 +74,10 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Location & Results Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-            <div class="flex items-center space-x-2 mb-4 sm:mb-0">
-                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span class="text-text-primary font-medium">Your Location</span>
-                <button class="text-primary text-sm hover:text-primary-600 transition-smooth">Change</button>
-            </div>
+        <!-- Results Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end mb-6">
             <div class="text-text-secondary text-sm">
-                <span class="font-medium text-text-primary">0</span> restaurants available
+                <span id="restaurantCount" class="font-medium text-text-primary">0</span> restaurants available
             </div>
         </div>
 
@@ -263,7 +255,7 @@
 
             // Elements
             const restaurantGrid = document.querySelector('section.grid');
-            const resultsCount = document.querySelector('span.font-medium.text-text-primary');
+            const resultsCount = document.getElementById('restaurantCount');
             const loadMoreBtn = document.querySelector('button.bg-surface.border');
             const loadMoreText = document.querySelector('p.text-text-secondary.text-sm.mt-4');
 

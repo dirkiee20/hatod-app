@@ -12,8 +12,8 @@ import {
 // Helper function to check if restaurant is open based on business hours
 const isRestaurantOpen = (businessHours, currentTime = new Date()) => {
   if (!businessHours || businessHours.length === 0) {
-    // If no business hours set, default to open (backward compatibility)
-    return true;
+    // If no business hours set, restaurant is closed
+    return false;
   }
 
   const dayOfWeek = currentTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -116,11 +116,17 @@ export const listRestaurants = asyncHandler(async (req, res) => {
     index += 1;
   }
 
-  // For public access (customers), show all restaurants
-  // The isOpen status will be calculated based on business hours and base status
-  // For authenticated admins, show all restaurants regardless of status
-  // Note: We don't filter by is_open here - all restaurants are shown, but marked as open/closed based on business hours
-  // Admins see all restaurants without filtering
+  // For public access (customers), only show approved restaurants (is_open = true)
+  // Admins can see all restaurants regardless of approval status
+  // Check if user is authenticated admin
+  const isAdmin = req.user && req.user.role === 'admin';
+  
+  // Filter out unapproved restaurants for customers (not admins)
+  if (!isAdmin) {
+    filters.push(`r.is_open = $${index}`);
+    params.push(true);
+    index += 1;
+  }
 
   const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
   const pageNumber = Math.max(Number.parseInt(page, 10) || 1, 1);
@@ -188,15 +194,23 @@ export const listRestaurants = asyncHandler(async (req, res) => {
   }
 
   // Calculate isOpen for each restaurant based on business hours
+  // Only approved restaurants (is_open = true) reach here for customers
   const restaurantsWithStatus = dataResult.rows.map(restaurant => {
     const businessHours = businessHoursMap[restaurant.id] || [];
-    const calculatedIsOpen = businessHours.length > 0 
-      ? isRestaurantOpen(businessHours)
-      : restaurant.isOpenBase; // Fallback to base is_open if no business hours set
+    
+    // For approved restaurants, calculate open status based on business hours
+    let calculatedIsOpen;
+    if (businessHours.length > 0) {
+      // Business hours exist - validate against current time
+      calculatedIsOpen = isRestaurantOpen(businessHours);
+    } else {
+      // Business hours empty - restaurant is closed
+      calculatedIsOpen = false;
+    }
 
     return {
       ...restaurant,
-      isOpen: calculatedIsOpen && restaurant.isOpenBase, // Must be both open by hours AND base status
+      isOpen: calculatedIsOpen, // Status based on business hours validation
       businessHours: businessHours
     };
   });
@@ -233,10 +247,10 @@ export const getRestaurant = asyncHandler(async (req, res) => {
   let whereClause = 'r.id = $1';
   let params = [restaurantId];
 
-  // For public access (customers), check both base is_open AND business hours
-  // Admins can see all restaurants
-  // Restaurant owners can see their own restaurant even if closed
-  // Customers can only see open restaurants
+  // For public access (customers), only approved restaurants (is_open = true) are accessible
+  // Admins can see all restaurants regardless of approval status
+  // Restaurant owners can see their own restaurant even if not approved or closed
+  // Customers can only see approved restaurants
   if (req.user && req.user.role === 'admin') {
     // Admins can see all - no additional filter needed
   } else if (isOwner) {
@@ -299,15 +313,22 @@ export const getRestaurant = asyncHandler(async (req, res) => {
     isClosed: row.is_closed
   }));
 
-  const calculatedIsOpen = businessHours.length > 0
-    ? isRestaurantOpen(businessHours)
-    : restaurant.isOpen; // Fallback to base is_open if no business hours set
+  // Calculate isOpen based on business hours
+  // Only approved restaurants (is_open = true) are accessible to customers
+  let calculatedIsOpen;
+  if (businessHours.length > 0) {
+    // Business hours exist - validate against current time
+    calculatedIsOpen = isRestaurantOpen(businessHours);
+  } else {
+    // Business hours empty - restaurant is closed
+    calculatedIsOpen = false;
+  }
 
   res.json({
     status: 'success',
     data: {
       ...restaurant,
-      isOpen: calculatedIsOpen && restaurant.isOpen, // Must be both open by hours AND base status
+      isOpen: calculatedIsOpen, // Status based on business hours validation
       businessHours: businessHours,
       owner: {
         fullName: restaurant.ownerName,
