@@ -94,7 +94,28 @@ router.post(
   [
     param('restaurantId').isUUID(),
     body('name').notEmpty(),
-    body('price').isFloat({ gt: 0 })
+    body('price')
+      .optional({ nullable: true, values: 'null' })
+      .custom((value, { req }) => {
+        const hasVariants = req.body.hasVariants === true;
+        
+        // If hasVariants is true, price validation is skipped (allowed to be null)
+        if (hasVariants) {
+          return true;
+        }
+        
+        // If hasVariants is false or not set, validate price
+        if (value === null || value === undefined || value === '') {
+          throw new Error('Price is required for items without variants');
+        }
+        
+        const price = parseFloat(value);
+        if (isNaN(price) || price <= 0) {
+          throw new Error('Price must be a number greater than 0');
+        }
+        
+        return true;
+      })
   ],
   validate,
   createMenuItem
