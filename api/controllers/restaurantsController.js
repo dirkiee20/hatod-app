@@ -16,9 +16,17 @@ const isRestaurantOpen = (businessHours, currentTime = new Date()) => {
     return false;
   }
 
-  const dayOfWeek = currentTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  const currentHour = currentTime.getHours();
-  const currentMinute = currentTime.getMinutes();
+  // Use Philippines timezone (UTC+8) for day/hour calculation
+  // Convert current time to Philippines timezone by adding 8 hours to UTC
+  const utcTime = currentTime.getTime();
+  const philippinesOffsetMs = 8 * 60 * 60 * 1000; // UTC+8 offset in milliseconds
+  const philippinesTimeMs = utcTime + philippinesOffsetMs;
+  const philippinesDate = new Date(philippinesTimeMs);
+  
+  // Get day of week and time in Philippines timezone
+  const dayOfWeek = philippinesDate.getUTCDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const currentHour = philippinesDate.getUTCHours();
+  const currentMinute = philippinesDate.getUTCMinutes();
   const currentTimeMinutes = currentHour * 60 + currentMinute;
 
   // Find business hours for current day
