@@ -645,9 +645,10 @@ export const createMenuItem = asyncHandler(async (req, res) => {
         is_gluten_free,
         preparation_time_minutes,
         calories,
-        allergens
+        allergens,
+        has_variants
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      RETURNING id,
                category_id AS "categoryId",
                name,
@@ -660,7 +661,8 @@ export const createMenuItem = asyncHandler(async (req, res) => {
                is_gluten_free AS "isGlutenFree",
                preparation_time_minutes AS "preparationTimeMinutes",
                calories,
-               allergens`,
+               allergens,
+               has_variants AS "hasVariants"`,
     [
       restaurantId,
       categoryId ?? null,
@@ -674,7 +676,8 @@ export const createMenuItem = asyncHandler(async (req, res) => {
       isGlutenFree,
       preparationTimeMinutes ?? null,
       calories ?? null,
-      allergens ?? null
+      allergens ?? null,
+      hasVariants
     ]
   );
 
@@ -682,14 +685,28 @@ export const createMenuItem = asyncHandler(async (req, res) => {
 
   // Create variants if provided
   if (hasVariants && variants && variants.length > 0) {
-    const variantValues = variants.map(variant =>
-      `(${menuItem.id}, '${variant.name}', ${variant.price}, ${variant.displayOrder || 0}, ${variant.isAvailable !== false})`
-    ).join(', ');
+    // Build parameterized query for multiple rows
+    const variantValues = variants.flatMap((variant) => [
+      menuItem.id,
+      variant.name,
+      parseFloat(variant.price),
+      variant.displayOrder || 0,
+      variant.isAvailable !== false
+    ]);
 
-    await query(`
-      INSERT INTO menu_item_variants (menu_item_id, name, price, display_order, is_available)
-      VALUES ${variantValues}
-    `);
+    // Create placeholders: ($1, $2, $3, $4, $5), ($6, $7, $8, $9, $10), etc.
+    const valuePlaceholders = variants
+      .map(
+        (_, idx) =>
+          `($${idx * 5 + 1}, $${idx * 5 + 2}, $${idx * 5 + 3}, $${idx * 5 + 4}, $${idx * 5 + 5})`
+      )
+      .join(', ');
+
+    await query(
+      `INSERT INTO menu_item_variants (menu_item_id, name, price, display_order, is_available)
+       VALUES ${valuePlaceholders}`,
+      variantValues
+    );
   }
 
   res.status(201).json({ status: 'success', data: menuItem });
