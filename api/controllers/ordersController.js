@@ -105,86 +105,101 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw badRequest('Subtotal is below the restaurant minimum order amount');
   }
 
-  // Calculate delivery fee based on barangay and order amount
+  // Calculate delivery fee based on barangay extracted from address and order amount
   let deliveryFee = 0;
   if (orderType === 'delivery' && deliveryAddressId) {
-    // Get customer's barangay
-    const customerResult = await query(
-      `SELECT u.barangay 
-       FROM users u
-       WHERE u.id = $1`,
-      [customerId]
+    // Get delivery address
+    const addressResult = await query(
+      `SELECT street_address, city
+       FROM addresses
+       WHERE id = $1 AND user_id = $2`,
+      [deliveryAddressId, customerId]
     );
 
-    if (customerResult.rowCount > 0 && customerResult.rows[0].barangay) {
-      const barangay = customerResult.rows[0].barangay;
-      
-      // Validate that the barangay is in the allowed list (has delivery fee tiers)
-      const allowedBarangayCheck = await query(
-        `SELECT DISTINCT barangay
-         FROM delivery_fee_tiers
-         WHERE barangay = $1
-           AND is_active = true
-         LIMIT 1`,
-        [barangay]
-      );
+    if (addressResult.rowCount === 0) {
+      throw badRequest('Delivery address not found');
+    }
 
-      if (allowedBarangayCheck.rowCount === 0) {
-        // Get list of allowed barangays for error message
-        const allowedBarangaysResult = await query(
-          `SELECT DISTINCT barangay
-           FROM delivery_fee_tiers
-           WHERE is_active = true
-           ORDER BY barangay ASC`
-        );
-        const allowedBarangays = allowedBarangaysResult.rows.map(row => row.barangay);
-        throw badRequest(
-          `Delivery is not available to your selected location (${barangay}). ` +
-          `We currently deliver to: ${allowedBarangays.join(', ')}. ` +
-          `Please update your location in your profile to one of the supported barangays.`
-        );
+    const address = addressResult.rows[0];
+    const addressString = (address.street_address || '').toLowerCase();
+    const cityString = (address.city || '').toLowerCase();
+    const combinedAddress = `${addressString} ${cityString}`;
+
+    // Get all allowed barangays
+    const allowedBarangaysResult = await query(
+      `SELECT DISTINCT barangay
+       FROM delivery_fee_tiers
+       WHERE is_active = true
+       ORDER BY barangay ASC`
+    );
+
+    const allowedBarangays = allowedBarangaysResult.rows.map(row => row.barangay);
+
+    if (allowedBarangays.length === 0) {
+      throw badRequest('No delivery fee tiers configured. Please contact support.');
+    }
+
+    // Extract barangay from address string
+    let matchedBarangay = null;
+    
+    // Normalize barangay names for matching
+    const normalizedBarangays = allowedBarangays.map(b => ({
+      original: b,
+      normalized: b.toLowerCase().replace(/^barangay\s+/i, '').trim(),
+      fullLower: b.toLowerCase()
+    }));
+
+    // Try to match barangay from address string
+    for (const { original, normalized, fullLower } of normalizedBarangays) {
+      // Check if barangay name appears in address (case-insensitive)
+      if (combinedAddress.includes(fullLower) || 
+          combinedAddress.includes(normalized) ||
+          combinedAddress.includes(`barangay ${normalized}`)) {
+        matchedBarangay = original;
+        break;
       }
-      
-      // Get the appropriate tier for this order amount
-      const tierResult = await query(
+    }
+
+    if (!matchedBarangay) {
+      throw badRequest(
+        `Delivery is not available to your selected location. ` +
+        `We currently deliver to: ${allowedBarangays.join(', ')}. ` +
+        `Please ensure your address includes one of these barangays.`
+      );
+    }
+
+    // Get the appropriate tier for this order amount
+    const tierResult = await query(
+      `SELECT delivery_fee
+       FROM delivery_fee_tiers
+       WHERE barangay = $1
+         AND min_order_amount <= $2
+         AND max_order_amount >= $2
+         AND is_active = true
+       ORDER BY min_order_amount DESC
+       LIMIT 1`,
+      [matchedBarangay, subtotal]
+    );
+
+    if (tierResult.rowCount > 0) {
+      deliveryFee = parseFloat(tierResult.rows[0].delivery_fee);
+    } else {
+      // If no tier found, get the highest tier (for orders above 1500)
+      const maxTierResult = await query(
         `SELECT delivery_fee
          FROM delivery_fee_tiers
          WHERE barangay = $1
-           AND min_order_amount <= $2
-           AND max_order_amount >= $2
            AND is_active = true
-         ORDER BY min_order_amount DESC
+         ORDER BY max_order_amount DESC
          LIMIT 1`,
-        [barangay, subtotal]
+        [matchedBarangay]
       );
-
-      if (tierResult.rowCount > 0) {
-        deliveryFee = parseFloat(tierResult.rows[0].delivery_fee);
+      
+      if (maxTierResult.rowCount > 0) {
+        deliveryFee = parseFloat(maxTierResult.rows[0].delivery_fee);
       } else {
-        // If no tier found, get the highest tier (for orders above 1500)
-        const maxTierResult = await query(
-          `SELECT delivery_fee
-           FROM delivery_fee_tiers
-           WHERE barangay = $1
-             AND is_active = true
-           ORDER BY max_order_amount DESC
-           LIMIT 1`,
-          [barangay]
-        );
-        
-        if (maxTierResult.rowCount > 0) {
-          deliveryFee = parseFloat(maxTierResult.rows[0].delivery_fee);
-        } else {
-          // This shouldn't happen if validation above passed, but just in case
-          throw badRequest(`Delivery fee configuration not found for ${barangay}`);
-        }
+        throw badRequest(`Delivery fee configuration not found for ${matchedBarangay}`);
       }
-    } else {
-      // No barangay set - require customer to set their location
-      throw badRequest(
-        'Please select your delivery location (barangay) in your profile before placing an order. ' +
-        'Go to your account settings to update your location.'
-      );
     }
   } else if (orderType === 'pickup') {
     deliveryFee = 0;

@@ -180,23 +180,16 @@
         }
 
         function getRedirectUrl(userRole, userBarangay) {
-            console.log('Redirect check - Role:', userRole, 'Type:', typeof userRole, 'Barangay:', userBarangay, 'Type:', typeof userBarangay);
+            console.log('Redirect check - Role:', userRole, 'Type:', typeof userRole);
             
             // Normalize role to lowercase for comparison
             const normalizedRole = (userRole || '').toLowerCase();
             
             switch(normalizedRole) {
                 case 'customer':
-                    // Redirect to location selection if no barangay is set
-                    // Check for null, undefined, or empty string
-                    const hasBarangay = userBarangay && userBarangay !== '' && userBarangay !== null && userBarangay !== undefined;
-                    console.log('Has barangay?', hasBarangay, 'Value:', userBarangay);
-                    
-                    if (!hasBarangay) {
-                        console.log('Redirecting to location selection - no barangay set');
-                        return 'customers/location_selection.html';
-                    }
-                    console.log('Redirecting to restaurant browse - barangay set:', userBarangay);
+                    // Redirect customers directly to restaurant browse
+                    // Barangay will be determined from address during checkout
+                    console.log('Redirecting to restaurant browse');
                     return 'restaurants/restaurant_browse.html';
                 case 'restaurant':
                     return 'restaurants/restaurant_dashboard.html';
@@ -207,12 +200,6 @@
                     return 'admin/admin_dashboard.html';
                 default:
                     console.error('Unknown role, defaulting to shopping cart. Role was:', userRole, 'Normalized:', normalizedRole);
-                    // For unknown roles, still try to redirect to location selection if no barangay
-                    // This handles edge cases where role might not be set correctly
-                    if (!userBarangay || userBarangay === '' || userBarangay === null || userBarangay === undefined) {
-                        console.log('Unknown role but no barangay - redirecting to location selection');
-                        return 'customers/location_selection.html';
-                    }
                     return 'customers/shopping_cart.html';
             }
         }

@@ -1020,10 +1020,6 @@ body {
   max-height: 24rem;
 }
 
-.max-h-\[90vh\]{
-  max-height: 90vh;
-}
-
 .min-h-screen{
   min-height: 100vh;
 }
@@ -2246,10 +2242,6 @@ body {
 .text-yellow-800{
   --tw-text-opacity: 1;
   color: rgb(133 77 14 / var(--tw-text-opacity, 1));
-}
-
-.underline{
-  text-decoration-line: underline;
 }
 
 .opacity-25{
