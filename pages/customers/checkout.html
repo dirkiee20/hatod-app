@@ -496,53 +496,70 @@
                         fullLower: b.toLowerCase()
                     }));
                     
-                    // Check all context items for barangay-like names
+                    // Check context items for barangay - use strict matching
+                    // Look for context items with "locality" or "neighborhood" type that might contain barangay
                     for (const ctx of context) {
                         const text = (ctx.text || '').toLowerCase().trim();
-                        // Check if this matches any allowed barangay
-                        for (const { original, normalized, fullLower } of normalizedBarangays) {
-                            if (text === fullLower || 
-                                text === normalized ||
-                                text.includes(normalized) ||
-                                normalized.includes(text) ||
-                                fullLower.includes(text) ||
-                                text.includes(fullLower)) {
-                                barangay = original;
-                                break;
+                        const id = (ctx.id || '').toLowerCase();
+                        
+                        // Only check if this is a locality or neighborhood context
+                        if (id.includes('locality') || id.includes('neighborhood') || id.includes('place')) {
+                            // Strict matching - exact match or contains full barangay name
+                            for (const { original, normalized, fullLower } of normalizedBarangays) {
+                                // Exact match first
+                                if (text === fullLower || text === normalized) {
+                                    barangay = original;
+                                    break;
+                                }
+                                // Check if text contains full barangay name - but only if it's clearly a match
+                                // Avoid substring matches - use word boundaries
+                                if (fullLower.length > 3) {
+                                    const regex = new RegExp(`\\b${fullLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                                    if (regex.test(text)) {
+                                        barangay = original;
+                                        break;
+                                    }
+                                }
                             }
                         }
                         if (barangay) break;
                     }
                     
-                    // Also check the full address string for barangay
+                    // Check full address string - but only if no match found yet
                     if (!barangay) {
                         const addressLower = placeName.toLowerCase();
                         for (const { original, normalized, fullLower } of normalizedBarangays) {
-                            // Check if barangay name appears in address
-                            if (addressLower.includes(fullLower) || 
-                                addressLower.includes(normalized) ||
-                                addressLower.includes(`barangay ${normalized}`)) {
-                                barangay = original;
-                                break;
+                            // STRICT matching - only match if barangay name appears explicitly
+                            // Check for "Barangay X" format first (most reliable)
+                            if (normalized.length >= 3) {
+                                const barangayPattern = `barangay ${normalized}`;
+                                const brgyPattern = `brgy[\\s\\.]${normalized}`;
+                                
+                                // Use word boundaries to ensure exact match
+                                const patterns = [
+                                    new RegExp(`\\b${barangayPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+                                    new RegExp(`\\b${brgyPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+                                ];
+                                
+                                for (const pattern of patterns) {
+                                    if (pattern.test(addressLower)) {
+                                        barangay = original;
+                                        console.log('Barangay matched from address pattern:', { pattern: pattern.toString(), barangay });
+                                        break;
+                                    }
+                                }
                             }
+                            if (barangay) break;
                         }
                     }
                     
-                    // Try matching by neighborhood or district names if available
-                    if (!barangay) {
-                        const neighborhood = context.find(c => c.id.startsWith('neighborhood'))?.text?.toLowerCase() || '';
-                        const district = context.find(c => c.id.startsWith('district'))?.text?.toLowerCase() || '';
-                        
-                        for (const { original, normalized } of normalizedBarangays) {
-                            if (neighborhood.includes(normalized) || normalized.includes(neighborhood) ||
-                                district.includes(normalized) || normalized.includes(district)) {
-                                barangay = original;
-                                break;
-                            }
-                        }
-                    }
+                    console.log('=== BARANGAY EXTRACTION ===');
+                    console.log('Address:', placeName);
+                    console.log('Extracted barangay:', barangay);
+                    console.log('Is in allowed list:', barangay ? allowedBarangays.includes(barangay) : false);
+                    console.log('Context items:', context.map(c => ({ id: c.id, text: c.text })));
                     
-                    // Store barangay
+                    // Store barangay - only if actually found in address
                     document.getElementById('barangay').value = barangay || '';
                     
                     // Display address
@@ -556,10 +573,16 @@
                         addressText.textContent = placeName;
                     }
                     
+                    // Only display barangay if it was actually found in the address
                     // Validate barangay
                     if (!barangay || !allowedBarangays.includes(barangay)) {
                         // Hide address display
                         addressDisplay.classList.add('hidden');
+                        
+                        // Clear barangay text if not found
+                        if (barangayText) {
+                            barangayText.textContent = '';
+                        }
                         
                         // Show warning
                         if (barangayWarning) {
@@ -580,8 +603,14 @@
                     } else {
                         // Show address display
                         addressDisplay.classList.remove('hidden');
+                        // Only show barangay if it was found, is valid, and is in the allowed list
                         if (barangayText) {
-                            barangayText.textContent = `Barangay: ${barangay}`;
+                            if (barangay && allowedBarangays.includes(barangay)) {
+                                barangayText.textContent = `Barangay: ${barangay}`;
+                            } else {
+                                // Clear barangay text if not found or invalid
+                                barangayText.textContent = '';
+                            }
                         }
                         
                         // Hide warning
@@ -591,7 +620,7 @@
                         enablePlaceOrder();
                     }
                     
-                    console.log('Address processed:', { placeName, barangay, isValid: allowedBarangays.includes(barangay) });
+                    console.log('Address processed:', { placeName, barangay, isValid: allowedBarangays.includes(barangay || '') });
                 }
             } catch (error) {
                 console.error('Error reverse geocoding:', error);
@@ -714,13 +743,18 @@
             let subtotal = 0;
 
             cart.forEach(item => {
-                const price = parseFloat(item.price) || 0;
-                const itemTotal = price * item.quantity;
-                subtotal += itemTotal;
+                // For items with variants, use variantPrice, otherwise use price
+                const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                const quantity = item.quantity || 1;
+                const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
+                subtotal += isNaN(itemTotal) ? 0 : itemTotal;
+                
+                // Show variant name if available
+                const variantInfo = item.variantName ? ` (${item.variantName})` : '';
 
                 orderItemsHtml += `
                     <div class="flex justify-between text-sm">
-                        <span class="text-text-secondary">${item.name} x${item.quantity}</span>
+                        <span class="text-text-secondary">${item.name}${variantInfo} x${item.quantity}</span>
                         <span class="text-text-primary">₱${itemTotal.toFixed(2)}</span>
                     </div>
                 `;
@@ -757,7 +791,7 @@
                                 },
                                 body: JSON.stringify({
                                     barangay: barangay,
-                                    orderAmount: subtotal
+                                    orderAmount: isNaN(subtotal) ? 0 : subtotal
                                 })
                             });
 
@@ -774,10 +808,13 @@
                 deliveryFee = 50;
             }
 
-            const total = subtotal + deliveryFee;
+            // Ensure all values are valid numbers
+            const validSubtotal = isNaN(subtotal) ? 0 : subtotal;
+            const validDeliveryFee = isNaN(deliveryFee) ? 0 : deliveryFee;
+            const total = validSubtotal + validDeliveryFee;
 
-            if (subtotalElement) subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱${deliveryFee.toFixed(2)}`;
+            if (subtotalElement) subtotalElement.textContent = `₱${validSubtotal.toFixed(2)}`;
+            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱${validDeliveryFee.toFixed(2)}`;
             if (taxElement) taxElement.textContent = `₱0.00`;
             if (totalElement) totalElement.textContent = `₱${total.toFixed(2)}`;
 
@@ -790,7 +827,7 @@
             // Update delivery info
             const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
             if (deliveryInfo) {
-                deliveryInfo.textContent = `25-35 min • ₱${deliveryFee.toFixed(2)} delivery`;
+                deliveryInfo.textContent = `25-35 min • ₱${validDeliveryFee.toFixed(2)} delivery`;
             }
         }
 
