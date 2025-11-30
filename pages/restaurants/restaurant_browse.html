@@ -281,7 +281,8 @@
 
             function renderRestaurantCard(restaurant) {
                 const card = document.createElement('div');
-                const isOpen = restaurant.isOpen !== false; // Default to true if not set
+                // Only show as open if explicitly true, otherwise closed (safer default)
+                const isOpen = restaurant.isOpen === true;
                 card.className = `bg-surface rounded-lg shadow-card border border-border overflow-hidden hover:shadow-md transition-smooth ${!isOpen ? 'opacity-75' : ''}`;
 
                 const imageUrl = restaurant.bannerUrl || restaurant.imageUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3';
@@ -401,6 +402,15 @@
                     }
 
                     restaurants.forEach(restaurant => {
+                        // Debug: Log isOpen status for troubleshooting
+                        if (restaurant.name === 'Crispyking') {
+                            console.log('Crispyking status:', {
+                                name: restaurant.name,
+                                isOpen: restaurant.isOpen,
+                                isOpenType: typeof restaurant.isOpen,
+                                businessHours: restaurant.businessHours
+                            });
+                        }
                         const card = renderRestaurantCard(restaurant);
                         restaurantGrid.appendChild(card);
                     });
