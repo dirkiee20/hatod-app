@@ -440,6 +440,8 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
             i.calories,
             i.allergens,
             i.has_variants AS "hasVariants",
+            i.admin_markup_amount AS "adminMarkupAmount",
+            i.admin_markup_percentage AS "adminMarkupPercentage",
             CASE 
               WHEN i.price IS NOT NULL THEN 
                 ROUND(i.price + COALESCE(i.admin_markup_amount, 0) + (i.price * COALESCE(i.admin_markup_percentage, 0) / 100), 2)
@@ -476,16 +478,28 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
     // For customer view, use finalPrice; for admin, keep original price visible
     const displayPrice = isAdmin ? item.price : (item.finalPrice || item.price);
     
+    // Calculate markup for variants (apply parent item's markup to all variants)
+    const markupAmount = parseFloat(item.adminMarkupAmount || 0);
+    const markupPercentage = parseFloat(item.adminMarkupPercentage || 0);
+    
     return {
       ...item,
       price: displayPrice, // Use final price for customers
-      variants: itemVariants.map(v => ({
-        id: v.id,
-        name: v.name,
-        price: parseFloat(v.price), // Variants don't have markup yet, but can be added later
-        isAvailable: v.isAvailable,
-        displayOrder: v.displayOrder
-      }))
+      variants: itemVariants.map(v => {
+        const variantPrice = parseFloat(v.price);
+        // Apply parent item's markup to variant price for customer display
+        const finalVariantPrice = isAdmin 
+          ? variantPrice // Admin sees original prices
+          : variantPrice + markupAmount + (variantPrice * markupPercentage / 100); // Customer sees final prices
+        
+        return {
+          id: v.id,
+          name: v.name,
+          price: Math.round(finalVariantPrice * 100) / 100, // Round to 2 decimal places
+          isAvailable: v.isAvailable,
+          displayOrder: v.displayOrder
+        };
+      })
     };
   });
 

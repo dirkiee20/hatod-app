@@ -918,18 +918,28 @@ export const getRestaurantMenuItems = asyncHandler(async (req, res) => {
     variants = variantsResult.rows;
   }
 
-  // Attach variants to items
+  // Attach variants to items and calculate final prices with markup
   const itemsWithVariants = items.rows.map(item => {
     const itemVariants = variants.filter(v => v.menuItemId === item.id);
+    const markupAmount = parseFloat(item.adminMarkupAmount || 0);
+    const markupPercentage = parseFloat(item.adminMarkupPercentage || 0);
+    
     return {
       ...item,
-      variants: itemVariants.map(v => ({
-        id: v.id,
-        name: v.name,
-        price: parseFloat(v.price),
-        isAvailable: v.isAvailable,
-        displayOrder: v.displayOrder
-      }))
+      variants: itemVariants.map(v => {
+        const variantPrice = parseFloat(v.price);
+        // Apply parent item's markup to variant price
+        const finalVariantPrice = variantPrice + markupAmount + (variantPrice * markupPercentage / 100);
+        
+        return {
+          id: v.id,
+          name: v.name,
+          price: variantPrice,
+          finalPrice: Math.round(finalVariantPrice * 100) / 100, // Round to 2 decimal places
+          isAvailable: v.isAvailable,
+          displayOrder: v.displayOrder
+        };
+      })
     };
   });
 
@@ -1179,6 +1189,7 @@ export const setMenuItemMarkup = asyncHandler(async (req, res) => {
      RETURNING id,
                name,
                price,
+               has_variants AS "hasVariants",
                admin_markup_amount AS "adminMarkupAmount",
                admin_markup_percentage AS "adminMarkupPercentage",
                approval_status AS "approvalStatus",
@@ -1190,10 +1201,44 @@ export const setMenuItemMarkup = asyncHandler(async (req, res) => {
     params
   );
 
+  const updatedItem = result.rows[0];
+
+  // If item has variants, fetch and calculate final prices for variants
+  if (updatedItem.hasVariants) {
+    const variantsResult = await query(
+      `SELECT id,
+              name,
+              price,
+              is_available AS "isAvailable",
+              display_order AS "displayOrder"
+       FROM menu_item_variants
+       WHERE menu_item_id = $1
+       ORDER BY display_order ASC, created_at ASC`,
+      [menuItemId]
+    );
+
+    const markupAmount = parseFloat(updatedItem.adminMarkupAmount || 0);
+    const markupPercentage = parseFloat(updatedItem.adminMarkupPercentage || 0);
+
+    updatedItem.variants = variantsResult.rows.map(v => {
+      const variantPrice = parseFloat(v.price);
+      const finalVariantPrice = variantPrice + markupAmount + (variantPrice * markupPercentage / 100);
+      
+      return {
+        id: v.id,
+        name: v.name,
+        price: variantPrice,
+        finalPrice: Math.round(finalVariantPrice * 100) / 100,
+        isAvailable: v.isAvailable,
+        displayOrder: v.displayOrder
+      };
+    });
+  }
+
   res.json({
     status: 'success',
     message: 'Menu item markup updated successfully',
-    data: result.rows[0]
+    data: updatedItem
   });
 });
 
