@@ -537,20 +537,22 @@
         }
     }
 
-    // Populate category select
+    // Populate category select - always show static default categories
+    // Categories will be created automatically when menu items are saved
     function populateCategorySelect() {
         const select = document.getElementById('itemCategory');
         if (!select) return; // Element doesn't exist on this page, skip
-        select.innerHTML = '<option value="">Select category</option>';
-        categories.forEach(category => {
-            // Only add categories with valid UUIDs
-            if (category.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(category.id)) {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                select.appendChild(option);
-            }
-        });
+        
+        select.innerHTML = `
+            <option value="">Select category</option>
+            <option value="appetizers">Appetizers</option>
+            <option value="main-courses">Main Courses</option>
+            <option value="pizzas">Pizzas</option>
+            <option value="salads">Salads</option>
+            <option value="desserts">Desserts</option>
+            <option value="drinks">Drinks</option>
+            <option value="sides">Sides</option>
+        `;
     }
 
     // Modal functions removed - now redirecting to dashboard
