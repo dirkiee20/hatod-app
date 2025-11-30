@@ -543,11 +543,24 @@
                     continue;
                 }
                 
-                if (hours && hours.openTime && hours.closeTime) {
-                    // Has configured hours
-                    openInput.value = hours.openTime || '';
-                    closeInput.value = hours.closeTime || '';
-                    closedCheckbox.checked = hours.isClosed === true;
+                if (hours) {
+                    // Business hours exist for this day
+                    const isClosed = hours.isClosed === true;
+                    closedCheckbox.checked = isClosed;
+                    
+                    if (isClosed) {
+                        // Day is marked as closed - clear times
+                        openInput.value = '';
+                        closeInput.value = '';
+                    } else if (hours.openTime && hours.closeTime) {
+                        // Day is open - display times (convert HH:MM:SS to HH:MM for time input)
+                        openInput.value = hours.openTime.substring(0, 5); // Extract HH:MM from HH:MM:SS
+                        closeInput.value = hours.closeTime.substring(0, 5); // Extract HH:MM from HH:MM:SS
+                    } else {
+                        // Times not set - clear them
+                        openInput.value = '';
+                        closeInput.value = '';
+                    }
                 } else {
                     // No hours configured - default to closed
                     openInput.value = '';

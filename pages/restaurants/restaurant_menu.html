@@ -477,7 +477,199 @@
 
             const menuContainer = document.querySelector('main .grid .w-full');
 
+            // Store cart items to check if items are already in cart - declare early for function access
+            let cartItems = [];
+            
+            // Prevent double-triggering of variant selection
+            let isHandlingVariantSelection = false;
 
+            // Simple variant selection handler
+            function handleVariantSelection(radioButton, variantId, menuItemId, variantPrice) {
+                // Prevent double execution
+                if (isHandlingVariantSelection) {
+                    console.log('Already handling selection, skipping');
+                    return;
+                }
+                
+                isHandlingVariantSelection = true;
+                console.log('=== handleVariantSelection START ===', { variantId, menuItemId, variantPrice });
+                
+                // Find item card - must be a DIV container, not the input element
+                // Start from label and go up to find the card div
+                const label = radioButton.closest('label');
+                let itemCard = null;
+                
+                if (label) {
+                    // Walk up the DOM tree to find the card container
+                    let parent = label.parentElement;
+                    while (parent && parent !== document.body) {
+                        // Look for the card container (has data-item-id and is a div)
+                        if (parent.tagName === 'DIV' && parent.hasAttribute('data-item-id')) {
+                            itemCard = parent;
+                            break;
+                        }
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // Fallback: search document for div with data-item-id matching menuItemId
+                if (!itemCard) {
+                    itemCard = document.querySelector(`div[data-item-id="${menuItemId}"]`);
+                }
+                
+                if (!itemCard || itemCard.tagName !== 'DIV') {
+                    console.error('Could not find item card DIV container');
+                    console.error('Radio button:', radioButton);
+                    console.error('Label:', label);
+                    isHandlingVariantSelection = false;
+                    return;
+                }
+                
+                console.log('Item card DIV found:', itemCard.className);
+
+                // Find all radios in the same group - use the radio button's name directly
+                const radioName = radioButton.name;
+                console.log('Radio name:', radioName);
+                
+                // Search from document to find all radios with this name
+                const allRadios = document.querySelectorAll(`input[type="radio"][name="${radioName}"]`);
+                console.log('Found', allRadios.length, 'radio buttons with name:', radioName);
+                
+                if (allRadios.length === 0) {
+                    console.error('No radios found! Searching in itemCard HTML:', itemCard.innerHTML.substring(0, 500));
+                }
+                
+                // Update all radio labels
+                allRadios.forEach((radio, index) => {
+                    const label = radio.closest('label');
+                    if (!label) {
+                        console.warn(`Radio ${index}: No label found`);
+                        return;
+                    }
+                    
+                    console.log(`Radio ${index}: checked=${radio.checked}, variantId=${radio.getAttribute('data-variant-id')}`);
+                    
+                    // Update label classes based on checked state
+                    if (radio.checked) {
+                        label.className = 'px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer border transition-all bg-primary text-white border-primary';
+                        console.log(`Radio ${index}: SET selected classes`);
+                    } else {
+                        label.className = 'px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer border transition-all bg-white text-primary border-border hover:border-primary';
+                        console.log(`Radio ${index}: SET unselected classes`);
+                    }
+                });
+
+                // Update price display - find the price span
+                let priceEl = itemCard.querySelector('span.font-bold.text-text-primary.text-xl');
+                
+                if (!priceEl) {
+                    // Try alternative selectors
+                    priceEl = itemCard.querySelector('.font-bold.text-xl');
+                }
+                
+                if (!priceEl) {
+                    // Search all spans for one containing ₱
+                    const allSpans = itemCard.querySelectorAll('span');
+                    priceEl = Array.from(allSpans).find(span => {
+                        return span.textContent.includes('₱') && span.classList.contains('font-bold');
+                    });
+                }
+                
+                if (priceEl) {
+                    priceEl.textContent = `₱${variantPrice.toFixed(2)}`;
+                    console.log('Price updated to:', priceEl.textContent);
+                } else {
+                    console.warn('Price element not found! Searching all elements...');
+                    // Last resort: find any element with ₱
+                    const allElements = Array.from(itemCard.querySelectorAll('*'));
+                    priceEl = allElements.find(el => {
+                        return el.textContent && el.textContent.includes('₱') && el.classList.contains('font-bold');
+                    });
+                    
+                    if (priceEl) {
+                        priceEl.textContent = `₱${variantPrice.toFixed(2)}`;
+                        console.log('Price found and updated using fallback');
+                    } else {
+                        console.error('Could not find price element anywhere in card');
+                    }
+                }
+
+                // Update cart button
+                const cartBtn = itemCard.querySelector('button[data-item-id]');
+                if (cartBtn) {
+                    cartBtn.setAttribute('data-variant-id', variantId);
+                    const inCart = cartItems.some(i => i.menuItemId === menuItemId && i.variantId === variantId);
+                    
+                    console.log('Cart button updated, inCart:', inCart);
+                    
+                    if (inCart) {
+                        cartBtn.disabled = true;
+                        cartBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        cartBtn.classList.remove('hover:bg-primary-600');
+                        cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                    } else {
+                        cartBtn.disabled = false;
+                        cartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        cartBtn.classList.add('hover:bg-primary-600');
+                        cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/></svg>';
+                    }
+                }
+                
+                console.log('=== handleVariantSelection END ===');
+                
+                // Reset flag after a short delay to allow UI update
+                setTimeout(() => {
+                    isHandlingVariantSelection = false;
+                }, 100);
+            }
+
+            // Event delegation for variant selection - simplified
+            if (menuContainer) {
+                console.log('Setting up variant selection event listeners');
+                
+                // Listen for clicks on variant labels only
+                menuContainer.addEventListener('click', function(e) {
+                    // Ignore clicks on the radio input itself (let label handle it)
+                    if (e.target.type === 'radio' && e.target.classList.contains('sr-only')) {
+                        console.log('Click on radio input, letting label handle it');
+                        return;
+                    }
+                    
+                    // Find the label
+                    const label = e.target.closest('label');
+                    if (!label) return;
+                    
+                    // Find the radio button in this label
+                    const radio = label.querySelector('input[type="radio"][name^="variant-"]');
+                    if (!radio) return;
+                    
+                    console.log('=== VARIANT CLICKED ===', radio.value);
+                    
+                    // Prevent double-triggering
+                    e.stopPropagation();
+                    
+                    // Check this radio and uncheck others
+                    const itemCard = radio.closest('[data-item-id]');
+                    if (!itemCard) return;
+                    
+                    // Uncheck all radios in this group first
+                    itemCard.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+                        r.checked = false;
+                    });
+                    
+                    // Check the clicked radio
+                    radio.checked = true;
+                    
+                    // Get variant data
+                    const variantId = radio.getAttribute('data-variant-id');
+                    const menuItemId = radio.getAttribute('data-item-id');
+                    const variantPrice = parseFloat(radio.getAttribute('data-variant-price'));
+                    
+                    if (variantId && menuItemId && !isNaN(variantPrice)) {
+                        handleVariantSelection(radio, variantId, menuItemId, variantPrice);
+                    }
+                });
+            }
 
             function resolveImageUrl(url) {
 
@@ -531,62 +723,60 @@
 
 
 
-            // Store cart items to check if items are already in cart
-            let cartItems = [];
-
             function renderMenuItem(item) {
 
             const itemCard = document.createElement('div');
 
             itemCard.className = 'bg-surface rounded-lg p-4 shadow-card border border-border mb-4';
+            itemCard.setAttribute('data-item-id', item.id);
 
-            // Check if item is already in cart (for items without variants)
-            const isInCart = !item.hasVariants && cartItems.some(cartItem => 
-                cartItem.menuItemId === item.id && !cartItem.variantId
-            );
-
-            // Check which variants are in cart
-            const variantsInCart = {};
-            if (item.hasVariants && item.variants) {
-                item.variants.forEach(variant => {
-                    variantsInCart[variant.id] = cartItems.some(cartItem => 
-                        cartItem.menuItemId === item.id && cartItem.variantId === variant.id
+            // Get selected variant - check if there's a currently checked radio button first
+            let selectedVariantId = null;
+            let selectedVariantPrice = null;
+            let isInCart = false;
+            
+            if (item.hasVariants && item.variants && item.variants.length > 0) {
+                const availableVariants = item.variants.filter(v => v.isAvailable);
+                if (availableVariants.length > 0) {
+                    // Check if there's a currently checked radio button for this item
+                    const checkedRadio = document.querySelector(`input[type="radio"][name="variant-${item.id}"]:checked`);
+                    if (checkedRadio) {
+                        selectedVariantId = checkedRadio.value || checkedRadio.getAttribute('data-variant-id');
+                        const selectedVariant = availableVariants.find(v => v.id === selectedVariantId);
+                        if (selectedVariant) {
+                            selectedVariantPrice = parseFloat(selectedVariant.price);
+                        }
+                    } else {
+                        // No checked radio, use first available variant
+                        selectedVariantId = availableVariants[0].id;
+                        selectedVariantPrice = parseFloat(availableVariants[0].price);
+                    }
+                    
+                    // Check if the selected variant is already in cart
+                    isInCart = cartItems.some(cartItem => 
+                        cartItem.menuItemId === item.id && cartItem.variantId === selectedVariantId
                     );
-                });
+                }
+            } else {
+                // For items without variants, check if item is in cart
+                isInCart = cartItems.some(cartItem => 
+                    cartItem.menuItemId === item.id && !cartItem.variantId
+                );
             }
 
 
 
-                // Handle price display for variants
-
+                // Handle price display
                 let priceDisplay = '';
-
                 if (item.hasVariants && item.variants && item.variants.length > 0) {
-
-                    const availableVariants = item.variants.filter(v => v.isAvailable);
-
-                    if (availableVariants.length > 0) {
-
-                        const prices = availableVariants.map(v => v.price);
-
-                        const minPrice = Math.min(...prices);
-
-                        const maxPrice = Math.max(...prices);
-
-                        priceDisplay = `₱${minPrice.toFixed(2)}${minPrice !== maxPrice ? ` - ₱${maxPrice.toFixed(2)}` : ''}`;
-
+                    if (selectedVariantPrice !== null) {
+                        priceDisplay = `₱${selectedVariantPrice.toFixed(2)}`;
                     } else {
-
                         priceDisplay = 'No variants available';
-
                     }
-
                 } else {
-
                     const price = item.price ? parseFloat(item.price) : 0;
-
                     priceDisplay = `₱${price.toFixed(2)}`;
-
                 }
 
 
@@ -639,28 +829,27 @@
 
                                     <p class="text-xs text-text-secondary mb-1">Available options:</p>
 
-                                    <div class="flex flex-wrap gap-2">
+                                    <div class="flex flex-wrap gap-2 mt-2">
 
                                         ${item.variants.filter(v => v.isAvailable).map(variant => {
-                                            const isVariantInCart = variantsInCart[variant.id] || false;
+                                            const isSelected = variant.id === selectedVariantId;
                                             return `
-                                                <button onclick="addVariantToCart(this, '${variant.id}', '${item.id}')"
-                                                        data-variant-id="${variant.id}"
-                                                        data-item-id="${item.id}"
-                                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
-                                                            isVariantInCart 
-                                                                ? 'bg-success text-white cursor-default' 
-                                                                : 'bg-primary-100 text-primary-700 hover:bg-primary-200 active:bg-primary-300'
-                                                        } ${!variant.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}"
-                                                        ${!variant.isAvailable || isVariantInCart ? 'disabled' : ''}
-                                                        title="${isVariantInCart ? 'Added to cart' : `Add ${variant.name} to cart`}">
-                                                    ${isVariantInCart ? `
-                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                        </svg>
-                                                    ` : ''}
+                                                <label class="px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer border transition-all ${
+                                                    isSelected 
+                                                        ? 'bg-primary text-white border-primary' 
+                                                        : 'bg-white text-primary border-border hover:border-primary'
+                                                }">
+                                                    <input type="radio" 
+                                                           name="variant-${item.id}" 
+                                                           value="${variant.id}"
+                                                           id="variant-${item.id}-${variant.id}"
+                                                           data-variant-id="${variant.id}"
+                                                           data-item-id="${item.id}"
+                                                           data-variant-price="${parseFloat(variant.price)}"
+                                                           class="sr-only"
+                                                           ${isSelected ? 'checked' : ''}>
                                                     <span>${variant.name}: ₱${parseFloat(variant.price).toFixed(2)}</span>
-                                                </button>
+                                                </label>
                                             `;
                                         }).join('')}
 
@@ -690,16 +879,16 @@
 
                         </div>
 
-                        ${!item.hasVariants ? `
                         <button onclick="addToCart(this)"
 
                                 data-item-id="${item.id}"
+                                ${item.hasVariants && selectedVariantId ? `data-variant-id="${selectedVariantId}"` : ''}
 
-                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
+                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable || (item.hasVariants && !selectedVariantId) ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
 
-                                ${!item.isAvailable || isInCart ? 'disabled' : ''}
+                                ${!item.isAvailable || isInCart || (item.hasVariants && !selectedVariantId) ? 'disabled' : ''}
 
-                                title="${isInCart ? 'Item in cart' : 'Add to Cart'}">
+                                title="${isInCart ? 'Item in cart' : item.hasVariants && !selectedVariantId ? 'Select a variant first' : 'Add to Cart'}">
 
                             ${isInCart ? `
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -712,7 +901,6 @@
                             `}
 
                         </button>
-                        ` : ''}
 
                     </div>
 
@@ -805,7 +993,6 @@
 
 
                 menuContainer.innerHTML = menuHtml;
-
             }
 
 
@@ -918,11 +1105,13 @@
                 }
             }
 
+
             // Add to cart function
 
             window.addToCart = async function(button) {
 
                 const itemId = button.getAttribute('data-item-id');
+                const variantId = button.getAttribute('data-variant-id'); // Get variant ID if present
 
 
 
@@ -944,6 +1133,8 @@
 
                             menuItemId: itemId,
 
+                            variantId: variantId || null,
+
                             quantity: 1
 
                         })
@@ -962,34 +1153,33 @@
 
                     // Add item to cartItems array to persist state
                     const responseData = await response.json();
+                    
+                    // Update cartItems immediately
                     if (responseData.data) {
-                        cartItems.push({
+                        const cartItem = {
                             menuItemId: itemId,
+                            variantId: variantId || null,
                             ...responseData.data
-                        });
+                        };
+                        cartItems.push(cartItem);
                     }
 
                     // Update cart items to track the new item
                     await fetchCartItems();
 
-                    // Re-render menu to update cart states
-                    renderMenu();
+                    // Immediately update the button state
+                    button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                    button.classList.add('added', 'opacity-50', 'cursor-not-allowed');
+                    button.classList.remove('hover:bg-primary-600');
+                    button.disabled = true;
+                    button.title = 'Item in cart';
 
                     // Update cart count in header
+                    await updateCartCount();
 
-                    updateCartCount();
-
-
-
-                    // Show feedback - keep check icon permanently
-
-                    button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
-
-                    button.classList.add('added');
-
-                    button.disabled = true;
-
-                    button.title = 'Item in cart';
+                    // Re-render menu to update all cart states
+                    // Note: This will recreate the DOM, but the cartItems array is already updated
+                    renderMenu();
 
 
 
@@ -1003,70 +1193,6 @@
 
             };
 
-            // Add variant to cart function
-            window.addVariantToCart = async function(button, variantId, menuItemId) {
-                try {
-                    const token = localStorage.getItem('authToken');
-                    if (!token) {
-                        alert('Please log in to add items to cart');
-                        window.location.href = '../login.html';
-                        return;
-                    }
-
-                    // Store original button content for restoration
-                    const originalHTML = button.innerHTML;
-                    const variantName = button.querySelector('span')?.textContent || button.textContent;
-                    const variantPriceMatch = variantName.match(/₱[\d.]+/);
-                    const variantPriceText = variantPriceMatch ? variantPriceMatch[0] : '';
-
-                    // Disable button and show loading state
-                    button.disabled = true;
-                    button.innerHTML = `
-                        <svg class="w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Adding...</span>
-                    `;
-
-                    const response = await fetch(`${API_BASE_URL}/cart`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            menuItemId: menuItemId,
-                            variantId: variantId,
-                            quantity: 1
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ message: 'Failed to add item to cart' }));
-                        throw new Error(errorData.message || 'Failed to add item to cart');
-                    }
-
-                    // Update cart items to track the new variant
-                    await fetchCartItems();
-
-                    // Update cart count
-                    updateCartCount();
-
-                    // Re-render menu to update all variant button states
-                    renderMenu();
-
-                    // Note: Button will be updated by re-render, so we don't need to update it manually here
-
-                } catch (error) {
-                    console.error('Error adding variant to cart:', error);
-                    alert('Failed to add item to cart: ' + (error.message || 'Please try again.'));
-                    
-                    // Restore button state
-                    button.disabled = false;
-                    button.innerHTML = originalHTML;
-                }
-            };
 
             async function updateCartCount() {
 
@@ -1153,10 +1279,16 @@
                         const cartData = await cartResponse.json();
                         const cart = cartData.data || [];
 
-                        // Calculate total
+                        // Calculate total - handle items with variants
                         let total = 0;
                         cart.forEach(item => {
-                            total += parseFloat(item.price) * item.quantity;
+                            // For items with variants, use variantPrice, otherwise use price
+                            const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                            const quantity = item.quantity || 1;
+                            
+                            if (!isNaN(price) && !isNaN(quantity)) {
+                                total += price * quantity;
+                            }
                         });
 
                         // Update mobile cart button total

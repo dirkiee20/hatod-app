@@ -36,9 +36,13 @@ const isRestaurantOpen = (businessHours, currentTime = new Date()) => {
     return false; // No hours set
   }
 
-  // Parse time strings (HH:MM format)
-  const [openHour, openMinute] = todayHours.openTime.split(':').map(Number);
-  const [closeHour, closeMinute] = todayHours.closeTime.split(':').map(Number);
+  // Parse time strings (HH:MM or HH:MM:SS format)
+  const openTimeParts = todayHours.openTime.split(':').map(Number);
+  const closeTimeParts = todayHours.closeTime.split(':').map(Number);
+  const openHour = openTimeParts[0];
+  const openMinute = openTimeParts[1] || 0;
+  const closeHour = closeTimeParts[0];
+  const closeMinute = closeTimeParts[1] || 0;
   
   const openTimeMinutes = openHour * 60 + openMinute;
   const closeTimeMinutes = closeHour * 60 + closeMinute;
