@@ -62,18 +62,40 @@
                 <section class="bg-surface rounded-lg p-6 shadow-card border border-border">
                     <h3 class="text-lg font-semibold text-text-primary mb-4">Delivery Address</h3>
                     <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-text-primary mb-2">Select Address</label>
-                            <select id="delivery-address-select" class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <option value="">Loading addresses...</option>
-                            </select>
+                        <div id="location-status" class="space-y-3">
+                            <button id="fetch-location-btn" 
+                                    onclick="fetchCustomerLocation()" 
+                                    class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth btn-hover flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>Fetch My Location</span>
+                            </button>
+                            
+                            <div id="location-loading" class="hidden p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="animate-spin w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    <span class="text-blue-600 text-sm font-medium">Fetching your location...</span>
+                                </div>
+                            </div>
+
+                            <div id="address-display" class="hidden p-4 bg-gray-50 rounded-lg border border-border">
+                                <div class="flex items-start space-x-3">
+                                    <svg class="w-5 h-5 text-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-text-primary mb-1">Delivery Address:</p>
+                                        <p id="address-text" class="text-sm text-text-secondary"></p>
+                                        <p id="barangay-text" class="text-xs text-primary mt-1 font-medium"></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <button id="addNewAddressBtn" onclick="openMapAddressPicker()" class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            <span>Add new address</span>
-                        </button>
+                        
                         <!-- Barangay Validation Warning -->
                         <div id="barangay-warning" class="hidden p-3 bg-warning-50 border border-warning-200 rounded-lg">
                             <div class="flex items-start space-x-2">
@@ -83,7 +105,6 @@
                                 <div class="flex-1">
                                     <div class="text-warning font-medium text-sm mb-1">Delivery Not Available</div>
                                     <div class="text-warning text-xs" id="barangay-warning-text"></div>
-                                    <a href="customer_profile.html" class="text-warning underline text-xs mt-1 inline-block">Update your location →</a>
                                 </div>
                             </div>
                         </div>
@@ -96,6 +117,11 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Hidden fields for address data -->
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    <input type="hidden" id="full-address" name="fullAddress">
+                    <input type="hidden" id="barangay" name="barangay">
                 </section>
 
                 <!-- Payment Method -->
@@ -330,101 +356,269 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadCheckoutData();
-            // Check if returning from map address picker
-            checkForNewAddress();
         });
 
-        // Open map address picker
-        function openMapAddressPicker() {
-            const callbackUrl = encodeURIComponent(window.location.href);
-            window.location.href = `../shared/map_address_picker.html?callback=${callbackUrl}`;
-        }
+        // Mapbox access token for reverse geocoding
+        const MAPBOX_TOKEN = 'pk.eyJ1Ijoia3JpZGxsbCIsImEiOiJjbWljdzdmYXUwb3I1MmpwcTJyNWVsN252In0.2lBD_f8wyFrpViRg8n6cOw';
+        let allowedBarangays = [];
 
-        // Check if returning from map picker with new address
-        async function checkForNewAddress() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const address = urlParams.get('address');
-            const lat = urlParams.get('lat');
-            const lng = urlParams.get('lng');
-            const city = urlParams.get('city');
-            const zipCode = urlParams.get('zipCode');
-            const apartment = urlParams.get('apartment');
-            
-            if (address) {
-                // Clean up URL first
-                const cleanUrl = window.location.pathname;
-                window.history.replaceState({}, document.title, cleanUrl);
-                
-                // Save the address automatically
-                try {
-                    const token = localStorage.getItem('authToken');
-                    if (!token) {
-                        alert('Please log in to save address');
-                        return;
-                    }
-
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    const customerId = payload.sub;
-
-                    const addressData = {
-                        label: 'Home',
-                        streetAddress: decodeURIComponent(address),
-                        city: city ? decodeURIComponent(city) : '',
-                        zipCode: zipCode ? decodeURIComponent(zipCode) : '',
-                        apartment: apartment ? decodeURIComponent(apartment) : null,
-                        state: null,
-                        latitude: lat ? parseFloat(lat) : null,
-                        longitude: lng ? parseFloat(lng) : null,
-                        isDefault: false
-                    };
-
-                    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify(addressData)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Failed to save address');
-                    }
-
-                    // Reload addresses
-                    await reloadAddresses();
-                    
-                    // Show success message
-                    alert('Address added successfully!');
-                } catch (error) {
-                    console.error('Error saving address:', error);
-                    alert('Failed to save address: ' + error.message);
-                }
-            }
-        }
-
-        // Reload addresses
-        async function reloadAddresses() {
+        // Load allowed barangays on page load
+        async function loadAllowedBarangays() {
             try {
                 const token = localStorage.getItem('authToken');
                 if (!token) return;
 
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const customerId = payload.sub;
-
-                const addressesResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
+                const response = await fetch(`${API_BASE_URL}/delivery-fees/tiers`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                const addressesData = await addressesResponse.json();
-                const addresses = addressesData.data || [];
-
-                updateAddressSelection(addresses);
+                if (response.ok) {
+                    const data = await response.json();
+                    allowedBarangays = Object.keys(data.data || {});
+                    console.log('Allowed barangays loaded:', allowedBarangays);
+                }
             } catch (error) {
-                console.error('Error reloading addresses:', error);
+                console.error('Error loading allowed barangays:', error);
+            }
+        }
+
+        // Fetch customer location when button is clicked
+        async function fetchCustomerLocation() {
+            const locationLoading = document.getElementById('location-loading');
+            const fetchBtn = document.getElementById('fetch-location-btn');
+            const addressDisplay = document.getElementById('address-display');
+            const barangayWarning = document.getElementById('barangay-warning');
+            
+            // Hide previous results
+            addressDisplay.classList.add('hidden');
+            barangayWarning.classList.add('hidden');
+            
+            // Load allowed barangays if not loaded
+            if (allowedBarangays.length === 0) {
+                await loadAllowedBarangays();
+            }
+            
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser. Please use a different browser.');
+                return;
+            }
+
+            // Show loading state
+            if (locationLoading) locationLoading.classList.remove('hidden');
+            if (fetchBtn) {
+                fetchBtn.disabled = true;
+                fetchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            try {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        console.log('Location fetched:', { latitude, longitude });
+                        
+                        // Store coordinates in hidden fields
+                        document.getElementById('latitude').value = latitude;
+                        document.getElementById('longitude').value = longitude;
+                        
+                        // Reverse geocode to get address and extract barangay
+                        await reverseGeocode(longitude, latitude);
+                        
+                        // Hide loading indicator
+                        if (locationLoading) locationLoading.classList.add('hidden');
+                        if (fetchBtn) {
+                            fetchBtn.disabled = false;
+                            fetchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    },
+                    async (error) => {
+                        console.error('Error fetching location:', error);
+                        
+                        // Hide loading indicator
+                        if (locationLoading) locationLoading.classList.add('hidden');
+                        if (fetchBtn) {
+                            fetchBtn.disabled = false;
+                            fetchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        
+                        let errorMessage = 'Failed to fetch location. ';
+                        if (error.code === error.PERMISSION_DENIED) {
+                            errorMessage += 'Please allow location access and try again.';
+                        } else if (error.code === error.TIMEOUT) {
+                            errorMessage += 'Location request timed out. Please try again.';
+                        } else {
+                            errorMessage += 'Please try again.';
+                        }
+                        alert(errorMessage);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } catch (error) {
+                console.error('Error in fetchCustomerLocation:', error);
+                if (locationLoading) locationLoading.classList.add('hidden');
+                if (fetchBtn) {
+                    fetchBtn.disabled = false;
+                    fetchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+                alert('An error occurred while fetching location. Please try again.');
+            }
+        }
+
+        // Reverse geocode coordinates to get address and extract barangay
+        async function reverseGeocode(lng, lat) {
+            try {
+                const response = await fetch(
+                    `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&country=PH`
+                );
+                const data = await response.json();
+                
+                if (data.features && data.features.length > 0) {
+                    const feature = data.features[0];
+                    const placeName = feature.place_name || '';
+                    const context = feature.context || [];
+                    
+                    // Store full address
+                    document.getElementById('full-address').value = placeName;
+                    
+                    // Extract barangay from address
+                    // Barangay might be in different parts of the address
+                    let barangay = null;
+                    
+                    // Normalize allowed barangays for matching
+                    const normalizedBarangays = allowedBarangays.map(b => ({
+                        original: b,
+                        normalized: b.toLowerCase().replace(/^barangay\s+/i, '').trim(),
+                        fullLower: b.toLowerCase()
+                    }));
+                    
+                    // Check all context items for barangay-like names
+                    for (const ctx of context) {
+                        const text = (ctx.text || '').toLowerCase().trim();
+                        // Check if this matches any allowed barangay
+                        for (const { original, normalized, fullLower } of normalizedBarangays) {
+                            if (text === fullLower || 
+                                text === normalized ||
+                                text.includes(normalized) ||
+                                normalized.includes(text) ||
+                                fullLower.includes(text) ||
+                                text.includes(fullLower)) {
+                                barangay = original;
+                                break;
+                            }
+                        }
+                        if (barangay) break;
+                    }
+                    
+                    // Also check the full address string for barangay
+                    if (!barangay) {
+                        const addressLower = placeName.toLowerCase();
+                        for (const { original, normalized, fullLower } of normalizedBarangays) {
+                            // Check if barangay name appears in address
+                            if (addressLower.includes(fullLower) || 
+                                addressLower.includes(normalized) ||
+                                addressLower.includes(`barangay ${normalized}`)) {
+                                barangay = original;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Try matching by neighborhood or district names if available
+                    if (!barangay) {
+                        const neighborhood = context.find(c => c.id.startsWith('neighborhood'))?.text?.toLowerCase() || '';
+                        const district = context.find(c => c.id.startsWith('district'))?.text?.toLowerCase() || '';
+                        
+                        for (const { original, normalized } of normalizedBarangays) {
+                            if (neighborhood.includes(normalized) || normalized.includes(neighborhood) ||
+                                district.includes(normalized) || normalized.includes(district)) {
+                                barangay = original;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Store barangay
+                    document.getElementById('barangay').value = barangay || '';
+                    
+                    // Display address
+                    const addressDisplay = document.getElementById('address-display');
+                    const addressText = document.getElementById('address-text');
+                    const barangayText = document.getElementById('barangay-text');
+                    const barangayWarning = document.getElementById('barangay-warning');
+                    const warningText = document.getElementById('barangay-warning-text');
+                    
+                    if (addressText) {
+                        addressText.textContent = placeName;
+                    }
+                    
+                    // Validate barangay
+                    if (!barangay || !allowedBarangays.includes(barangay)) {
+                        // Hide address display
+                        addressDisplay.classList.add('hidden');
+                        
+                        // Show warning
+                        if (barangayWarning) {
+                            let warningMessage = 'Your location is outside our delivery area. ';
+                            if (allowedBarangays.length > 0) {
+                                warningMessage += `We currently deliver to: ${allowedBarangays.join(', ')}.`;
+                            } else {
+                                warningMessage += 'Please contact support for delivery availability.';
+                            }
+                            if (warningText) {
+                                warningText.textContent = warningMessage;
+                            }
+                            barangayWarning.classList.remove('hidden');
+                        }
+                        
+                        // Disable place order button
+                        disablePlaceOrder('Delivery not available to your location');
+                    } else {
+                        // Update customer's profile barangay
+                        await updateCustomerBarangay(barangay);
+                        
+                        // Show address display
+                        addressDisplay.classList.remove('hidden');
+                        if (barangayText) {
+                            barangayText.textContent = `Barangay: ${barangay}`;
+                        }
+                        
+                        // Hide warning
+                        barangayWarning.classList.add('hidden');
+                        
+                        // Enable place order button
+                        enablePlaceOrder();
+                    }
+                    
+                    console.log('Address processed:', { placeName, barangay, isValid: allowedBarangays.includes(barangay) });
+                }
+            } catch (error) {
+                console.error('Error reverse geocoding:', error);
+                alert('Failed to get address from location. Please try again.');
+            }
+        }
+
+        function disablePlaceOrder(reason) {
+            const placeOrderBtn = document.querySelector('button[onclick="placeOrder()"]');
+            if (placeOrderBtn) {
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                placeOrderBtn.classList.remove('btn-hover');
+                placeOrderBtn.title = reason || 'Delivery not available';
+            }
+        }
+
+        function enablePlaceOrder() {
+            const placeOrderBtn = document.querySelector('button[onclick="placeOrder()"]');
+            if (placeOrderBtn) {
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                placeOrderBtn.classList.add('btn-hover');
+                placeOrderBtn.title = '';
             }
         }
 
@@ -464,31 +658,15 @@
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const customerId = payload.sub;
 
-                console.log('[Checkout] Loading addresses for customer:', customerId);
-                const addressesResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!addressesResponse.ok) {
-                    const errorData = await addressesResponse.json().catch(() => ({ message: 'Failed to load addresses' }));
-                    console.error('[Checkout] Failed to load addresses:', errorData);
-                    // Still show cart even if addresses fail
-                    updateAddressSelection([]);
-                } else {
-                    const addressesData = await addressesResponse.json();
-                    const addresses = addressesData.data || [];
-                    console.log('[Checkout] Addresses loaded:', addresses);
-                    updateAddressSelection(addresses);
-                }
+                // Load allowed barangays
+                await loadAllowedBarangays();
 
                 // Update UI with real data
                 updateRestaurantInfo(cart);
                 await updateOrderSummary(cart);
                 
-                // Validate barangay
-                await validateBarangay(token, customerId);
+                // Initially disable place order button until location is fetched
+                disablePlaceOrder('Please fetch your location first');
 
             } catch (error) {
                 console.error('[Checkout] Error loading checkout data:', error);
@@ -496,84 +674,32 @@
             }
         }
 
-        async function validateBarangay(token, customerId) {
+        // Update customer's profile barangay
+        async function updateCustomerBarangay(barangay) {
             try {
-                // Get customer profile to check barangay
-                const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const customerId = payload.sub;
+
+                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                    method: 'PUT',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
-                    }
+                    },
+                    body: JSON.stringify({ barangay: barangay })
                 });
 
-                if (!profileResponse.ok) return;
-
-                const profileData = await profileResponse.json();
-                const customerBarangay = profileData.data?.barangay;
-                
-                if (!customerBarangay) {
-                    showBarangayWarning(
-                        'Please select your delivery location (barangay) in your profile before placing an order.'
-                    );
-                    return;
-                }
-
-                // Check if barangay is in allowed list
-                const allowedBarangaysResponse = await fetch(`${API_BASE_URL}/delivery-fees/tiers`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (allowedBarangaysResponse.ok) {
-                    const tiersData = await allowedBarangaysResponse.json();
-                    const allowedBarangays = Object.keys(tiersData.data || {});
-                    
-                    if (allowedBarangays.length > 0 && !allowedBarangays.includes(customerBarangay)) {
-                        showBarangayWarning(
-                            `Delivery is not available to your selected location (${customerBarangay}). ` +
-                            `We currently deliver to: ${allowedBarangays.join(', ')}.`
-                        );
-                    } else {
-                        hideBarangayWarning();
-                    }
+                if (response.ok) {
+                    console.log('Customer barangay updated:', barangay);
+                } else {
+                    console.error('Failed to update customer barangay');
                 }
             } catch (error) {
-                console.error('Error validating barangay:', error);
-                // Don't block checkout if validation fails, backend will catch it
-            }
-        }
-
-        function showBarangayWarning(message) {
-            const warningDiv = document.getElementById('barangay-warning');
-            const warningText = document.getElementById('barangay-warning-text');
-            const placeOrderBtn = document.querySelector('button[onclick="placeOrder()"]');
-            
-            if (warningDiv && warningText) {
-                warningText.textContent = message;
-                warningDiv.classList.remove('hidden');
-            }
-            
-            // Disable place order button
-            if (placeOrderBtn) {
-                placeOrderBtn.disabled = true;
-                placeOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                placeOrderBtn.classList.remove('btn-hover');
-            }
-        }
-
-        function hideBarangayWarning() {
-            const warningDiv = document.getElementById('barangay-warning');
-            const placeOrderBtn = document.querySelector('button[onclick="placeOrder()"]');
-            
-            if (warningDiv) {
-                warningDiv.classList.add('hidden');
-            }
-            
-            // Enable place order button
-            if (placeOrderBtn) {
-                placeOrderBtn.disabled = false;
-                placeOrderBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                placeOrderBtn.classList.add('btn-hover');
+                console.error('Error updating customer barangay:', error);
+                // Don't block the flow if update fails
             }
         }
 
@@ -700,55 +826,39 @@
             }
         }
 
-        function updateAddressSelection(addresses) {
-            const addressSelect = document.getElementById('delivery-address-select');
-            if (!addressSelect) {
-                console.error('[Checkout] Address select element not found');
-                return;
-            }
-            
-            if (addresses.length === 0) {
-                addressSelect.innerHTML = '<option value="">No addresses available. Please add an address.</option>';
-                return;
-            }
-            
-            let optionsHtml = '';
-            addresses.forEach(address => {
-                // Use camelCase properties as returned by API
-                const streetAddress = address.streetAddress || '';
-                const apartment = address.apartment || '';
-                const city = address.city || '';
-                const state = address.state || '';
-                const zipCode = address.zipCode || '';
-                const label = address.label || '';
-                
-                // Build address string
-                let addressParts = [];
-                if (streetAddress) addressParts.push(streetAddress);
-                if (apartment) addressParts.push(apartment);
-                if (city) addressParts.push(city);
-                if (state) addressParts.push(state);
-                if (zipCode) addressParts.push(zipCode);
-                
-                const fullAddress = addressParts.length > 0 
-                    ? addressParts.join(', ')
-                    : (label || 'Address');
-                
-                const selected = address.isDefault ? ' selected' : '';
-                optionsHtml += `<option value="${address.id}"${selected}>${fullAddress}</option>`;
-            });
-            
-            addressSelect.innerHTML = optionsHtml;
-            console.log('[Checkout] Address selection updated with', addresses.length, 'addresses');
-        }
 
         async function placeOrder() {
             try {
-                const addressSelect = document.querySelector('select.w-full.border');
-                const specialInstructions = document.querySelector('textarea[placeholder*="Leave at door"]').value;
+                // Get address from fetched location
+                const fullAddress = document.getElementById('full-address').value.trim();
+                const barangay = document.getElementById('barangay').value.trim();
+                const latitude = document.getElementById('latitude').value;
+                const longitude = document.getElementById('longitude').value;
+                const specialInstructions = document.querySelector('textarea[placeholder*="Leave at door"]')?.value || '';
 
-                if (!addressSelect.value) {
-                    alert('Please select a delivery address');
+                // Validate that location was fetched
+                if (!fullAddress || !latitude || !longitude) {
+                    alert('Please fetch your location first by clicking "Fetch My Location" button');
+                    return;
+                }
+
+                // Validate barangay
+                if (!barangay) {
+                    alert('Unable to determine your barangay from the location. Delivery is only available to specific areas. Please contact support if you believe this is an error.');
+                    return;
+                }
+
+                // Validate barangay is in allowed list
+                if (allowedBarangays.length === 0) {
+                    await loadAllowedBarangays();
+                }
+
+                if (!allowedBarangays.includes(barangay)) {
+                    alert(
+                        `Delivery is not available to your location (${barangay}).\n\n` +
+                        `We currently deliver to:\n${allowedBarangays.join(', ')}\n\n` +
+                        `Please contact support if you believe this is an error.`
+                    );
                     return;
                 }
 
@@ -759,50 +869,53 @@
                     return;
                 }
 
-                // Validate customer's barangay before placing order
+                // Get customer ID from JWT
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const customerId = payload.sub;
-                
-                const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
 
-                if (profileResponse.ok) {
-                    const profileData = await profileResponse.json();
-                    const customerBarangay = profileData.data?.barangay;
-                    
-                    if (!customerBarangay) {
-                        alert(
-                            'Please select your delivery location (barangay) in your profile before placing an order.\n\n' +
-                            'Go to your account settings to update your location.'
-                        );
-                        window.location.href = 'customer_profile.html';
-                        return;
-                    }
+                // Parse address components from full address
+                // Mapbox format: "Street, Neighborhood/Barangay, City, Region, Country"
+                const addressParts = fullAddress.split(',').map(s => s.trim());
+                const streetAddress = fullAddress; // Use full address as street address
+                const city = addressParts.length > 2 ? addressParts[addressParts.length - 3] : (addressParts[addressParts.length - 2] || '');
+                const zipCode = ''; // ZIP code might not be in the address string
 
-                    // Check if barangay is in allowed list
-                    const allowedBarangaysResponse = await fetch(`${API_BASE_URL}/delivery-fees/tiers`, {
+                // Create a temporary address for this order
+                let deliveryAddressId = null;
+                try {
+                    const addressData = {
+                        label: 'Delivery Address',
+                        streetAddress: streetAddress,
+                        city: city || barangay, // Use barangay as city if city not found
+                        zipCode: zipCode || '0000',
+                        apartment: null,
+                        state: null,
+                        latitude: latitude ? parseFloat(latitude) : null,
+                        longitude: longitude ? parseFloat(longitude) : null,
+                        isDefault: false
+                    };
+
+                    const addressResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/addresses`, {
+                        method: 'POST',
                         headers: {
+                            'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
-                        }
+                        },
+                        body: JSON.stringify(addressData)
                     });
 
-                    if (allowedBarangaysResponse.ok) {
-                        const tiersData = await allowedBarangaysResponse.json();
-                        const allowedBarangays = Object.keys(tiersData.data || {});
-                        
-                        if (allowedBarangays.length > 0 && !allowedBarangays.includes(customerBarangay)) {
-                            alert(
-                                `Delivery is not available to your selected location (${customerBarangay}).\n\n` +
-                                `We currently deliver to:\n${allowedBarangays.join(', ')}\n\n` +
-                                `Please update your location in your profile to one of the supported barangays.`
-                            );
-                            window.location.href = 'customer_profile.html';
-                            return;
-                        }
+                    if (!addressResponse.ok) {
+                        const errorData = await addressResponse.json().catch(() => ({ message: 'Failed to create address' }));
+                        throw new Error(errorData.message || 'Failed to create delivery address');
                     }
+
+                    const addressResult = await addressResponse.json();
+                    deliveryAddressId = addressResult.data.id;
+                    console.log('Temporary address created:', deliveryAddressId);
+                } catch (addressError) {
+                    console.error('Error creating address:', addressError);
+                    alert('Failed to create delivery address: ' + addressError.message);
+                    return;
                 }
 
                 // Get cart data again to ensure we have the latest
@@ -838,7 +951,7 @@
                 const orderData = {
                     customerId,
                     restaurantId,
-                    deliveryAddressId: addressSelect.value,
+                    deliveryAddressId: deliveryAddressId,
                     orderType: 'delivery',
                     tipAmount: 0,
                     items,
