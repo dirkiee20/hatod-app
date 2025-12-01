@@ -27,10 +27,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <svg class="w-8 h-8 text-primary mr-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
-                        <path d="M12 16L13.09 22.26L22 23L13.09 23.74L12 30L10.91 23.74L2 23L10.91 22.26L12 16Z" opacity="0.6"/>
-                    </svg>
+                    <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
                     <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
                 </div>
 
@@ -39,19 +36,21 @@
                     <a href="rider_dashboard.html" class="text-text-secondary hover:text-primary transition-smooth">Dashboard</a>
                     <a href="rider_orders.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
                     <a href="rider_map.html" class="text-primary font-medium border-b-2 border-primary pb-1">Map</a>
-                    <a href="rider_profile.html" class="text-text-secondary hover:text-primary transition-smooth">Profile</a>
                     <a href="rider_payment.html" class="text-text-secondary hover:text-primary transition-smooth">Payment</a>
+                    <a href="rider_profile.html" class="text-text-secondary hover:text-primary transition-smooth">Profile</a>
                 </nav>
 
                 <!-- User Profile -->
                 <div class="flex items-center space-x-4">
                     <div class="relative">
                         <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
-                            <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            <img id="riderProfileImage"
+                                 src="../../public/default-avatar.svg"
                                  alt="Rider profile picture"
                                  class="w-8 h-8 rounded-full object-cover"
-                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
-                            <span class="text-sm font-medium">John Rider</span>
+                                 onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;"
+                                 data-old-onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <span id="riderName" class="text-sm font-medium">Loading...</span>
                         </button>
                     </div>
                 </div>
@@ -113,9 +112,26 @@
 
         let map;
         let markers = [];
+        let riderMarker = null;
+        let locationWatchId = null;
+        let lastLocationUpdate = null;
+        const LOCATION_UPDATE_INTERVAL = 5000; // Update location every 5 seconds
+        const LOCATION_SEND_INTERVAL = 10000; // Send to server every 10 seconds
 
         function getAuthToken() {
             return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        }
+
+        // Function to get user ID from token
+        function getUserId() {
+            const token = getAuthToken();
+            if (!token) return null;
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.sub;
+            } catch (e) {
+                return null;
+            }
         }
 
         async function apiCall(endpoint, options = {}) {
@@ -156,24 +172,106 @@
             // Add navigation controls
             map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-            // Try to get user's current location
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { longitude, latitude } = position.coords;
-                        map.setCenter([longitude, latitude]);
-                        map.setZoom(14);
-                        
-                        // Add marker for rider's current location
-                        new mapboxgl.Marker({ color: '#3B82F6' })
-                            .setLngLat([longitude, latitude])
-                            .setPopup(new mapboxgl.Popup().setHTML('<strong>Your Location</strong>'))
-                            .addTo(map);
-                    },
-                    (error) => {
-                        console.error('Error getting location:', error);
+            // Start real-time location tracking
+            startLocationTracking();
+        }
+
+        // Start continuous location tracking
+        function startLocationTracking() {
+            if (!navigator.geolocation) {
+                console.error('Geolocation is not supported by this browser');
+                return;
+            }
+
+            // Request location permission and start watching
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            // Get initial position
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { longitude, latitude } = position.coords;
+                    map.setCenter([longitude, latitude]);
+                    map.setZoom(14);
+                    updateRiderMarker(longitude, latitude);
+                    sendLocationToServer(latitude, longitude);
+                },
+                (error) => {
+                    console.error('Error getting initial location:', error);
+                },
+                options
+            );
+
+            // Watch position for continuous updates
+            locationWatchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { longitude, latitude } = position.coords;
+                    const now = Date.now();
+                    
+                    // Update marker position on map
+                    updateRiderMarker(longitude, latitude);
+                    
+                    // Send location to server periodically
+                    if (!lastLocationUpdate || (now - lastLocationUpdate) >= LOCATION_SEND_INTERVAL) {
+                        sendLocationToServer(latitude, longitude);
+                        lastLocationUpdate = now;
                     }
-                );
+                },
+                (error) => {
+                    console.error('Error watching location:', error);
+                    if (error.code === error.PERMISSION_DENIED) {
+                        alert('Location permission denied. Please enable location access to track your movement.');
+                    }
+                },
+                options
+            );
+        }
+
+        // Update rider marker position on map
+        function updateRiderMarker(longitude, latitude) {
+            if (!riderMarker) {
+                // Create rider marker if it doesn't exist
+                const el = document.createElement('div');
+                el.className = 'rider-location-marker';
+                el.style.width = '20px';
+                el.style.height = '20px';
+                el.style.borderRadius = '50%';
+                el.style.backgroundColor = '#3B82F6';
+                el.style.border = '3px solid white';
+                el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+                el.style.cursor = 'pointer';
+                
+                riderMarker = new mapboxgl.Marker(el)
+                    .setLngLat([longitude, latitude])
+                    .setPopup(new mapboxgl.Popup().setHTML('<strong>Your Current Location</strong><br><small>Real-time tracking active</small>'))
+                    .addTo(map);
+            } else {
+                // Update existing marker position with smooth animation
+                riderMarker.setLngLat([longitude, latitude]);
+            }
+        }
+
+        // Send location update to server
+        async function sendLocationToServer(latitude, longitude) {
+            try {
+                await apiCall('/delivery/riders/location', {
+                    method: 'POST',
+                    body: JSON.stringify({ latitude, longitude })
+                });
+            } catch (error) {
+                console.error('Error sending location to server:', error);
+                // Don't show error to user - location tracking should be silent
+            }
+        }
+
+        // Stop location tracking (cleanup)
+        function stopLocationTracking() {
+            if (locationWatchId !== null) {
+                navigator.geolocation.clearWatch(locationWatchId);
+                locationWatchId = null;
             }
         }
 
@@ -335,6 +433,54 @@
         window.focusDelivery = focusDelivery;
         window.focusRestaurant = focusRestaurant;
 
+        // Load rider profile for header
+        async function loadRiderProfile() {
+            try {
+                const riderId = getUserId();
+                if (!riderId) return;
+
+                const token = getAuthToken();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE_URL}/delivery/riders/${riderId}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const rider = result.data;
+                    
+                    const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+                    const PLACEHOLDER_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+                    
+                    // Update rider name
+                    const riderNameEl = document.getElementById('riderName');
+                    if (riderNameEl) {
+                        riderNameEl.textContent = rider.fullName || 'Rider';
+                    }
+                    
+                    // Update profile image
+                    const profileImageEl = document.getElementById('riderProfileImage');
+                    if (profileImageEl) {
+                        if (rider.imageUrl) {
+                            let imageUrl = rider.imageUrl;
+                            if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+                                const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+                                imageUrl = `${API_ORIGIN}${path}`;
+                            }
+                            profileImageEl.src = imageUrl;
+                        } else {
+                            profileImageEl.src = PLACEHOLDER_IMAGE;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading rider profile:', error);
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
@@ -344,6 +490,14 @@
             
             // Refresh deliveries every 30 seconds
             setInterval(loadDeliveries, 30000);
+            
+            // Load rider profile
+            loadRiderProfile();
+        });
+
+        // Cleanup location tracking when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            stopLocationTracking();
         });
     </script>
     <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>

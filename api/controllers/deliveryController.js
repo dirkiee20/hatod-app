@@ -1010,3 +1010,50 @@ export const listRiderDeliveryRequests = asyncHandler(async (req, res) => {
   }
 });
 
+// Update rider location for real-time tracking
+export const updateRiderLocation = asyncHandler(async (req, res) => {
+  const riderId = req.user.sub;
+  const { latitude, longitude } = req.body;
+
+  if (!latitude || !longitude) {
+    throw badRequest('Latitude and longitude are required');
+  }
+
+  // Validate coordinates
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    throw badRequest('Invalid coordinates');
+  }
+
+  // Update rider location in rider_profiles
+  const result = await query(
+    `UPDATE rider_profiles
+     SET latitude = $1,
+         longitude = $2,
+         location_updated_at = NOW(),
+         updated_at = NOW()
+     WHERE user_id = $3
+     RETURNING latitude, longitude, location_updated_at AS "locationUpdatedAt"`,
+    [latitude, longitude, riderId]
+  );
+
+  // If rider profile doesn't exist, create it
+  if (result.rowCount === 0) {
+    await query(
+      `INSERT INTO rider_profiles (user_id, latitude, longitude, location_updated_at, created_at, updated_at)
+       VALUES ($1, $2, $3, NOW(), NOW(), NOW())
+       RETURNING latitude, longitude, location_updated_at AS "locationUpdatedAt"`,
+      [riderId, latitude, longitude]
+    );
+  }
+
+  res.json({
+    status: 'success',
+    message: 'Location updated successfully',
+    data: {
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      locationUpdatedAt: result.rows[0]?.locationUpdatedAt || new Date().toISOString()
+    }
+  });
+});
+

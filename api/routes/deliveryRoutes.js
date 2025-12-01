@@ -18,7 +18,8 @@ import {
   acceptDeliveryRequest,
   rejectDeliveryRequest,
   listRestaurantDeliveryRequests,
-  listRiderDeliveryRequests
+  listRiderDeliveryRequests,
+  updateRiderLocation
 } from '../controllers/deliveryController.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -222,6 +223,19 @@ router.get(
   authenticate,
   requireRoles('delivery', 'admin'),
   listRiderDeliveryRequests
+);
+
+// Update rider location for real-time tracking
+router.post(
+  '/riders/location',
+  authenticate,
+  requireRoles('delivery', 'admin'),
+  [
+    body('latitude').isFloat({ min: -90, max: 90 }),
+    body('longitude').isFloat({ min: -180, max: 180 })
+  ],
+  validate,
+  updateRiderLocation
 );
 
 export default router;
