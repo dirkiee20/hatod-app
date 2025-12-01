@@ -91,12 +91,11 @@
                     <span id="subtotal">₱0.00</span>
                 </div>
                 <div class="flex justify-between text-text-secondary">
-                    <span>Delivery Fee</span>
-                    <span id="delivery-fee">₱0.00</span>
-                </div>
-                <div class="flex justify-between text-text-secondary">
                     <span>Tax</span>
                     <span id="tax">₱0.00</span>
+                </div>
+                <div class="flex justify-between text-sm text-text-secondary italic">
+                    <span>Delivery fee calculated at checkout</span>
                 </div>
                 <hr class="my-2">
                 <div class="flex justify-between text-lg font-semibold text-text-primary">
@@ -327,59 +326,11 @@
 
                 cartItemsContainer.innerHTML = cartHtml;
 
-                // Calculate delivery fee based on barangay and order amount
-                let deliveryFee = 0;
-                try {
-                    const token = localStorage.getItem('authToken');
-                    if (token) {
-                        // Get customer's barangay
-                        const payload = JSON.parse(atob(token.split('.')[1]));
-                        const customerId = payload.sub;
-
-                        const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (profileResponse.ok) {
-                            const profileData = await profileResponse.json();
-                            const barangay = profileData.data?.barangay;
-
-                            if (barangay) {
-                                // Calculate delivery fee based on barangay and order amount
-                                const feeResponse = await fetch(`${API_BASE_URL}/delivery-fees/calculate`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({
-                                        barangay: barangay,
-                                        orderAmount: subtotal
-                                    })
-                                });
-
-                                if (feeResponse.ok) {
-                                    const feeData = await feeResponse.json();
-                                    deliveryFee = parseFloat(feeData.data.deliveryFee) || 0;
-                                }
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error calculating delivery fee:', error);
-                    // Fallback to default fee
-                    deliveryFee = 50;
-                }
-
-                // Update order summary - ensure all values are valid numbers
+                // Update order summary - delivery fee will be calculated at checkout after address validation
                 const validSubtotal = isNaN(subtotal) ? 0 : subtotal;
-                const validDeliveryFee = isNaN(deliveryFee) ? 0 : deliveryFee;
-                const total = validSubtotal + validDeliveryFee;
+                const total = validSubtotal; // Only subtotal (tax is 0, delivery fee calculated at checkout)
 
                 document.getElementById('subtotal').textContent = `₱${validSubtotal.toFixed(2)}`;
-                document.getElementById('delivery-fee').textContent = `₱${validDeliveryFee.toFixed(2)}`;
                 document.getElementById('tax').textContent = `₱0.00`;
                 document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
 

@@ -496,7 +496,7 @@
                         fullLower: b.toLowerCase()
                     }));
                     
-                    // Check context items for barangay - use strict matching
+                    // Check context items for barangay - prioritize place name (without "Barangay" prefix)
                     // Look for context items with "locality" or "neighborhood" type that might contain barangay
                     for (const ctx of context) {
                         const text = (ctx.text || '').toLowerCase().trim();
@@ -504,18 +504,30 @@
                         
                         // Only check if this is a locality or neighborhood context
                         if (id.includes('locality') || id.includes('neighborhood') || id.includes('place')) {
-                            // Strict matching - exact match or contains full barangay name
+                            // Prioritize matching just the place name (e.g., "tayaga", "espina") without "Barangay" prefix
                             for (const { original, normalized, fullLower } of normalizedBarangays) {
-                                // Exact match first
-                                if (text === fullLower || text === normalized) {
+                                // First check for normalized name only (e.g., "espina", "tayaga") - most flexible
+                                if (normalized.length >= 3) {
+                                    // Exact match for normalized name
+                                    if (text === normalized) {
+                                        barangay = original;
+                                        break;
+                                    }
+                                    // Word boundary match for normalized name
+                                    const normalizedRegex = new RegExp(`\\b${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                                    if (normalizedRegex.test(text)) {
+                                        barangay = original;
+                                        break;
+                                    }
+                                }
+                                // Then check for full "Barangay X" format
+                                if (text === fullLower) {
                                     barangay = original;
                                     break;
                                 }
-                                // Check if text contains full barangay name - but only if it's clearly a match
-                                // Avoid substring matches - use word boundaries
                                 if (fullLower.length > 3) {
-                                    const regex = new RegExp(`\\b${fullLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-                                    if (regex.test(text)) {
+                                    const fullRegex = new RegExp(`\\b${fullLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                                    if (fullRegex.test(text)) {
                                         barangay = original;
                                         break;
                                     }
@@ -526,19 +538,20 @@
                     }
                     
                     // Check full address string - but only if no match found yet
+                    // Prioritize matching just the place name (e.g., "tayaga", "espina") without "Barangay" prefix
                     if (!barangay) {
                         const addressLower = placeName.toLowerCase();
                         for (const { original, normalized, fullLower } of normalizedBarangays) {
-                            // STRICT matching - only match if barangay name appears explicitly
-                            // Check for "Barangay X" format first (most reliable)
+                            // Prioritize matching just the place name (without "Barangay" prefix)
                             if (normalized.length >= 3) {
-                                const barangayPattern = `barangay ${normalized}`;
-                                const brgyPattern = `brgy[\\s\\.]${normalized}`;
-                                
                                 // Use word boundaries to ensure exact match
                                 const patterns = [
-                                    new RegExp(`\\b${barangayPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
-                                    new RegExp(`\\b${brgyPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+                                    // First: Check for just the normalized name (e.g., "tayaga", "espina") - most flexible
+                                    new RegExp(`\\b${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+                                    // Then: Check for "Barangay X" format
+                                    new RegExp(`\\bbarangay ${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+                                    // Finally: Check for abbreviated format "Brgy. X"
+                                    new RegExp(`\\bbrgy[\\s\\.]${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
                                 ];
                                 
                                 for (const pattern of patterns) {
@@ -618,6 +631,9 @@
                         
                         // Enable place order button
                         enablePlaceOrder();
+                        
+                        // Calculate and update delivery fee based on validated barangay
+                        await updateDeliveryFee(barangay);
                     }
                     
                     console.log('Address processed:', { placeName, barangay, isValid: allowedBarangays.includes(barangay || '') });
@@ -762,59 +778,13 @@
 
             orderSummarySection.innerHTML = orderItemsHtml;
 
-            // Calculate delivery fee based on barangay and order amount
-            let deliveryFee = 0;
-            try {
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    // Get customer's barangay
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    const customerId = payload.sub;
-
-                    const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (profileResponse.ok) {
-                        const profileData = await profileResponse.json();
-                        const barangay = profileData.data?.barangay;
-
-                        if (barangay) {
-                            // Calculate delivery fee based on barangay and order amount
-                            const feeResponse = await fetch(`${API_BASE_URL}/delivery-fees/calculate`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({
-                                    barangay: barangay,
-                                    orderAmount: isNaN(subtotal) ? 0 : subtotal
-                                })
-                            });
-
-                            if (feeResponse.ok) {
-                                const feeData = await feeResponse.json();
-                                deliveryFee = parseFloat(feeData.data.deliveryFee) || 0;
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error calculating delivery fee:', error);
-                // Fallback to default fee
-                deliveryFee = 50;
-            }
-
-            // Ensure all values are valid numbers
+            // Initially set delivery fee to 0 - will be calculated after address is fetched and validated
             const validSubtotal = isNaN(subtotal) ? 0 : subtotal;
-            const validDeliveryFee = isNaN(deliveryFee) ? 0 : deliveryFee;
-            const total = validSubtotal + validDeliveryFee;
+            const deliveryFee = 0; // Delivery fee calculated after address validation
+            const total = validSubtotal + deliveryFee;
 
             if (subtotalElement) subtotalElement.textContent = `₱${validSubtotal.toFixed(2)}`;
-            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱${validDeliveryFee.toFixed(2)}`;
+            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱0.00`;
             if (taxElement) taxElement.textContent = `₱0.00`;
             if (totalElement) totalElement.textContent = `₱${total.toFixed(2)}`;
 
@@ -824,13 +794,100 @@
                 cashAmountElement.textContent = total.toFixed(2);
             }
 
-            // Update delivery info
+            // Update delivery info - will be updated after address validation
             const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
             if (deliveryInfo) {
-                deliveryInfo.textContent = `25-35 min • ₱${validDeliveryFee.toFixed(2)} delivery`;
+                deliveryInfo.textContent = '25-35 min • Delivery fee calculated after address confirmation';
             }
+            
+            // Store subtotal for later use
+            window.checkoutSubtotal = validSubtotal;
         }
 
+        async function updateDeliveryFee(barangay) {
+            try {
+                const subtotal = window.checkoutSubtotal || 0;
+                
+                if (!barangay) {
+                    console.error('No barangay provided for delivery fee calculation');
+                    return;
+                }
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    console.error('No auth token found');
+                    return;
+                }
+
+                // Calculate delivery fee based on validated barangay and order amount
+                const feeResponse = await fetch(`${API_BASE_URL}/delivery-fees/calculate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        barangay: barangay,
+                        orderAmount: subtotal
+                    })
+                });
+
+                if (!feeResponse.ok) {
+                    throw new Error('Failed to calculate delivery fee');
+                }
+
+                const feeData = await feeResponse.json();
+                const deliveryFee = parseFloat(feeData.data.deliveryFee) || 0;
+
+                // Find price elements
+                const priceBreakdown = document.querySelector('.p-6:not(.border-b) .space-y-2') ||
+                                      document.querySelector('.lg\\:col-span-1 .space-y-2');
+                
+                if (!priceBreakdown) {
+                    console.error('Price breakdown container not found');
+                    return;
+                }
+
+                const priceElements = priceBreakdown.querySelectorAll('.flex.justify-between.text-sm span:last-child');
+                const deliveryFeeElement = priceElements[1]; // Delivery fee
+                const totalElement = document.querySelector('.border-t.border-border .flex.justify-between span:last-child');
+
+                // Get current subtotal
+                const subtotalElement = priceElements[0];
+                const currentSubtotalText = subtotalElement ? subtotalElement.textContent : '₱0.00';
+                const currentSubtotal = parseFloat(currentSubtotalText.replace('₱', '').replace(',', '')) || subtotal;
+
+                // Calculate new total
+                const validSubtotal = isNaN(currentSubtotal) ? 0 : currentSubtotal;
+                const validDeliveryFee = isNaN(deliveryFee) ? 0 : deliveryFee;
+                const total = validSubtotal + validDeliveryFee;
+
+                // Update UI
+                if (deliveryFeeElement) {
+                    deliveryFeeElement.textContent = `₱${validDeliveryFee.toFixed(2)}`;
+                }
+                if (totalElement) {
+                    totalElement.textContent = `₱${total.toFixed(2)}`;
+                }
+
+                // Update cash payment instructions
+                const cashAmountElement = document.getElementById('cash-amount');
+                if (cashAmountElement) {
+                    cashAmountElement.textContent = total.toFixed(2);
+                }
+
+                // Update delivery info
+                const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
+                if (deliveryInfo) {
+                    deliveryInfo.textContent = `25-35 min • ₱${validDeliveryFee.toFixed(2)} delivery`;
+                }
+
+                console.log('Delivery fee updated:', { barangay, deliveryFee, subtotal, total });
+            } catch (error) {
+                console.error('Error calculating delivery fee:', error);
+                // Don't show alert, just log error - delivery fee will remain 0
+            }
+        }
 
         async function placeOrder() {
             try {

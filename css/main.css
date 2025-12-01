@@ -1392,6 +1392,10 @@ body {
   border-radius: 12px;
 }
 
+.rounded-md{
+  border-radius: 0.375rem;
+}
+
 .rounded-xl{
   border-radius: 16px;
 }
@@ -1477,11 +1481,6 @@ body {
 .border-primary-300{
   --tw-border-opacity: 1;
   border-color: rgb(255 176 138 / var(--tw-border-opacity, 1));
-}
-
-.border-primary-600{
-  --tw-border-opacity: 1;
-  border-color: rgb(229 90 43 / var(--tw-border-opacity, 1));
 }
 
 .border-purple-200{
@@ -2648,11 +2647,6 @@ body {
 .hover\:border-primary:hover{
   --tw-border-opacity: 1;
   border-color: rgb(255 107 53 / var(--tw-border-opacity, 1));
-}
-
-.hover\:border-primary-300:hover{
-  --tw-border-opacity: 1;
-  border-color: rgb(255 176 138 / var(--tw-border-opacity, 1));
 }
 
 .hover\:bg-accent-600:hover{

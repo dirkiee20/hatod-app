@@ -150,13 +150,41 @@ export const createOrder = asyncHandler(async (req, res) => {
     }));
 
     // Try to match barangay from address string
+    // Prioritize matching just the place name (e.g., "tayaga", "espina") without "Barangay" prefix
+    const combinedAddressLower = combinedAddress.toLowerCase();
+    
     for (const { original, normalized, fullLower } of normalizedBarangays) {
-      // Check if barangay name appears in address (case-insensitive)
-      if (combinedAddress.includes(fullLower) || 
-          combinedAddress.includes(normalized) ||
-          combinedAddress.includes(`barangay ${normalized}`)) {
-        matchedBarangay = original;
-        break;
+      // Prioritize: Check if normalized name (place name only) appears in address
+      if (normalized.length >= 3) {
+        // Use word boundaries for more accurate matching to avoid partial matches
+        const normalizedRegex = new RegExp(`\\b${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        if (normalizedRegex.test(combinedAddressLower)) {
+          matchedBarangay = original;
+          break;
+        }
+      }
+    }
+    
+    // If no match found with normalized name, try full "Barangay X" format
+    if (!matchedBarangay) {
+      for (const { original, normalized, fullLower } of normalizedBarangays) {
+        // Check for "Barangay X" format
+        const barangayPattern = `barangay ${normalized}`;
+        const brgyPattern = `brgy[\\s\\.]${normalized}`;
+        
+        const patterns = [
+          new RegExp(`\\b${barangayPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+          new RegExp(`\\b${brgyPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+          new RegExp(`\\b${fullLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+        ];
+        
+        for (const pattern of patterns) {
+          if (pattern.test(combinedAddressLower)) {
+            matchedBarangay = original;
+            break;
+          }
+        }
+        if (matchedBarangay) break;
       }
     }
 
