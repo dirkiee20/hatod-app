@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
     <title>Restaurant Menu - HATOD</title>
 
@@ -21,12 +21,122 @@
   
 
   </head>
-
+    <style>
+        html, body {
+            overflow-x: hidden;
+            position: relative;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .content-wrapper {
+            margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        @media (max-width: 1023px) {
+            main {
+                padding-bottom: calc(5rem + max(2rem, env(safe-area-inset-bottom))); /* Account for fixed mobile cart button */
+            }
+        }
+        /* Reduce font sizes */
+        .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
+        .content-wrapper .text-sm { font-size: calc(0.875rem * 0.78) !important; line-height: calc(1.25rem * 0.78) !important; }
+        .content-wrapper .text-base { font-size: calc(1rem * 0.78) !important; line-height: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .text-lg { font-size: calc(1.125rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-xl { font-size: calc(1.25rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-2xl { font-size: calc(1.5rem * 0.78) !important; line-height: calc(2rem * 0.78) !important; }
+        .content-wrapper .text-3xl { font-size: calc(1.875rem * 0.78) !important; line-height: calc(2.25rem * 0.78) !important; }
+        /* Reduce spacing - padding */
+        .content-wrapper .p-1 { padding: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .p-2 { padding: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .p-3 { padding: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .p-4 { padding: calc(1rem * 0.78) !important; }
+        .content-wrapper .p-6 { padding: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .p-8 { padding: calc(2rem * 0.78) !important; }
+        .content-wrapper .p-12 { padding: calc(3rem * 0.78) !important; }
+        .content-wrapper .px-1 { padding-left: calc(0.25rem * 0.78) !important; padding-right: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .px-2 { padding-left: calc(0.5rem * 0.78) !important; padding-right: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .px-3 { padding-left: calc(0.75rem * 0.78) !important; padding-right: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .px-4 { padding-left: calc(1rem * 0.78) !important; padding-right: calc(1rem * 0.78) !important; }
+        .content-wrapper .px-6 { padding-left: calc(1.5rem * 0.78) !important; padding-right: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .px-8 { padding-left: calc(2rem * 0.78) !important; padding-right: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-1 { padding-top: calc(0.25rem * 0.78) !important; padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .py-2 { padding-top: calc(0.5rem * 0.78) !important; padding-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .py-3 { padding-top: calc(0.75rem * 0.78) !important; padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .py-4 { padding-top: calc(1rem * 0.78) !important; padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .py-6 { padding-top: calc(1.5rem * 0.78) !important; padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .py-8 { padding-top: calc(2rem * 0.78) !important; padding-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-12 { padding-top: calc(3rem * 0.78) !important; padding-bottom: calc(3rem * 0.78) !important; }
+        .content-wrapper .pt-2 { padding-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .pt-3 { padding-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pt-4 { padding-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .pt-6 { padding-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pt-8 { padding-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .pb-1 { padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .pb-3 { padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pb-4 { padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .pb-6 { padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pb-20 { padding-bottom: calc(5rem * 0.78) !important; }
+        /* Reduce spacing - margin */
+        .content-wrapper .mb-1 { margin-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mb-2 { margin-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mb-3 { margin-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mb-4 { margin-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .mb-6 { margin-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mb-8 { margin-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-1 { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mt-2 { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mt-3 { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mt-4 { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .mt-6 { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mt-8 { margin-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-12 { margin-top: calc(3rem * 0.78) !important; }
+        /* Reduce gaps */
+        .content-wrapper .gap-1 { gap: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .gap-2 { gap: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .gap-3 { gap: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .gap-4 { gap: calc(1rem * 0.78) !important; }
+        .content-wrapper .gap-6 { gap: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .gap-8 { gap: calc(2rem * 0.78) !important; }
+        /* Reduce space-y utilities */
+        .content-wrapper .space-y-1 > * + * { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .space-y-2 > * + * { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .space-y-3 > * + * { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .space-y-4 > * + * { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .space-y-6 > * + * { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .space-y-8 > * + * { margin-top: calc(2rem * 0.78) !important; }
+        /* Generic solution to remove empty spaces at bottom */
+        @media (max-width: 1023px) {
+            .content-wrapper {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            main > *:last-child {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            section:last-child {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            footer {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .grid > *:last-child,
+            .space-y-4 > *:last-child,
+            .space-y-6 > *:last-child,
+            .space-y-8 > *:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+    </style>
 <body class="bg-background min-h-screen">
 
     <!-- Header Navigation -->
 
-    <header class="bg-surface shadow-card border-b border-border sticky top-0 z-50">
+    <header class="fixed top-0 left-0 right-0 bg-surface shadow-card border-b border-border z-50" style="padding-top: max(2rem, env(safe-area-inset-top));">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -70,13 +180,10 @@
                     <div class="flex items-center">
 
                         <img id="user-profile-img"
-                             src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
+                             src="../../public/default-avatar.svg"
                              alt="Customer profile picture"
-
                              class="w-8 h-8 rounded-full object-cover"
-
-                             onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                             onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;">
 
                     </div>
 
@@ -106,6 +213,7 @@
 
     <!-- Restaurant Header -->
 
+    <div class="content-wrapper">
     <section class="bg-surface border-b border-border">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
@@ -114,13 +222,11 @@
 
                 <div class="flex items-start sm:items-center space-x-3 sm:space-x-4">
 
-                    <img src="https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
+                    <img id="restaurantLogo"
+                         src="../../public/default-avatar.svg"
                          alt="Restaurant logo"
-
                          class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-lg object-cover shadow-card flex-shrink-0"
-
-                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                         onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;">
 
                     <div class="flex-1 min-w-0">
 
@@ -222,7 +328,7 @@
 
     <!-- Main Content -->
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="grid grid-cols-1 gap-8">
 
@@ -257,14 +363,15 @@
         </div>
 
     </main>
+    </div>
 
 
 
     <!-- Mobile Cart Button (Fixed Bottom) -->
 
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg p-4">
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg p-4 z-40" style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
 
-        <a href="../customers/shopping_cart.html" class="flex items-center justify-between bg-primary text-white rounded-lg px-4 py-3 hover:bg-primary-600 transition-smooth btn-hover">
+        <a id="mobileCartButton" href="../customers/shopping_cart.html" class="flex items-center justify-between bg-primary text-white rounded-lg px-4 py-3 hover:bg-primary-600 transition-smooth btn-hover">
 
             <div class="flex items-center space-x-2">
 
@@ -290,7 +397,7 @@
 
     <!-- Mobile Bottom Tab Navigation -->
 
-    <nav class="hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-50">
+    <nav class="hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg z-40" style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
 
         <div class="flex items-center justify-around py-2 px-4">
 
@@ -414,14 +521,21 @@
                         
                         const userImgEl = document.getElementById('user-profile-img');
                         
-                        if (userImgEl && profile.imageUrl) {
+                        if (userImgEl) {
                             // Resolve image URL
-                            let imageUrl = profile.imageUrl;
-                            if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-                                const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-                                imageUrl = `${API_ORIGIN}${path}`;
+                            const PLACEHOLDER_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+                            let imageUrl = PLACEHOLDER_IMAGE;
+                            
+                            if (profile.imageUrl) {
+                                if (profile.imageUrl.startsWith('http://') || profile.imageUrl.startsWith('https://')) {
+                                    imageUrl = profile.imageUrl;
+                                } else {
+                                    const path = profile.imageUrl.startsWith('/') ? profile.imageUrl : `/${profile.imageUrl}`;
+                                    imageUrl = `${API_ORIGIN}${path}`;
+                                }
                             }
-                            userImgEl.src = imageUrl || MENU_PLACEHOLDER_IMAGE;
+                            
+                            userImgEl.src = imageUrl;
                         }
                     }
                 } catch (error) {
@@ -608,9 +722,18 @@
                         cartBtn.classList.remove('hover:bg-primary-600');
                         cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
                     } else {
-                        cartBtn.disabled = false;
-                        cartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        cartBtn.classList.add('hover:bg-primary-600');
+                        // Check if restaurant is closed
+                        const isRestaurantClosed = !restaurantData || !restaurantData.isOpen;
+                        cartBtn.disabled = isRestaurantClosed;
+                        if (isRestaurantClosed) {
+                            cartBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                            cartBtn.classList.remove('hover:bg-primary-600');
+                            cartBtn.title = 'Restaurant is closed';
+                        } else {
+                            cartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            cartBtn.classList.add('hover:bg-primary-600');
+                            cartBtn.title = 'Add to Cart';
+                        }
                         cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/></svg>';
                     }
                 }
@@ -691,13 +814,20 @@
 
                 restaurantName.textContent = restaurant.name;
 
-                const logoSrc = resolveImageUrl(restaurant.imageUrl);
-
-                if (logoSrc) {
-
-                    restaurantLogo.src = logoSrc;
-
+                // Construct restaurant image URL properly
+                const DEFAULT_RESTAURANT_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+                let logoSrc = DEFAULT_RESTAURANT_IMAGE;
+                
+                if (restaurant.imageUrl) {
+                    if (restaurant.imageUrl.startsWith('http://') || restaurant.imageUrl.startsWith('https://')) {
+                        logoSrc = restaurant.imageUrl;
+                    } else {
+                        const path = restaurant.imageUrl.startsWith('/') ? restaurant.imageUrl : `/${restaurant.imageUrl}`;
+                        logoSrc = `${API_ORIGIN}${path}`;
+                    }
                 }
+                
+                restaurantLogo.src = logoSrc;
 
                 ratingElement.textContent = restaurant.rating || '0.0';
 
@@ -719,6 +849,22 @@
 
                     'flex items-center space-x-1 text-error';
 
+                // Disable/enable mobile cart button based on restaurant status
+                const mobileCartButton = document.getElementById('mobileCartButton');
+                if (mobileCartButton) {
+                    if (!restaurant.isOpen) {
+                        mobileCartButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        mobileCartButton.classList.remove('hover:bg-primary-600');
+                        mobileCartButton.style.pointerEvents = 'none';
+                        mobileCartButton.title = 'Restaurant is closed';
+                    } else {
+                        mobileCartButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        mobileCartButton.classList.add('hover:bg-primary-600');
+                        mobileCartButton.style.pointerEvents = 'auto';
+                        mobileCartButton.title = 'View Cart';
+                    }
+                }
+
             }
 
 
@@ -727,7 +873,7 @@
 
             const itemCard = document.createElement('div');
 
-            itemCard.className = 'bg-surface rounded-lg p-4 shadow-card border border-border mb-4';
+            itemCard.className = 'bg-surface rounded-lg p-4 shadow-card border border-border';
             itemCard.setAttribute('data-item-id', item.id);
 
             // Get selected variant - check if there's a currently checked radio button first
@@ -790,7 +936,6 @@
                     <div class="flex items-start space-x-4">
 
                         <div class="flex-shrink-0">
-
                             <img src="${imageUrl}"
 
                                  alt="${item.name}"
@@ -798,14 +943,13 @@
                                  class="w-20 h-20 object-cover rounded-lg"
 
                                  onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
-
                         </div>
 
                         <div class="flex-1">
 
                             <h3 class="font-semibold text-text-primary text-lg mb-1">${item.name}</h3>
 
-                            ${item.description ? `<p class="text-text-secondary text-sm mb-2">${item.description}</p>` : ''}
+                            ${item.description ? `<p class="text-text-secondary text-sm mb-2 line-clamp-2" title="${item.description}">${item.description.length > 100 ? item.description.substring(0, 100) + '...' : item.description}</p>` : ''}
 
                             <div class="flex items-center justify-between">
 
@@ -822,60 +966,51 @@
                                 </div>
 
                             </div>
-
+                            
                             ${item.hasVariants ? `
-
-                                <div class="mt-2">
-
-                                    <p class="text-xs text-text-secondary mb-1">Available options:</p>
-
-                                    <div class="flex flex-wrap gap-2 mt-2">
-
-                                        ${item.variants.filter(v => v.isAvailable).map(variant => {
-                                            const isSelected = variant.id === selectedVariantId;
-                                            return `
-                                                <label class="px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer border transition-all ${
-                                                    isSelected 
-                                                        ? 'bg-primary text-white border-primary' 
-                                                        : 'bg-white text-primary border-border hover:border-primary'
-                                                }">
-                                                    <input type="radio" 
-                                                           name="variant-${item.id}" 
-                                                           value="${variant.id}"
-                                                           id="variant-${item.id}-${variant.id}"
-                                                           data-variant-id="${variant.id}"
-                                                           data-item-id="${item.id}"
-                                                           data-variant-price="${parseFloat(variant.price)}"
-                                                           class="sr-only"
-                                                           ${isSelected ? 'checked' : ''}>
-                                                    <span>${variant.name}: ₱${parseFloat(variant.price).toFixed(2)}</span>
-                                                </label>
-                                            `;
-                                        }).join('')}
-
-                                    </div>
-
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${item.variants.filter(v => v.isAvailable).map(variant => {
+                                        const isSelected = variant.id === selectedVariantId;
+                                        return `
+                                            <label class="px-3 py-1.5 text-sm font-medium rounded-md cursor-pointer border transition-all ${
+                                                isSelected 
+                                                    ? 'bg-primary text-white border-primary' 
+                                                    : 'bg-white text-primary border-border hover:border-primary'
+                                            }">
+                                                <input type="radio" 
+                                                       name="variant-${item.id}" 
+                                                       value="${variant.id}"
+                                                       id="variant-${item.id}-${variant.id}"
+                                                       data-variant-id="${variant.id}"
+                                                       data-item-id="${item.id}"
+                                                       data-variant-price="${parseFloat(variant.price)}"
+                                                       class="sr-only"
+                                                       ${isSelected ? 'checked' : ''}>
+                                                <span>${variant.name}: ₱${parseFloat(variant.price).toFixed(2)}</span>
+                                            </label>
+                                        `;
+                                    }).join('')}
                                 </div>
-
-                            ` : ''}
-
-                            <div class="mt-3 flex items-center space-x-2">
-
-                                <a href="menu_item_details.html?restaurantId=${restaurantId}&itemId=${item.id}" 
-
-                                   class="text-sm text-primary hover:text-primary-600 transition-smooth flex items-center space-x-1">
-
-                                    <span>View Details</span>
-
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-
-                                    </svg>
-
-                                </a>
-
-                            </div>
+                                <div class="mt-2">
+                                    <a href="menu_item_details.html?restaurantId=${restaurantId}&itemId=${item.id}" 
+                                       class="text-xs text-primary hover:text-primary-600 transition-smooth flex items-center space-x-1">
+                                        <span>View Details</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            ` : `
+                                <div class="mt-3 flex items-center space-x-2">
+                                    <a href="menu_item_details.html?restaurantId=${restaurantId}&itemId=${item.id}" 
+                                       class="text-sm text-primary hover:text-primary-600 transition-smooth flex items-center space-x-1">
+                                        <span>View Details</span>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            `}
 
                         </div>
 
@@ -884,11 +1019,11 @@
                                 data-item-id="${item.id}"
                                 ${item.hasVariants && selectedVariantId ? `data-variant-id="${selectedVariantId}"` : ''}
 
-                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable || (item.hasVariants && !selectedVariantId) ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
+                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable || (item.hasVariants && !selectedVariantId) || !restaurantData?.isOpen ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
 
-                                ${!item.isAvailable || isInCart || (item.hasVariants && !selectedVariantId) ? 'disabled' : ''}
+                                ${!item.isAvailable || isInCart || (item.hasVariants && !selectedVariantId) || !restaurantData?.isOpen ? 'disabled' : ''}
 
-                                title="${isInCart ? 'Item in cart' : item.hasVariants && !selectedVariantId ? 'Select a variant first' : 'Add to Cart'}">
+                                title="${!restaurantData?.isOpen ? 'Restaurant is closed' : isInCart ? 'Item in cart' : item.hasVariants && !selectedVariantId ? 'Select a variant first' : 'Add to Cart'}">
 
                             ${isInCart ? `
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1113,7 +1248,11 @@
                 const itemId = button.getAttribute('data-item-id');
                 const variantId = button.getAttribute('data-variant-id'); // Get variant ID if present
 
-
+                // Check if restaurant is closed
+                if (!restaurantData || !restaurantData.isOpen) {
+                    alert('This restaurant is currently closed. You cannot add items to cart when the restaurant is closed.');
+                    return;
+                }
 
                 try {
 

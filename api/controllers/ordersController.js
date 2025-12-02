@@ -58,7 +58,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     `SELECT id,
             price,
             name,
-            is_available AS "isAvailable"
+            is_available AS "isAvailable",
+            has_variants AS "hasVariants"
      FROM menu_items
      WHERE id = ANY($1::uuid[])
        AND restaurant_id = $2`,
@@ -74,6 +75,46 @@ export const createOrder = asyncHandler(async (req, res) => {
     return acc;
   }, {});
 
+  // Fetch variants for items that have variantId
+  const variantIds = items
+    .map((item) => item.variantId)
+    .filter((id) => id != null);
+  
+  let variantsMap = {};
+  if (variantIds.length > 0) {
+    const variantsResult = await query(
+      `SELECT id,
+              menu_item_id,
+              price,
+              is_available AS "isAvailable"
+       FROM menu_item_variants
+       WHERE id = ANY($1::uuid[])`,
+      [variantIds]
+    );
+
+    variantsMap = variantsResult.rows.reduce((acc, variant) => {
+      acc[variant.id] = variant;
+      return acc;
+    }, {});
+
+    // Validate all variants exist and are available
+    for (const item of items) {
+      if (item.variantId) {
+        const variant = variantsMap[item.variantId];
+        if (!variant) {
+          throw badRequest(`Variant ${item.variantId} not found`);
+        }
+        if (!variant.isAvailable) {
+          throw badRequest(`Variant ${item.variantId} is not available`);
+        }
+        // Verify variant belongs to the menu item
+        if (variant.menu_item_id !== item.menuItemId) {
+          throw badRequest(`Variant ${item.variantId} does not belong to menu item ${item.menuItemId}`);
+        }
+      }
+    }
+  }
+
   const subtotal = items.reduce((acc, item) => {
     const menuItem = menuItemsMap[item.menuItemId];
     if (!menuItem) {
@@ -82,11 +123,28 @@ export const createOrder = asyncHandler(async (req, res) => {
     if (!menuItem.isAvailable) {
       throw badRequest(`Menu item ${menuItem.name} is not available`);
     }
+    
+    // Use variant price if variantId is provided, otherwise use menu item price
+    let unitPrice;
+    if (item.variantId) {
+      const variant = variantsMap[item.variantId];
+      if (!variant) {
+        throw badRequest(`Variant ${item.variantId} not found for menu item ${menuItem.name}`);
+      }
+      unitPrice = Number(variant.price);
+    } else {
+      // If menu item has variants but no variantId provided, that's an error
+      if (menuItem.hasVariants) {
+        throw badRequest(`Menu item ${menuItem.name} requires a variant selection`);
+      }
+      unitPrice = Number(menuItem.price);
+    }
+    
     const quantity = Number(item.quantity ?? 1);
     if (!Number.isInteger(quantity) || quantity <= 0) {
       throw badRequest('Quantity must be a positive integer');
     }
-    return acc + Number(menuItem.price) * quantity;
+    return acc + unitPrice * quantity;
   }, 0);
 
   const restaurantResult = await query(
@@ -274,11 +332,24 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     const orderItemsValues = items.flatMap((item) => {
       const menuItem = menuItemsMap[item.menuItemId];
+      
+      // Use variant price if variantId is provided, otherwise use menu item price
+      let unitPrice;
+      if (item.variantId) {
+        const variant = variantsMap[item.variantId];
+        if (!variant) {
+          throw badRequest(`Variant ${item.variantId} not found`);
+        }
+        unitPrice = Number(variant.price);
+      } else {
+        unitPrice = Number(menuItem.price);
+      }
+      
       return [
         order.id,
         item.menuItemId,
         item.quantity,
-        menuItem.price,
+        unitPrice,
         item.specialInstructions ?? null
       ];
     });

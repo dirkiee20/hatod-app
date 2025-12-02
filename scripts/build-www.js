@@ -38,14 +38,23 @@ const excludePatterns = [
   /\.bat$/,
   /\.sh$/,
   /\.ps1$/,
-  /\.js$/,
   /\.sql$/,
   /docker-compose\.yml/,
   /Dockerfile/,
   /nginx\.conf/,
 ];
 
+// Files to always include (even if they match exclude patterns)
+const alwaysIncludePatterns = [
+  /public\/config\.js$/,
+  /public\/dhws-data-injector\.js$/,
+];
+
 function shouldExclude(path) {
+  // Always include certain files even if they match exclude patterns
+  if (alwaysIncludePatterns.some(pattern => pattern.test(path))) {
+    return false;
+  }
   return excludePatterns.some(pattern => pattern.test(path));
 }
 

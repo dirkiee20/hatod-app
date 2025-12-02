@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Menu Item Details - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+    <style>
+        html, body {
+            overflow-x: hidden;
+            position: relative;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .content-wrapper {
+            margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        /* Reduce font sizes */
+        .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
+        .content-wrapper .text-sm { font-size: calc(0.875rem * 0.78) !important; line-height: calc(1.25rem * 0.78) !important; }
+        .content-wrapper .text-base { font-size: calc(1rem * 0.78) !important; line-height: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .text-lg { font-size: calc(1.125rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-xl { font-size: calc(1.25rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-2xl { font-size: calc(1.5rem * 0.78) !important; line-height: calc(2rem * 0.78) !important; }
+        .content-wrapper .text-3xl { font-size: calc(1.875rem * 0.78) !important; line-height: calc(2.25rem * 0.78) !important; }
+        /* Reduce spacing - padding */
+        .content-wrapper .p-1 { padding: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .p-2 { padding: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .p-3 { padding: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .p-4 { padding: calc(1rem * 0.78) !important; }
+        .content-wrapper .p-6 { padding: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .p-8 { padding: calc(2rem * 0.78) !important; }
+        .content-wrapper .p-12 { padding: calc(3rem * 0.78) !important; }
+        .content-wrapper .px-1 { padding-left: calc(0.25rem * 0.78) !important; padding-right: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .px-2 { padding-left: calc(0.5rem * 0.78) !important; padding-right: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .px-3 { padding-left: calc(0.75rem * 0.78) !important; padding-right: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .px-4 { padding-left: calc(1rem * 0.78) !important; padding-right: calc(1rem * 0.78) !important; }
+        .content-wrapper .px-6 { padding-left: calc(1.5rem * 0.78) !important; padding-right: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .px-8 { padding-left: calc(2rem * 0.78) !important; padding-right: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-1 { padding-top: calc(0.25rem * 0.78) !important; padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .py-2 { padding-top: calc(0.5rem * 0.78) !important; padding-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .py-3 { padding-top: calc(0.75rem * 0.78) !important; padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .py-4 { padding-top: calc(1rem * 0.78) !important; padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .py-6 { padding-top: calc(1.5rem * 0.78) !important; padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .py-8 { padding-top: calc(2rem * 0.78) !important; padding-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-12 { padding-top: calc(3rem * 0.78) !important; padding-bottom: calc(3rem * 0.78) !important; }
+        .content-wrapper .pt-2 { padding-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .pt-3 { padding-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pt-4 { padding-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .pt-6 { padding-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pt-8 { padding-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .pb-1 { padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .pb-3 { padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pb-4 { padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .pb-6 { padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pb-20 { padding-bottom: calc(5rem * 0.78) !important; }
+        /* Reduce spacing - margin */
+        .content-wrapper .mb-1 { margin-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mb-2 { margin-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mb-3 { margin-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mb-4 { margin-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .mb-6 { margin-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mb-8 { margin-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-1 { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mt-2 { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mt-3 { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mt-4 { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .mt-6 { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mt-8 { margin-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-12 { margin-top: calc(3rem * 0.78) !important; }
+        /* Reduce gaps */
+        .content-wrapper .gap-1 { gap: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .gap-2 { gap: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .gap-3 { gap: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .gap-4 { gap: calc(1rem * 0.78) !important; }
+        .content-wrapper .gap-6 { gap: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .gap-8 { gap: calc(2rem * 0.78) !important; }
+        /* Reduce space-y utilities */
+        .content-wrapper .space-y-1 > * + * { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .space-y-2 > * + * { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .space-y-3 > * + * { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .space-y-4 > * + * { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .space-y-6 > * + * { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .space-y-8 > * + * { margin-top: calc(2rem * 0.78) !important; }
+        /* Generic solution to remove empty spaces at bottom */
+        @media (max-width: 1023px) {
+            main {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .content-wrapper {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            main > *:last-child {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            section:last-child {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            footer {
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            .grid > *:last-child,
+            .space-y-4 > *:last-child,
+            .space-y-6 > *:last-child,
+            .space-y-8 > *:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 bg-surface shadow-card border-b border-border z-50" style="padding-top: max(2rem, env(safe-area-inset-top));">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="restaurant_browse.html" class="flex items-center">
+                        <img src="../../public/logos/app_logo.png" alt="HATOD Logo" class="w-10 h-10 mr-3 object-contain">
+                        <h1 class="text-xl font-bold text-text-primary">HATOD</h1>
+                    </a>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="restaurant_browse.html" class="text-text-secondary hover:text-primary transition-smooth">Browse</a>
+                    <a href="../customers/shopping_cart.html" class="text-text-secondary hover:text-primary transition-smooth relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        <span id="cartCount" class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </a>
+                    <a href="../customers/order_history.html" class="text-text-secondary hover:text-primary transition-smooth">Orders</a>
+                </nav>
+
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-smooth">
+                            <img id="user-profile-img"
+                                 src="../../public/default-avatar.svg"
+                                 alt="Customer profile picture"
+                                 class="w-8 h-8 rounded-full object-cover"
+                                 onerror="this.src=window.DEFAULT_AVATAR_URL || '../../public/default-avatar.svg'; this.onerror=null;">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="content-wrapper">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <svg class="w-12 h-12 animate-spin text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-text-secondary">Loading menu item details...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden text-center py-12">
+            <svg class="w-16 h-16 text-error mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3 class="text-lg font-semibold text-text-primary mb-2">Item Not Found</h3>
+            <p class="text-text-secondary mb-6">The menu item you're looking for doesn't exist or has been removed.</p>
+            <a href="restaurant_browse.html" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-smooth inline-block">
+                Browse Restaurants
+            </a>
+        </div>
+
+        <!-- Menu Item Details -->
+        <div id="itemDetails" class="hidden">
+            <!-- Back to Menu Link -->
+            <div class="mb-6">
+                <a id="backToMenuLink" href="#" class="text-primary hover:text-primary-600 transition-smooth flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    <span>Back to Menu</span>
+                </a>
+            </div>
+
+            <!-- Item Card -->
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+                <!-- Image Section -->
+                <div class="w-full h-64 sm:h-96 bg-gray-200">
+                    <img id="itemImage" 
+                         src="" 
+                         alt="Menu item" 
+                         class="w-full h-full object-cover"
+                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                </div>
+
+                <!-- Details Section -->
+                <div class="p-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h1 id="itemName" class="text-3xl font-bold text-text-primary mb-2"></h1>
+                            <div class="flex items-center space-x-4">
+                                <span id="itemAvailability" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full"></span>
+                                <span id="itemPrice" class="text-2xl font-bold text-primary"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div id="itemDescription" class="mb-6">
+                        <p class="text-text-secondary leading-relaxed"></p>
+                    </div>
+
+                    <!-- Variants Section -->
+                    <div id="variantsSection" class="hidden mb-6">
+                        <h3 class="text-lg font-semibold text-text-primary mb-4">Available Options</h3>
+                        <div id="variantsList" class="space-y-3">
+                            <!-- Variants will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Section -->
+                    <div class="border-t border-border pt-4">
+                        <button id="addToCartBtn" 
+                                class="w-full bg-primary text-white px-4 py-2.5 rounded-lg hover:bg-primary-600 transition-smooth flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
+                            </svg>
+                            <span>Add to Cart</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-text-secondary text-sm">© 2025 HATOD. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Privacy Policy</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Terms of Service</a>
+                    <a href="javascript:void(0)" class="text-text-secondary hover:text-primary transition-smooth text-sm">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../public/config.js"></script>
+    <script>
+        // API base URL (from config.js - automatically uses Railway URL in mobile apps)
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
+        const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+        const MENU_PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit/crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+
+        function resolveImageUrl(url) {
+            if (!url || url.trim() === '') {
+                return null;
+            }
+            if (url.startsWith('http://') || url.startsWith('https://')) {
+                return url;
+            }
+            const path = url.startsWith('/') ? url : `/${url}`;
+            return `${API_ORIGIN}${path}`;
+        }
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const restaurantId = urlParams.get('restaurantId');
+        const itemId = urlParams.get('itemId');
+
+        let menuItem = null;
+        let cartItems = [];
+
+        // Load user profile
+        async function loadUserProfile() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userId = payload.sub;
+
+                const response = await fetch(`${API_BASE_URL}/customers/${userId}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const profile = result.data;
+                    
+                    const userImgEl = document.getElementById('user-profile-img');
+                    
+                    if (userImgEl) {
+                        // Resolve image URL
+                        const PLACEHOLDER_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+                        let imageUrl = PLACEHOLDER_IMAGE;
+                        
+                        if (profile.imageUrl) {
+                            if (profile.imageUrl.startsWith('http://') || profile.imageUrl.startsWith('https://')) {
+                                imageUrl = profile.imageUrl;
+                            } else {
+                                const path = profile.imageUrl.startsWith('/') ? profile.imageUrl : `/${profile.imageUrl}`;
+                                imageUrl = `${API_ORIGIN}${path}`;
+                            }
+                        }
+                        
+                        userImgEl.src = imageUrl;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+
+        // Load cart items
+        async function loadCartItems() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return [];
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/cart`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    cartItems = result.data || [];
+                    updateCartCount();
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+            }
+        }
+
+        function updateCartCount() {
+            const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) {
+                cartCountEl.textContent = totalItems;
+                cartCountEl.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Load menu item details
+        async function loadMenuItemDetails() {
+            if (!restaurantId || !itemId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/menu/items/${itemId}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
+                    console.error('Error response:', response.status, errorData);
+                    if (response.status === 401) {
+                        throw new Error('Unauthorized - Please make sure the API server has been restarted with the new route');
+                    }
+                    throw new Error(errorData.message || `Item not found (${response.status})`);
+                }
+
+                const result = await response.json();
+                menuItem = result.data;
+
+                displayMenuItem(menuItem);
+                updateBackLink();
+
+            } catch (error) {
+                console.error('Error loading menu item:', error);
+                showError();
+            }
+        }
+
+        function displayMenuItem(item) {
+            // Hide loading, show details
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('itemDetails').classList.remove('hidden');
+
+            // Set image
+            const imageUrl = resolveImageUrl(item.imageUrl) || MENU_PLACEHOLDER_IMAGE;
+            document.getElementById('itemImage').src = imageUrl;
+
+            // Set name
+            document.getElementById('itemName').textContent = item.name;
+
+            // Set availability
+            const availabilityEl = document.getElementById('itemAvailability');
+            if (item.isAvailable) {
+                availabilityEl.textContent = 'Available';
+                availabilityEl.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-success/20 text-success';
+            } else {
+                availabilityEl.textContent = 'Unavailable';
+                availabilityEl.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-error/20 text-error';
+            }
+
+            // Set price
+            const priceEl = document.getElementById('itemPrice');
+            if (item.hasVariants && item.variants && item.variants.length > 0) {
+                const availableVariants = item.variants.filter(v => v.isAvailable);
+                if (availableVariants.length > 0) {
+                    const prices = availableVariants.map(v => parseFloat(v.price));
+                    const minPrice = Math.min(...prices);
+                    const maxPrice = Math.max(...prices);
+                    priceEl.textContent = `₱${minPrice.toFixed(2)}${minPrice !== maxPrice ? ` - ₱${maxPrice.toFixed(2)}` : ''}`;
+                } else {
+                    priceEl.textContent = 'No variants available';
+                }
+            } else {
+                const price = item.price ? parseFloat(item.price) : 0;
+                priceEl.textContent = `₱${price.toFixed(2)}`;
+            }
+
+            // Set description
+            const descriptionEl = document.getElementById('itemDescription');
+            if (item.description) {
+                descriptionEl.querySelector('p').textContent = item.description;
+            } else {
+                descriptionEl.classList.add('hidden');
+            }
+
+            // Display variants if available
+            if (item.hasVariants && item.variants && item.variants.length > 0) {
+                const variantsSection = document.getElementById('variantsSection');
+                const variantsList = document.getElementById('variantsList');
+                variantsSection.classList.remove('hidden');
+
+                variantsList.innerHTML = item.variants.map(variant => {
+                    const isAvailable = variant.isAvailable;
+                    return `
+                        <div class="flex items-center justify-between p-4 border border-border rounded-lg ${isAvailable ? 'bg-surface' : 'bg-gray-50 opacity-60'}">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-text-primary">${variant.name}</h4>
+                                ${!isAvailable ? '<p class="text-xs text-error mt-1">Currently unavailable</p>' : ''}
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-text-primary text-lg">₱${parseFloat(variant.price).toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update add to cart button
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const isInCart = cartItems.some(cartItem => cartItem.menuItemId === item.id);
+            
+            if (!item.isAvailable) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<span>Item Unavailable</span>';
+            } else if (isInCart) {
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Already in Cart</span>
+                `;
+            }
+        }
+
+        function updateBackLink() {
+            if (restaurantId) {
+                const backLink = document.getElementById('backToMenuLink');
+                backLink.href = `restaurant_menu.html?id=${restaurantId}`;
+            }
+        }
+
+        function showError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        function goBack() {
+            if (restaurantId) {
+                window.location.href = `restaurant_menu.html?id=${restaurantId}`;
+            } else {
+                window.location.href = 'restaurant_browse.html';
+            }
+        }
+
+        // Add to cart
+        document.getElementById('addToCartBtn').addEventListener('click', async function() {
+            if (!menuItem || !menuItem.isAvailable) {
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Please log in to add items to cart');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            try {
+                // For items with variants, we need to show a variant selection modal
+                // For now, if it has variants, we'll add the first available variant
+                let variantId = null;
+                if (menuItem.hasVariants && menuItem.variants && menuItem.variants.length > 0) {
+                    const availableVariants = menuItem.variants.filter(v => v.isAvailable);
+                    if (availableVariants.length > 0) {
+                        variantId = availableVariants[0].id;
+                    } else {
+                        alert('No variants available for this item');
+                        return;
+                    }
+                }
+
+                const cartItem = {
+                    menuItemId: menuItem.id,
+                    quantity: 1,
+                    variantId: variantId
+                };
+
+                const response = await fetch(`${API_BASE_URL}/cart`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(cartItem)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({ message: 'Failed to add to cart' }));
+                    throw new Error(error.message || 'Failed to add to cart');
+                }
+
+                // Reload cart and update UI
+                await loadCartItems();
+                
+                // Update button
+                const addToCartBtn = document.getElementById('addToCartBtn');
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Added to Cart</span>
+                `;
+
+                // Show success message
+                alert('Item added to cart successfully!');
+
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                alert('Failed to add item to cart: ' + error.message);
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserProfile();
+            await loadCartItems();
+            await loadMenuItemDetails();
+        });
+    </script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>
+
