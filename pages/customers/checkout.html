@@ -824,11 +824,14 @@
                 // Load allowed barangays
                 await loadAllowedBarangays();
 
+                // Check if restaurant is open
+                await checkRestaurantStatus(cart);
+
                 // Update UI with real data
                 updateRestaurantInfo(cart);
                 await updateOrderSummary(cart);
                 
-                // Initially disable place order button until location is fetched (only if mobile number exists)
+                // Initially disable place order button until location is fetched (only if mobile number exists and restaurant is open)
                 if (hasMobileNumber) {
                     disablePlaceOrder('Please fetch your location first');
                 }
@@ -836,6 +839,87 @@
             } catch (error) {
                 console.error('[Checkout] Error loading checkout data:', error);
                 alert('Failed to load checkout data: ' + error.message);
+            }
+        }
+
+        async function checkRestaurantStatus(cart) {
+            if (cart.length === 0) return;
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                // Get unique restaurants from cart
+                const restaurantIds = [...new Set(cart.map(item => item.restaurantId))];
+                const closedRestaurants = [];
+
+                // Check status of all restaurants
+                for (const restaurantId of restaurantIds) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const restaurantData = await response.json();
+                            const restaurant = restaurantData.data;
+                            
+                            if (!restaurant.isOpen) {
+                                closedRestaurants.push({
+                                    id: restaurantId,
+                                    name: restaurant.name || cart.find(item => item.restaurantId === restaurantId)?.restaurantName || 'Restaurant'
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error checking restaurant ${restaurantId}:`, error);
+                    }
+                }
+
+                // If any restaurant is closed, disable checkout and show warning
+                if (closedRestaurants.length > 0) {
+                    disablePlaceOrder('One or more restaurants are currently closed');
+                    
+                    // Show warning message with list of closed restaurants
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'bg-error-50 border border-error-200 rounded-lg p-4 mb-4';
+                    
+                    const restaurantList = closedRestaurants.map(r => r.name).join(', ');
+                    const isMultiple = closedRestaurants.length > 1;
+                    
+                    warningDiv.innerHTML = `
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-medium text-error">${isMultiple ? 'Restaurants are Closed' : 'Restaurant is Closed'}</p>
+                                <p class="text-sm text-error-600 mt-1">
+                                    ${isMultiple 
+                                        ? `The following restaurants in your cart are currently closed: ${restaurantList}. You cannot place an order when any restaurant is closed. Please remove items from closed restaurants or try again when they are open.`
+                                        : `${restaurantList} is currently closed. You cannot place an order when the restaurant is closed. Please try again when the restaurant is open.`}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert warning before the place order button
+                    const placeOrderSection = document.querySelector('button[onclick="placeOrder()"]')?.closest('.bg-surface');
+                    if (placeOrderSection) {
+                        placeOrderSection.insertBefore(warningDiv, placeOrderSection.querySelector('button[onclick="placeOrder()"]'));
+                    } else {
+                        // Fallback: insert at the top of the order summary
+                        const orderSummary = document.querySelector('.bg-surface.rounded-lg.p-6.shadow-card.border.border-border');
+                        if (orderSummary) {
+                            orderSummary.insertBefore(warningDiv, orderSummary.firstChild);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking restaurant status:', error);
+                // Don't block checkout if we can't check status
             }
         }
 
@@ -1150,7 +1234,50 @@
                     return;
                 }
 
-                // Get restaurant ID from first cart item
+                // Get unique restaurants from cart
+                const restaurantIds = [...new Set(cart.map(item => item.restaurantId))];
+                const closedRestaurants = [];
+
+                // Check if all restaurants are open before placing order
+                for (const restaurantId of restaurantIds) {
+                    try {
+                        const restaurantResponse = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (restaurantResponse.ok) {
+                            const restaurantData = await restaurantResponse.json();
+                            const restaurant = restaurantData.data;
+                            
+                            if (!restaurant.isOpen) {
+                                closedRestaurants.push({
+                                    id: restaurantId,
+                                    name: restaurant.name || cart.find(item => item.restaurantId === restaurantId)?.restaurantName || 'Restaurant'
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error checking restaurant ${restaurantId}:`, error);
+                    }
+                }
+
+                // If any restaurant is closed, prevent order placement
+                if (closedRestaurants.length > 0) {
+                    const restaurantList = closedRestaurants.map(r => r.name).join(', ');
+                    const isMultiple = closedRestaurants.length > 1;
+                    const message = isMultiple
+                        ? `The following restaurants in your cart are currently closed: ${restaurantList}. You cannot place an order when any restaurant is closed. Please remove items from closed restaurants or try again when they are open.`
+                        : `${restaurantList} is currently closed. You cannot place an order when the restaurant is closed. Please try again when the restaurant is open.`;
+                    
+                    alert(message);
+                    // Redirect back to cart
+                    window.location.href = 'shopping_cart.html';
+                    return;
+                }
+
+                // Get restaurant ID from first cart item for order creation
                 const restaurantId = cart[0].restaurantId;
 
                 // Convert cart items to order items format
