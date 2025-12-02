@@ -186,7 +186,7 @@
                     <div class="mt-4 lg:mt-0">
                         <div id="order-status-badge" class="bg-warning-100 text-warning-600 px-4 py-2 rounded-lg text-center">
                             <div class="font-semibold">Loading...</div>
-                            <div class="text-sm">ETA: Calculating...</div>
+                            <div class="text-sm" id="eta-display">ETA: Calculating...</div>
                         </div>
                     </div>
                 </div>
@@ -402,19 +402,8 @@
                 </div>
             </div>
 
-            <!-- Delivery Information & Actions -->
-            <div class="space-y-6">
-                <!-- Delivery Address -->
-                <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
-                    <h3 class="text-lg font-semibold text-text-primary mb-4">Delivery Address</h3>
-                    <div class="space-y-2">
-                        <div class="font-medium text-text-primary" id="delivery-customer-name">--</div>
-                        <div class="text-text-secondary" id="delivery-address-text">--</div>
-                        <div class="text-text-secondary" id="delivery-phone-text">--</div>
-                    </div>
-                </div>
-
-                <!-- Restaurant Contact -->
+            <!-- Restaurant Contact -->
+            <div>
                 <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
                     <h3 class="text-lg font-semibold text-text-primary mb-4">Restaurant Contact</h3>
                     <div class="flex items-center space-x-3 mb-4">
@@ -435,29 +424,6 @@
                             <span>Call Restaurant</span>
                         </div>
                     </button>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="bg-surface rounded-lg p-6 shadow-card border border-border">
-                    <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
-                    <div class="space-y-3">
-                        <button class="w-full bg-secondary text-white py-2 px-4 rounded-lg hover:bg-secondary-700 transition-smooth btn-hover">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span>Get Help</span>
-                            </div>
-                        </button>
-                        <button class="w-full border border-border text-text-primary py-2 px-4 rounded-lg hover:bg-gray-50 transition-smooth">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <span>View Receipt</span>
-                            </div>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -627,6 +593,49 @@
         document.getElementById('errorMessage').textContent = message;
     }
 
+    function calculateETA(order) {
+        try {
+            const orderDate = new Date(order.createdAt);
+            let deliveryDate;
+            
+            // If estimatedDeliveryTime exists and is a valid timestamp, use it
+            if (order.estimatedDeliveryTime) {
+                deliveryDate = new Date(order.estimatedDeliveryTime);
+                // Validate the date
+                if (isNaN(deliveryDate.getTime())) {
+                    throw new Error('Invalid estimated delivery time');
+                }
+            } else {
+                // Default: add 30-40 minutes to order time (use 35 minutes as average)
+                deliveryDate = new Date(orderDate.getTime() + (35 * 60 * 1000));
+            }
+            
+            // Format as time (e.g., "9:00 PM")
+            const timeStr = deliveryDate.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            return `ETA: ${timeStr}`;
+        } catch (error) {
+            console.error('Error calculating ETA:', error);
+            // Fallback: add 35 minutes to order time
+            try {
+                const orderDate = new Date(order.createdAt);
+                const deliveryDate = new Date(orderDate.getTime() + (35 * 60 * 1000));
+                const timeStr = deliveryDate.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+                return `ETA: ${timeStr}`;
+            } catch (fallbackError) {
+                return 'ETA: Calculating...';
+            }
+        }
+    }
+
     async function updateOrderTracking(order, items, delivery, statusHistory) {
         // Update order ID
         const orderIdElement = document.getElementById('order-id-display');
@@ -664,9 +673,7 @@
         
         if (statusElement) {
             statusElement.className = `${statusColor} px-4 py-2 rounded-lg text-center`;
-            const etaText = order.estimatedDeliveryTime 
-                ? `ETA: ${order.estimatedDeliveryTime} minutes`
-                : 'ETA: Calculating...';
+            const etaText = calculateETA(order);
             statusElement.innerHTML = `
                 <div class="font-semibold">${statusText}</div>
                 <div class="text-sm">${etaText}</div>
@@ -719,133 +726,37 @@
         if (taxElement) taxElement.textContent = `₱0.00`;
         if (totalElement) totalElement.textContent = `₱${(parseFloat(order.totalAmount) || 0).toFixed(2)}`;
 
-        // Update delivery address and restaurant contact
-        await updateDeliveryAddress(order);
+        // Update restaurant contact
         await updateRestaurantContact(order, delivery);
         
         // Update live updates from status history
         updateLiveUpdates(statusHistory, order);
     }
 
-    async function updateDeliveryAddress(order) {
-        try {
-            // First, try to use delivery address from order (already formatted)
-            if (order.deliveryAddress) {
-                updateAddressDisplay(order.deliveryAddress, order.customerName, order.customerPhone);
-                return;
-            }
-
-            // If no delivery address in order, try to fetch it
-            const token = localStorage.getItem('authToken');
-            if (!token || !order.deliveryAddressId) {
-                // No address available
-                updateAddressDisplay(null, order.customerName, order.customerPhone);
-                return;
-            }
-
-            // Try to fetch address details (may fail if address was temporary)
-            try {
-                const response = await fetch(`${API_BASE_URL}/customers/${order.customerId}/addresses/${order.deliveryAddressId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const addressData = await response.json();
-                    const address = addressData.data;
-
-                    const formattedAddress = `
-                        ${address.streetAddress || ''}${address.apartment ? ', ' + address.apartment : ''}<br>
-                        ${address.city || ''}${address.state ? ', ' + address.state : ''} ${address.zipCode || ''}<br>
-                        ${address.country || 'Philippines'}
-                    `.trim();
-                    
-                    updateAddressDisplay(formattedAddress, order.customerName, order.customerPhone);
-                } else {
-                    // Address fetch failed, use order delivery address if available
-                    updateAddressDisplay(order.deliveryAddress || null, order.customerName, order.customerPhone);
-                }
-            } catch (fetchError) {
-                console.warn('Could not fetch address details, using order address:', fetchError);
-                // Use order delivery address as fallback
-                updateAddressDisplay(order.deliveryAddress || null, order.customerName, order.customerPhone);
-            }
-        } catch (error) {
-            console.error('Error loading delivery address:', error);
-            // Final fallback
-            updateAddressDisplay(order.deliveryAddress || null, order.customerName, order.customerPhone);
-        }
-    }
-
-    function updateAddressDisplay(addressText, customerName, customerPhone) {
-        // Update delivery address section (the one with IDs)
-        const deliveryName = document.getElementById('delivery-customer-name');
-        const deliveryAddress = document.getElementById('delivery-address-text');
-        const deliveryPhone = document.getElementById('delivery-phone-text');
-        
-        if (deliveryName) deliveryName.textContent = customerName || 'Customer';
-        if (deliveryAddress) {
-            if (addressText) {
-                deliveryAddress.innerHTML = addressText;
-            } else {
-                deliveryAddress.textContent = 'Address not available';
-            }
-        }
-        if (deliveryPhone) {
-            if (customerPhone) {
-                deliveryPhone.textContent = `Phone: ${customerPhone}`;
-            } else {
-                deliveryPhone.textContent = 'Phone: --';
-            }
-        }
-
-        // Also update the order details section if it exists
-        const addressContainer = document.querySelector('#orderContent .bg-surface.rounded-lg.p-6.shadow-card.border.border-border .space-y-2');
-        if (addressContainer) {
-            const nameElement = addressContainer.querySelector('.font-medium.text-text-primary');
-            const addressElement = addressContainer.querySelector('.text-text-secondary');
-            const phoneElement = addressContainer.querySelectorAll('.text-text-secondary');
-            
-            if (nameElement) nameElement.textContent = customerName || 'Customer';
-            if (addressElement && addressText) {
-                addressElement.innerHTML = addressText;
-            } else if (addressElement) {
-                addressElement.textContent = 'Address not available';
-            }
-            if (phoneElement.length > 1 && customerPhone) {
-                phoneElement[phoneElement.length - 1].textContent = `Phone: ${customerPhone}`;
-            } else if (phoneElement.length > 1) {
-                phoneElement[phoneElement.length - 1].textContent = 'Phone: --';
-            }
-        }
-    }
 
     async function updateRestaurantContact(order, delivery) {
         try {
             const token = localStorage.getItem('authToken');
             
-            // Use order data first (already fetched)
-            const contactContainer = document.querySelector('.bg-surface.rounded-lg.p-6.shadow-card.border.border-border .flex.items-center.space-x-3.mb-4');
-            if (contactContainer) {
-                const logoElement = contactContainer.querySelector('img');
-                const nameElement = contactContainer.querySelector('.font-medium.text-text-primary');
-                const phoneElement = contactContainer.querySelector('.text-sm.text-text-secondary');
-
-                if (logoElement) logoElement.src = order.restaurantImageUrl || logoElement.src;
-                if (logoElement) logoElement.alt = `${order.restaurantName || 'Restaurant'} logo`;
-                if (nameElement) nameElement.textContent = order.restaurantName || 'Restaurant';
-                if (phoneElement) phoneElement.textContent = order.restaurantPhone || '--';
-                
-                // Also update the contact section
-                const contactLogo = document.getElementById('restaurant-logo-contact');
-                const contactName = document.getElementById('restaurant-name-contact');
-                const contactPhone = document.getElementById('restaurant-phone-contact');
-                
-                if (contactLogo) contactLogo.src = order.restaurantImageUrl || contactLogo.src;
-                if (contactLogo) contactLogo.alt = `${order.restaurantName || 'Restaurant'} logo`;
-                if (contactName) contactName.textContent = order.restaurantName || 'Restaurant';
-                if (contactPhone) contactPhone.textContent = order.restaurantPhone || '--';
+            // Update restaurant contact section
+            const contactLogo = document.getElementById('restaurant-logo-contact');
+            const contactName = document.getElementById('restaurant-name-contact');
+            const contactPhone = document.getElementById('restaurant-phone-contact');
+            
+            if (contactLogo) {
+                const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+                let imageUrl = order.restaurantImageUrl;
+                if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+                    const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+                    imageUrl = `${API_ORIGIN}${path}`;
+                }
+                contactLogo.src = imageUrl || contactLogo.src;
+                contactLogo.alt = `${order.restaurantName || 'Restaurant'} logo`;
+            }
+            if (contactName) contactName.textContent = order.restaurantName || 'Restaurant';
+            if (contactPhone) {
+                // Display phone number if available
+                contactPhone.textContent = order.restaurantPhone || 'Phone not available';
             }
 
             // Update call button
