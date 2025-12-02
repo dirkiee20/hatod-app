@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Checkout - HATOD</title>
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/pages.css">
@@ -10,9 +10,90 @@
   
   
   </head>
+    <style>
+        html, body {
+            overflow-x: hidden;
+            position: relative;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .content-wrapper {
+            margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        /* Reduce font sizes */
+        .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
+        .content-wrapper .text-sm { font-size: calc(0.875rem * 0.78) !important; line-height: calc(1.25rem * 0.78) !important; }
+        .content-wrapper .text-base { font-size: calc(1rem * 0.78) !important; line-height: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .text-lg { font-size: calc(1.125rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-xl { font-size: calc(1.25rem * 0.78) !important; line-height: calc(1.75rem * 0.78) !important; }
+        .content-wrapper .text-2xl { font-size: calc(1.5rem * 0.78) !important; line-height: calc(2rem * 0.78) !important; }
+        .content-wrapper .text-3xl { font-size: calc(1.875rem * 0.78) !important; line-height: calc(2.25rem * 0.78) !important; }
+        /* Reduce spacing - padding */
+        .content-wrapper .p-1 { padding: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .p-2 { padding: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .p-3 { padding: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .p-4 { padding: calc(1rem * 0.78) !important; }
+        .content-wrapper .p-6 { padding: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .p-8 { padding: calc(2rem * 0.78) !important; }
+        .content-wrapper .p-12 { padding: calc(3rem * 0.78) !important; }
+        .content-wrapper .px-1 { padding-left: calc(0.25rem * 0.78) !important; padding-right: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .px-2 { padding-left: calc(0.5rem * 0.78) !important; padding-right: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .px-3 { padding-left: calc(0.75rem * 0.78) !important; padding-right: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .px-4 { padding-left: calc(1rem * 0.78) !important; padding-right: calc(1rem * 0.78) !important; }
+        .content-wrapper .px-6 { padding-left: calc(1.5rem * 0.78) !important; padding-right: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .px-8 { padding-left: calc(2rem * 0.78) !important; padding-right: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-1 { padding-top: calc(0.25rem * 0.78) !important; padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .py-2 { padding-top: calc(0.5rem * 0.78) !important; padding-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .py-3 { padding-top: calc(0.75rem * 0.78) !important; padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .py-4 { padding-top: calc(1rem * 0.78) !important; padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .py-6 { padding-top: calc(1.5rem * 0.78) !important; padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .py-8 { padding-top: calc(2rem * 0.78) !important; padding-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .py-12 { padding-top: calc(3rem * 0.78) !important; padding-bottom: calc(3rem * 0.78) !important; }
+        .content-wrapper .pt-2 { padding-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .pt-3 { padding-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pt-4 { padding-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .pt-6 { padding-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pt-8 { padding-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .pb-1 { padding-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .pb-3 { padding-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .pb-4 { padding-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .pb-6 { padding-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .pb-20 { padding-bottom: calc(5rem * 0.78) !important; }
+        /* Reduce spacing - margin */
+        .content-wrapper .mb-1 { margin-bottom: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mb-2 { margin-bottom: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mb-3 { margin-bottom: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mb-4 { margin-bottom: calc(1rem * 0.78) !important; }
+        .content-wrapper .mb-6 { margin-bottom: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mb-8 { margin-bottom: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-1 { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .mt-2 { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .mt-3 { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .mt-4 { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .mt-6 { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .mt-8 { margin-top: calc(2rem * 0.78) !important; }
+        .content-wrapper .mt-12 { margin-top: calc(3rem * 0.78) !important; }
+        /* Reduce gaps */
+        .content-wrapper .gap-1 { gap: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .gap-2 { gap: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .gap-3 { gap: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .gap-4 { gap: calc(1rem * 0.78) !important; }
+        .content-wrapper .gap-6 { gap: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .gap-8 { gap: calc(2rem * 0.78) !important; }
+        /* Reduce space-y utilities */
+        .content-wrapper .space-y-1 > * + * { margin-top: calc(0.25rem * 0.78) !important; }
+        .content-wrapper .space-y-2 > * + * { margin-top: calc(0.5rem * 0.78) !important; }
+        .content-wrapper .space-y-3 > * + * { margin-top: calc(0.75rem * 0.78) !important; }
+        .content-wrapper .space-y-4 > * + * { margin-top: calc(1rem * 0.78) !important; }
+        .content-wrapper .space-y-6 > * + * { margin-top: calc(1.5rem * 0.78) !important; }
+        .content-wrapper .space-y-8 > * + * { margin-top: calc(2rem * 0.78) !important; }
+    </style>
 <body class="bg-background min-h-screen">
     <!-- Header Navigation -->
-    <header class="bg-surface shadow-card border-b border-border">
+    <header class="bg-surface shadow-card border-b border-border fixed top-0 left-0 right-0 z-50" style="padding-top: max(2rem, env(safe-area-inset-top));">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
@@ -33,7 +114,8 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="content-wrapper">
         <!-- Breadcrumb -->
         <div class="mb-6">
             <div class="flex items-center space-x-2 text-sm text-text-secondary">
@@ -155,12 +237,6 @@
                                     • Delivery rider will show admin's GCash QR code<br>
                                     • Payment collected by delivery rider upon delivery
                                 </p>
-                                <div class="mt-3">
-                                    <label class="block text-sm font-medium text-green-800 mb-2">Special Instructions (Optional)</label>
-                                    <textarea rows="2"
-                                              placeholder="Please bring extra change, etc."
-                                              class="w-full border border-green-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -265,14 +341,6 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- Delivery Instructions -->
-                <section class="bg-surface rounded-lg p-6 shadow-card border border-border">
-                    <h3 class="text-lg font-semibold text-text-primary mb-4">Delivery Instructions (Optional)</h3>
-                    <textarea rows="3" 
-                              placeholder="Leave at door, call when arrived, etc." 
-                              class="w-full border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
-                </section>
             </div>
 
             <!-- Order Summary -->
@@ -332,6 +400,30 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Number Warning -->
+        <div id="mobile-number-warning" class="hidden fixed z-50" style="top: calc(4rem + max(2rem, env(safe-area-inset-top))); left: 0; right: 0; margin: 1rem;">
+            <div class="max-w-2xl mx-auto bg-warning-50 border border-warning-200 rounded-lg p-4 shadow-lg">
+                <div class="flex items-start space-x-3">
+                    <svg class="w-6 h-6 text-warning flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <div class="flex-1">
+                        <h4 class="text-warning font-semibold mb-1">Mobile Number Required</h4>
+                        <p class="text-warning text-sm mb-3">You need to add your mobile number to your profile before placing an order. This is required for delivery coordination.</p>
+                        <a href="customer_profile.html" class="inline-block bg-warning text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-warning-600 transition-smooth">
+                            Go to Profile
+                        </a>
+                    </div>
+                    <button onclick="document.getElementById('mobile-number-warning').classList.add('hidden')" class="text-warning hover:text-warning-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
         </div>
     </main>
 
@@ -664,6 +756,13 @@
             }
         }
 
+        function showMobileNumberWarning() {
+            const warning = document.getElementById('mobile-number-warning');
+            if (warning) {
+                warning.classList.remove('hidden');
+            }
+        }
+
         async function loadCheckoutData() {
             try {
                 const token = localStorage.getItem('authToken');
@@ -671,6 +770,32 @@
                     alert('Please log in to continue');
                     window.location.href = '../login.html';
                     return;
+                }
+
+                // Decode JWT to get customer ID (simple decode, not secure)
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const customerId = payload.sub;
+
+                // Check if customer has mobile number first
+                let hasMobileNumber = true;
+                const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    const profile = profileData.data;
+                    
+                    if (!profile.phone || profile.phone.trim() === '') {
+                        hasMobileNumber = false;
+                        // Disable place order button and show warning
+                        disablePlaceOrder('Please add your mobile number in your profile');
+                        showMobileNumberWarning();
+                    }
+                } else {
+                    console.warn('Failed to load customer profile, continuing anyway');
                 }
 
                 console.log('[Checkout] Loading cart data...');
@@ -696,10 +821,6 @@
                     return;
                 }
 
-                // Decode JWT to get customer ID (simple decode, not secure)
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const customerId = payload.sub;
-
                 // Load allowed barangays
                 await loadAllowedBarangays();
 
@@ -707,8 +828,10 @@
                 updateRestaurantInfo(cart);
                 await updateOrderSummary(cart);
                 
-                // Initially disable place order button until location is fetched
-                disablePlaceOrder('Please fetch your location first');
+                // Initially disable place order button until location is fetched (only if mobile number exists)
+                if (hasMobileNumber) {
+                    disablePlaceOrder('Please fetch your location first');
+                }
 
             } catch (error) {
                 console.error('[Checkout] Error loading checkout data:', error);
@@ -891,12 +1014,48 @@
 
         async function placeOrder() {
             try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    alert('Please log in to continue');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                // Decode JWT to get customer ID
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const customerId = payload.sub;
+
+                // Validate mobile number before proceeding
+                const profileResponse = await fetch(`${API_BASE_URL}/customers/${customerId}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    const profile = profileData.data;
+                    
+                    if (!profile.phone || profile.phone.trim() === '') {
+                        const addMobile = confirm(
+                            'You need to add your mobile number to your profile before placing an order.\n\n' +
+                            'Would you like to go to your profile page to add it now?'
+                        );
+                        if (addMobile) {
+                            window.location.href = 'customer_profile.html';
+                        }
+                        return;
+                    }
+                } else {
+                    // If we can't check profile, show warning but allow to continue
+                    console.warn('Could not verify mobile number, but allowing order to proceed');
+                }
+
                 // Get address from fetched location
                 const fullAddress = document.getElementById('full-address').value.trim();
                 const barangay = document.getElementById('barangay').value.trim();
                 const latitude = document.getElementById('latitude').value;
                 const longitude = document.getElementById('longitude').value;
-                const specialInstructions = document.querySelector('textarea[placeholder*="Leave at door"]')?.value || '';
 
                 // Validate that location was fetched
                 if (!fullAddress || !latitude || !longitude) {
@@ -924,16 +1083,7 @@
                     return;
                 }
 
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    alert('Please log in to continue');
-                    window.location.href = '../login.html';
-                    return;
-                }
-
-                // Get customer ID from JWT
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const customerId = payload.sub;
+                // Token and customerId already obtained above
 
                 // Parse address components from full address
                 // Mapbox format: "Street, Neighborhood/Barangay, City, Region, Country"
@@ -1006,6 +1156,7 @@
                 // Convert cart items to order items format
                 const items = cart.map(item => ({
                     menuItemId: item.menuItemId,
+                    variantId: item.variantId || null,
                     quantity: item.quantity,
                     specialInstructions: item.specialInstructions || null
                 }));
@@ -1017,7 +1168,7 @@
                     orderType: 'delivery',
                     tipAmount: 0,
                     items,
-                    specialInstructions: specialInstructions || null
+                    specialInstructions: null
                 };
 
                 const response = await fetch(`${API_BASE_URL}/orders`, {
