@@ -1,0 +1,16 @@
+{
+  "name": "hatod-download-page",
+  "version": "1.0.0",
+  "description": "HATOD Download Page - Standalone Service",
+  "main": "static-server.js",
+  "scripts": {
+    "start": "node static-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
+
