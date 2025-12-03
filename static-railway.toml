@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "node static-server.js"
+healthcheckPath = "/health"
+
+[build.env]
+NODE_ENV = "production"
+
