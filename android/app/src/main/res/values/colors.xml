@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#764ba2</color>
     <color name="colorAccent">#764ba2</color>
     <color name="splash_background">#764ba2</color>
+    <color name="app_background">#FAFAFA</color>
 </resources>
 

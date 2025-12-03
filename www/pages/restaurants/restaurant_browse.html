@@ -159,6 +159,7 @@
                             </svg>
                         </div>
                         <input type="text"
+                               id="desktop-search-input"
                                placeholder="Search restaurants or cuisines..."
                                class="block w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
@@ -195,6 +196,7 @@
                     </svg>
                 </div>
                 <input type="text"
+                       id="mobile-search-input"
                        placeholder="Search restaurants or cuisines..."
                        class="block w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
             </div>
@@ -220,13 +222,22 @@
                         <!-- Cuisine Type Chips -->
                         <div class="flex items-center space-x-2">
                             <span class="text-sm font-medium text-text-primary">Cuisine:</span>
-                            <div class="flex flex-wrap gap-2">
-                                <button class="px-3 py-1 text-sm bg-primary text-white rounded-full hover:bg-primary-600 transition-smooth">All</button>
-                                <button class="px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth">Italian</button>
-                                <button class="px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth">Asian</button>
-                                <button class="px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth">Mexican</button>
-                                <button class="px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth">American</button>
-                                <button class="px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth">Indian</button>
+                            <div class="flex flex-wrap gap-2" id="cuisine-filters">
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-primary text-white rounded-full hover:bg-primary-600 transition-smooth" data-cuisine="">All</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="fast food">Fast Food</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="burger">Burger</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="milk tea">Milk Tea</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="sisig">Sisig</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="lutong bahay">Lutong Bahay</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="bulalo">Bulalo</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="cnasal">Cnasal</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="barbecue / grill">Barbecue / Grill</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="pares / mami">Pares / Mami</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="lechon">Lechon</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="silog">Silog</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="meals">Meals</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="seafood">Seafood</button>
+                                <button class="cuisine-filter-btn px-3 py-1 text-sm bg-gray-100 text-text-secondary rounded-full hover:bg-primary hover:text-white transition-smooth" data-cuisine="batchoy">Batchoy</button>
                             </div>
                         </div>
 
@@ -264,7 +275,7 @@
                         </div>
 
                         <!-- Clear Filters -->
-                        <button class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
+                        <button id="clear-filters-btn" class="text-primary text-sm hover:text-primary-600 transition-smooth flex items-center space-x-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
@@ -393,6 +404,9 @@
             let currentPage = 1;
             let isLoading = false;
             let hasMore = true;
+            let currentSearch = '';
+            let currentCuisine = '';
+            let searchTimeout = null;
 
             function showLoading() {
                 const loadingCard = document.createElement('div');
@@ -508,7 +522,21 @@
                         headers.Authorization = `Bearer ${authToken}`;
                     }
 
-                    const response = await fetch(`${API_BASE_URL}/restaurants?page=${page}&pageSize=12`, {
+                    // Build query parameters
+                    const params = new URLSearchParams({
+                        page: page.toString(),
+                        pageSize: '12'
+                    });
+
+                    if (currentSearch) {
+                        params.append('search', currentSearch);
+                    }
+
+                    if (currentCuisine) {
+                        params.append('cuisine', currentCuisine);
+                    }
+
+                    const response = await fetch(`${API_BASE_URL}/restaurants?${params.toString()}`, {
                         headers
                     });
 
@@ -589,6 +617,111 @@
                     fetchRestaurants(currentPage, true);
                 }
             });
+
+            // Cuisine filter buttons
+            const cuisineFilterButtons = document.querySelectorAll('.cuisine-filter-btn');
+            cuisineFilterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active state from all buttons
+                    cuisineFilterButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('bg-gray-100', 'text-text-secondary');
+                    });
+
+                    // Add active state to clicked button
+                    button.classList.remove('bg-gray-100', 'text-text-secondary');
+                    button.classList.add('bg-primary', 'text-white');
+
+                    // Update current cuisine filter
+                    currentCuisine = button.getAttribute('data-cuisine') || '';
+
+                    // Reset to first page and fetch restaurants
+                    currentPage = 1;
+                    showLoading();
+                    fetchRestaurants(1, false);
+                });
+            });
+
+            // Search functionality
+            const desktopSearchInput = document.getElementById('desktop-search-input');
+            const mobileSearchInput = document.getElementById('mobile-search-input');
+
+            function handleSearch(searchTerm) {
+                currentSearch = searchTerm.trim();
+                currentPage = 1;
+                showLoading();
+                fetchRestaurants(1, false);
+            }
+
+            // Desktop search
+            if (desktopSearchInput) {
+                desktopSearchInput.addEventListener('input', (e) => {
+                    // Sync with mobile search
+                    if (mobileSearchInput) mobileSearchInput.value = e.target.value;
+                    
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        handleSearch(e.target.value);
+                    }, 500); // Debounce search by 500ms
+                });
+
+                desktopSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        clearTimeout(searchTimeout);
+                        handleSearch(e.target.value);
+                    }
+                });
+            }
+
+            // Mobile search
+            if (mobileSearchInput) {
+                mobileSearchInput.addEventListener('input', (e) => {
+                    // Sync with desktop search
+                    if (desktopSearchInput) desktopSearchInput.value = e.target.value;
+                    
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        handleSearch(e.target.value);
+                    }, 500); // Debounce search by 500ms
+                });
+
+                mobileSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        clearTimeout(searchTimeout);
+                        handleSearch(e.target.value);
+                    }
+                });
+            }
+
+            // Clear filters button
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', () => {
+                    // Clear search inputs
+                    if (desktopSearchInput) desktopSearchInput.value = '';
+                    if (mobileSearchInput) mobileSearchInput.value = '';
+                    
+                    // Reset cuisine filter to "All"
+                    cuisineFilterButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('bg-gray-100', 'text-text-secondary');
+                    });
+                    const allButton = document.querySelector('.cuisine-filter-btn[data-cuisine=""]');
+                    if (allButton) {
+                        allButton.classList.remove('bg-gray-100', 'text-text-secondary');
+                        allButton.classList.add('bg-primary', 'text-white');
+                    }
+
+                    // Reset filters
+                    currentSearch = '';
+                    currentCuisine = '';
+
+                    // Reset to first page and fetch restaurants
+                    currentPage = 1;
+                    showLoading();
+                    fetchRestaurants(1, false);
+                });
+            }
 
             // Store favorite restaurants
             let favoriteRestaurants = new Set();

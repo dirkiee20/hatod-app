@@ -371,7 +371,7 @@
 
     <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border shadow-lg p-4 z-40" style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
 
-        <a href="../customers/shopping_cart.html" class="flex items-center justify-between bg-primary text-white rounded-lg px-4 py-3 hover:bg-primary-600 transition-smooth btn-hover">
+        <a id="mobileCartButton" href="../customers/shopping_cart.html" class="flex items-center justify-between bg-primary text-white rounded-lg px-4 py-3 hover:bg-primary-600 transition-smooth btn-hover">
 
             <div class="flex items-center space-x-2">
 
@@ -722,9 +722,18 @@
                         cartBtn.classList.remove('hover:bg-primary-600');
                         cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
                     } else {
-                        cartBtn.disabled = false;
-                        cartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                        cartBtn.classList.add('hover:bg-primary-600');
+                        // Check if restaurant is closed
+                        const isRestaurantClosed = !restaurantData || !restaurantData.isOpen;
+                        cartBtn.disabled = isRestaurantClosed;
+                        if (isRestaurantClosed) {
+                            cartBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                            cartBtn.classList.remove('hover:bg-primary-600');
+                            cartBtn.title = 'Restaurant is closed';
+                        } else {
+                            cartBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            cartBtn.classList.add('hover:bg-primary-600');
+                            cartBtn.title = 'Add to Cart';
+                        }
                         cartBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/></svg>';
                     }
                 }
@@ -839,6 +848,22 @@
                     'flex items-center space-x-1 text-success' :
 
                     'flex items-center space-x-1 text-error';
+
+                // Disable/enable mobile cart button based on restaurant status
+                const mobileCartButton = document.getElementById('mobileCartButton');
+                if (mobileCartButton) {
+                    if (!restaurant.isOpen) {
+                        mobileCartButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        mobileCartButton.classList.remove('hover:bg-primary-600');
+                        mobileCartButton.style.pointerEvents = 'none';
+                        mobileCartButton.title = 'Restaurant is closed';
+                    } else {
+                        mobileCartButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        mobileCartButton.classList.add('hover:bg-primary-600');
+                        mobileCartButton.style.pointerEvents = 'auto';
+                        mobileCartButton.title = 'View Cart';
+                    }
+                }
 
             }
 
@@ -994,11 +1019,11 @@
                                 data-item-id="${item.id}"
                                 ${item.hasVariants && selectedVariantId ? `data-variant-id="${selectedVariantId}"` : ''}
 
-                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable || (item.hasVariants && !selectedVariantId) ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
+                                class="ml-4 p-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth ${!item.isAvailable || (item.hasVariants && !selectedVariantId) || !restaurantData?.isOpen ? 'opacity-50 cursor-not-allowed' : ''} ${isInCart ? 'added' : ''}"
 
-                                ${!item.isAvailable || isInCart || (item.hasVariants && !selectedVariantId) ? 'disabled' : ''}
+                                ${!item.isAvailable || isInCart || (item.hasVariants && !selectedVariantId) || !restaurantData?.isOpen ? 'disabled' : ''}
 
-                                title="${isInCart ? 'Item in cart' : item.hasVariants && !selectedVariantId ? 'Select a variant first' : 'Add to Cart'}">
+                                title="${!restaurantData?.isOpen ? 'Restaurant is closed' : isInCart ? 'Item in cart' : item.hasVariants && !selectedVariantId ? 'Select a variant first' : 'Add to Cart'}">
 
                             ${isInCart ? `
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1223,7 +1248,11 @@
                 const itemId = button.getAttribute('data-item-id');
                 const variantId = button.getAttribute('data-variant-id'); // Get variant ID if present
 
-
+                // Check if restaurant is closed
+                if (!restaurantData || !restaurantData.isOpen) {
+                    alert('This restaurant is currently closed. You cannot add items to cart when the restaurant is closed.');
+                    return;
+                }
 
                 try {
 
