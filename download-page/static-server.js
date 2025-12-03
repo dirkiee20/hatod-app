@@ -15,8 +15,32 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 // Serve public folder (logos, etc. - needed for download.html)
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Serve APK file from local apk folder
-app.use('/apk', express.static(path.join(__dirname, 'apk')));
+// Serve APK file with correct headers
+app.get('/apk/hatod.apk', (req, res) => {
+    const apkPath = path.join(__dirname, 'apk', 'hatod.apk');
+    
+    // Set correct Content-Type for APK files
+    res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+    res.setHeader('Content-Disposition', 'attachment; filename="hatod.apk"');
+    
+    // Send the file
+    res.sendFile(apkPath, (err) => {
+        if (err) {
+            console.error('Error serving APK:', err);
+            res.status(404).send('APK file not found');
+        }
+    });
+});
+
+// Serve other APK files from local apk folder (if any)
+app.use('/apk', express.static(path.join(__dirname, 'apk'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.apk')) {
+            res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+            res.setHeader('Content-Disposition', 'attachment');
+        }
+    }
+}));
 
 // Serve download.html directly if accessed via filename
 app.get('/download.html', (req, res) => {
@@ -30,8 +54,8 @@ app.get('/health', (req, res) => {
 
 // Block all other routes - redirect to download page
 app.get('*', (req, res) => {
-    // Allow CSS and public assets
-    if (req.path.startsWith('/css/') || req.path.startsWith('/public/')) {
+    // Allow CSS, public assets, and APK files
+    if (req.path.startsWith('/css/') || req.path.startsWith('/public/') || req.path.startsWith('/apk/')) {
         return res.status(404).send('Not found');
     }
     // Redirect everything else to download page
