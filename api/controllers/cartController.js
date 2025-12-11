@@ -18,6 +18,8 @@ export const getCart = asyncHandler(async (req, res) => {
             mi.image_url AS "imageUrl",
             mi.is_available AS "isAvailable",
             mi.has_variants AS "hasVariants",
+            mi.admin_markup_amount AS "adminMarkupAmount",
+            mi.admin_markup_percentage AS "adminMarkupPercentage",
             r.id AS "restaurantId",
             r.name AS "restaurantName",
             r.image_url AS "restaurantImageUrl",
@@ -33,9 +35,37 @@ export const getCart = asyncHandler(async (req, res) => {
     [userId]
   );
 
+  // Calculate final prices with admin markup for customer display
+  const isAdmin = req.user && req.user.role === 'admin';
+  const cartItemsWithFinalPrices = result.rows.map(item => {
+    const markupAmount = parseFloat(item.adminMarkupAmount || 0);
+    const markupPercentage = parseFloat(item.adminMarkupPercentage || 0);
+    
+    // Calculate final price for menu item
+    const basePrice = parseFloat(item.price || 0);
+    const finalPrice = isAdmin 
+      ? basePrice 
+      : basePrice + markupAmount + (basePrice * markupPercentage / 100);
+    
+    // Calculate final price for variant (if exists)
+    let finalVariantPrice = null;
+    if (item.variantPrice) {
+      const variantBasePrice = parseFloat(item.variantPrice);
+      finalVariantPrice = isAdmin
+        ? variantBasePrice
+        : variantBasePrice + markupAmount + (variantBasePrice * markupPercentage / 100);
+    }
+    
+    return {
+      ...item,
+      price: Math.round(finalPrice * 100) / 100, // Round to 2 decimal places
+      variantPrice: finalVariantPrice ? Math.round(finalVariantPrice * 100) / 100 : null
+    };
+  });
+
   res.json({
     status: 'success',
-    data: result.rows
+    data: cartItemsWithFinalPrices
   });
 });
 
