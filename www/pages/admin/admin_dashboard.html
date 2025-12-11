@@ -121,6 +121,45 @@
                 margin-bottom: 0 !important;
             }
         }
+        /* Skeleton Loading Styles */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 0.5rem;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        .skeleton-text {
+            height: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .skeleton-text-sm {
+            height: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        .skeleton-text-lg {
+            height: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .skeleton-text-xl {
+            height: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .skeleton-circle {
+            border-radius: 50%;
+        }
+        .skeleton-card {
+            background: #f0f0f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
     </style>
 </head>
 <body class="bg-background min-h-screen">
@@ -214,8 +253,52 @@
         <!-- Dashboard Tab Content -->
         <div id="dashboardContent" class="tab-content">
 
+        <!-- Stats Cards Skeleton -->
+        <div id="statsCardsSkeleton" class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-8 px-1 sm:px-0">
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text-sm w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-text-xl w-1/2 mb-2"></div>
+                        <div class="skeleton skeleton-text-sm w-2/3"></div>
+                    </div>
+                    <div class="skeleton w-12 h-12 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text-sm w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-text-xl w-1/2 mb-2"></div>
+                        <div class="skeleton skeleton-text-sm w-2/3"></div>
+                    </div>
+                    <div class="skeleton w-12 h-12 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text-sm w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-text-xl w-1/2 mb-2"></div>
+                        <div class="skeleton skeleton-text-sm w-2/3"></div>
+                    </div>
+                    <div class="skeleton w-12 h-12 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text-sm w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-text-xl w-1/2 mb-2"></div>
+                        <div class="skeleton skeleton-text-sm w-2/3"></div>
+                    </div>
+                    <div class="skeleton w-12 h-12 rounded-lg"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-8 px-1 sm:px-0">
+        <div id="statsCards" class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-8 px-1 sm:px-0 hidden">
             <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
                 <div class="flex items-center justify-between">
                     <div>
@@ -324,8 +407,46 @@
             </div>
         </section>
 
+        <!-- Recent Orders Skeleton -->
+        <section id="recentOrdersSkeleton" class="mb-8 px-1 sm:px-0">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-4 sm:p-6 border-b border-border">
+                    <div class="skeleton skeleton-text-lg w-1/4 mb-2"></div>
+                    <div class="skeleton skeleton-text-sm w-1/3"></div>
+                </div>
+                <div class="overflow-x-auto p-4 sm:p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-32"></div>
+                            <div class="skeleton skeleton-text w-28"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-16"></div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-32"></div>
+                            <div class="skeleton skeleton-text w-28"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-16"></div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-32"></div>
+                            <div class="skeleton skeleton-text w-28"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-16"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Recent Orders -->
-        <section class="mb-8 px-1 sm:px-0">
+        <section id="recentOrders" class="mb-8 px-1 sm:px-0 hidden">
             <div class="bg-surface rounded-lg shadow-card border border-border">
                 <div class="p-4 sm:p-6 border-b border-border">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -357,8 +478,56 @@
         </section>
 
 
+        <!-- Real-time Order Monitoring Skeleton -->
+        <section id="realTimeOrdersSkeleton" class="mb-8 px-1 sm:px-0">
+            <div class="bg-surface rounded-lg shadow-card border border-border">
+                <div class="p-4 sm:p-6 border-b border-border">
+                    <div class="skeleton skeleton-text-lg w-1/3 mb-2"></div>
+                    <div class="skeleton skeleton-text-sm w-1/2"></div>
+                </div>
+                <!-- Desktop Table Skeleton -->
+                <div class="hidden lg:block overflow-x-auto p-4 sm:p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-32"></div>
+                            <div class="skeleton skeleton-text w-28"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-16"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-32"></div>
+                            <div class="skeleton skeleton-text w-28"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                            <div class="skeleton skeleton-text w-24"></div>
+                            <div class="skeleton skeleton-text w-16"></div>
+                            <div class="skeleton skeleton-text w-20"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Card Skeleton -->
+                <div class="lg:hidden">
+                    <div class="p-4 space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4 border border-border">
+                            <div class="skeleton skeleton-text-sm w-1/4 mb-3"></div>
+                            <div class="skeleton skeleton-text w-3/4 mb-2"></div>
+                            <div class="skeleton skeleton-text w-1/2"></div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 border border-border">
+                            <div class="skeleton skeleton-text-sm w-1/4 mb-3"></div>
+                            <div class="skeleton skeleton-text w-3/4 mb-2"></div>
+                            <div class="skeleton skeleton-text w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Real-time Order Monitoring -->
-        <section class="mb-8 px-1 sm:px-0">
+        <section id="realTimeOrders" class="mb-8 px-1 sm:px-0 hidden">
             <div class="bg-surface rounded-lg shadow-card border border-border">
                 <div class="p-4 sm:p-6 border-b border-border">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -417,8 +586,24 @@
             </div>
         </section>
 
+        <!-- Analytics Charts Skeleton -->
+        <section id="chartsSkeleton" class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-1 sm:px-0">
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="skeleton skeleton-text-lg w-1/3 mb-4"></div>
+                <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <div class="skeleton w-full h-full rounded-lg"></div>
+                </div>
+            </div>
+            <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
+                <div class="skeleton skeleton-text-lg w-1/3 mb-4"></div>
+                <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <div class="skeleton w-full h-full rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- Analytics Charts -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-1 sm:px-0">
+        <section id="charts" class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-1 sm:px-0 hidden">
             <!-- Daily Order Volume -->
             <div class="bg-surface rounded-lg p-4 sm:p-6 shadow-card border border-border">
                 <h3 class="text-lg font-semibold text-text-primary mb-4">Daily Order Volume</h3>
@@ -1189,6 +1374,64 @@
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
+        function showSkeletonLoading() {
+            // Show all skeleton loaders
+            const statsCardsSkeleton = document.getElementById('statsCardsSkeleton');
+            const statsCards = document.getElementById('statsCards');
+            const recentOrdersSkeleton = document.getElementById('recentOrdersSkeleton');
+            const recentOrders = document.getElementById('recentOrders');
+            
+            if (statsCardsSkeleton) statsCardsSkeleton.classList.remove('hidden');
+            if (statsCards) statsCards.classList.add('hidden');
+            if (recentOrdersSkeleton) recentOrdersSkeleton.classList.remove('hidden');
+            if (recentOrders) recentOrders.classList.add('hidden');
+        }
+
+        function hideSkeletonLoading() {
+            // Hide all skeleton loaders and show actual content
+            const statsCardsSkeleton = document.getElementById('statsCardsSkeleton');
+            const statsCards = document.getElementById('statsCards');
+            const recentOrdersSkeleton = document.getElementById('recentOrdersSkeleton');
+            const recentOrders = document.getElementById('recentOrders');
+            
+            if (statsCardsSkeleton) statsCardsSkeleton.classList.add('hidden');
+            if (statsCards) statsCards.classList.remove('hidden');
+            if (recentOrdersSkeleton) recentOrdersSkeleton.classList.add('hidden');
+            if (recentOrders) recentOrders.classList.remove('hidden');
+        }
+
+        function showRealTimeSkeleton() {
+            const realTimeOrdersSkeleton = document.getElementById('realTimeOrdersSkeleton');
+            const realTimeOrders = document.getElementById('realTimeOrders');
+            
+            if (realTimeOrdersSkeleton) realTimeOrdersSkeleton.classList.remove('hidden');
+            if (realTimeOrders) realTimeOrders.classList.add('hidden');
+        }
+
+        function hideRealTimeSkeleton() {
+            const realTimeOrdersSkeleton = document.getElementById('realTimeOrdersSkeleton');
+            const realTimeOrders = document.getElementById('realTimeOrders');
+            
+            if (realTimeOrdersSkeleton) realTimeOrdersSkeleton.classList.add('hidden');
+            if (realTimeOrders) realTimeOrders.classList.remove('hidden');
+        }
+
+        function showChartsSkeleton() {
+            const chartsSkeleton = document.getElementById('chartsSkeleton');
+            const charts = document.getElementById('charts');
+            
+            if (chartsSkeleton) chartsSkeleton.classList.remove('hidden');
+            if (charts) charts.classList.add('hidden');
+        }
+
+        function hideChartsSkeleton() {
+            const chartsSkeleton = document.getElementById('chartsSkeleton');
+            const charts = document.getElementById('charts');
+            
+            if (chartsSkeleton) chartsSkeleton.classList.add('hidden');
+            if (charts) charts.classList.remove('hidden');
+        }
+
         async function fetchOverviewStats() {
             try {
                 const headers = { 'Accept': 'application/json' };
@@ -1258,9 +1501,12 @@
                     });
                 }
 
+                // Hide skeleton after data is loaded
+                hideSkeletonLoading();
             } catch (error) {
                 console.error('Error loading overview stats:', error);
-                // Keep default values or show error
+                // Hide skeleton even on error
+                hideSkeletonLoading();
             }
         }
 
@@ -1376,8 +1622,12 @@
                     });
                 }
 
+                // Hide skeleton after data is loaded
+                hideRealTimeSkeleton();
             } catch (error) {
                 console.error('Error loading real-time orders:', error);
+                // Hide skeleton even on error
+                hideRealTimeSkeleton();
             }
         }
 
@@ -1409,8 +1659,12 @@
                     updateRevenueChart(revenueData.data || []);
                 }
 
+                // Hide skeleton after charts are loaded
+                hideChartsSkeleton();
             } catch (error) {
                 console.error('Error loading chart data:', error);
+                // Hide skeleton even on error
+                hideChartsSkeleton();
             }
         }
 
@@ -1652,7 +1906,11 @@
         // Add event listener to Generate Report button
         document.getElementById('generateReportBtn')?.addEventListener('click', generateDailyReport);
 
-        // Initial data load
+        // Initial data load - show skeletons first
+        showSkeletonLoading();
+        showRealTimeSkeleton();
+        showChartsSkeleton();
+        
         fetchOverviewStats();
         fetchUserStats();
         fetchRealTimeOrders();
@@ -1721,6 +1979,11 @@
             // Add click handler for desktop refresh button
             if (refreshBtn) {
                 refreshBtn.addEventListener('click', () => {
+                    // Show skeletons when refreshing
+                    showSkeletonLoading();
+                    showRealTimeSkeleton();
+                    showChartsSkeleton();
+                    
                     // Refresh all dashboard data
                     fetchOverviewStats();
                     fetchUserStats();
@@ -1760,6 +2023,11 @@
             // Touch end
             mobileCardsContainer.addEventListener('touchend', () => {
                 if (isPulling && touchCurrentY - touchStartY >= PULL_THRESHOLD) {
+                    // Show skeletons when refreshing
+                    showSkeletonLoading();
+                    showRealTimeSkeleton();
+                    showChartsSkeleton();
+                    
                     // Trigger refresh for all sections
                     // Refresh all dashboard data
                     Promise.all([

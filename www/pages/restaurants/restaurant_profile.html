@@ -115,6 +115,66 @@
                 margin-bottom: 0 !important;
             }
         }
+        
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-image {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 </head>
 <body class="bg-background min-h-screen">
@@ -178,8 +238,63 @@
             <p class="text-text-secondary">Manage your restaurant settings and information</p>
         </div>
 
+        <!-- Profile Skeleton -->
+        <div id="profileSkeleton">
+            <!-- Banner Skeleton -->
+            <section class="mb-8 bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+                <div class="skeleton skeleton-image w-full h-48 sm:h-64"></div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Sidebar Skeleton -->
+                <aside class="lg:col-span-1 order-2 lg:order-1">
+                    <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
+                        <div class="text-center mb-6">
+                            <div class="skeleton skeleton-image w-24 h-24 rounded-lg mx-auto mb-4"></div>
+                            <div class="skeleton skeleton-text h-6 mb-2 w-32 mx-auto"></div>
+                            <div class="skeleton skeleton-text h-4 w-24 mx-auto"></div>
+                            <div class="skeleton skeleton-text h-4 w-20 mx-auto mt-3"></div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="skeleton skeleton-text h-10 rounded-lg"></div>
+                            <div class="skeleton skeleton-text h-10 rounded-lg"></div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Content Skeleton -->
+                <div class="lg:col-span-2 space-y-4 lg:space-y-6 order-1 lg:order-2">
+                    <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                        <div class="skeleton skeleton-text h-6 mb-4 w-1/3"></div>
+                        <div class="space-y-4">
+                            <div class="skeleton skeleton-text h-10"></div>
+                            <div class="skeleton skeleton-text h-24"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="skeleton skeleton-text h-10"></div>
+                                <div class="skeleton skeleton-text h-10"></div>
+                            </div>
+                            <div class="skeleton skeleton-text h-24"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="skeleton skeleton-text h-10"></div>
+                                <div class="skeleton skeleton-text h-10"></div>
+                            </div>
+                            <div class="skeleton skeleton-text h-10 w-32"></div>
+                        </div>
+                    </div>
+                    <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
+                        <div class="skeleton skeleton-text h-6 mb-4 w-1/3"></div>
+                        <div class="space-y-3">
+                            <div class="skeleton skeleton-text h-10"></div>
+                            <div class="skeleton skeleton-text h-10"></div>
+                            <div class="skeleton skeleton-text h-10"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Banner Upload -->
-        <section class="mb-8 bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+        <section id="bannerSection" class="mb-8 bg-surface rounded-lg shadow-card border border-border overflow-hidden hidden">
             <div class="relative">
                 <img id="restaurantBannerImage"
                      src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1600&q=80"
@@ -200,7 +315,7 @@
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div id="profileContent" class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 hidden">
             <!-- Profile Sidebar -->
             <aside class="lg:col-span-1 order-2 lg:order-1">
                 <div class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border lg:sticky lg:top-8">
@@ -327,65 +442,65 @@
                 <section id="hours" class="bg-surface rounded-lg p-4 lg:p-6 shadow-card border border-border">
                     <h3 class="text-lg font-semibold text-text-primary mb-4">Business Hours</h3>
                     <form id="businessHoursForm" class="space-y-3">
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Monday</span>
-                            <input type="time" id="mondayOpen" name="mondayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="mondayClose" name="mondayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Monday</span>
+                            <input type="time" id="mondayOpen" name="mondayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="mondayClose" name="mondayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="mondayClosed" name="mondayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Tuesday</span>
-                            <input type="time" id="tuesdayOpen" name="tuesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="tuesdayClose" name="tuesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Tuesday</span>
+                            <input type="time" id="tuesdayOpen" name="tuesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="tuesdayClose" name="tuesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="tuesdayClosed" name="tuesdayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Wednesday</span>
-                            <input type="time" id="wednesdayOpen" name="wednesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="wednesdayClose" name="wednesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Wednesday</span>
+                            <input type="time" id="wednesdayOpen" name="wednesdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="wednesdayClose" name="wednesdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="wednesdayClosed" name="wednesdayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Thursday</span>
-                            <input type="time" id="thursdayOpen" name="thursdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="thursdayClose" name="thursdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Thursday</span>
+                            <input type="time" id="thursdayOpen" name="thursdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="thursdayClose" name="thursdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="thursdayClosed" name="thursdayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Friday</span>
-                            <input type="time" id="fridayOpen" name="fridayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="fridayClose" name="fridayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Friday</span>
+                            <input type="time" id="fridayOpen" name="fridayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="fridayClose" name="fridayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="fridayClosed" name="fridayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Saturday</span>
-                            <input type="time" id="saturdayOpen" name="saturdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="saturdayClose" name="saturdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Saturday</span>
+                            <input type="time" id="saturdayOpen" name="saturdayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="saturdayClose" name="saturdayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="saturdayClosed" name="saturdayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                            <span class="font-medium text-text-primary">Sunday</span>
-                            <input type="time" id="sundayOpen" name="sundayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <input type="time" id="sundayClose" name="sundayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" disabled>
-                            <label class="flex items-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-center">
+                            <span class="font-medium text-text-primary sm:col-span-2">Sunday</span>
+                            <input type="time" id="sundayOpen" name="sundayOpen" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <input type="time" id="sundayClose" name="sundayClose" class="border border-border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:col-span-4" disabled>
+                            <label class="flex items-center sm:col-span-2">
                                 <input type="checkbox" id="sundayClosed" name="sundayClosed" class="mr-2" checked>
                                 <span class="text-sm text-text-secondary">Closed</span>
                             </label>
@@ -509,17 +624,42 @@
         return `${API_BASE_URL.replace('/api', '')}${path}`;
     }
 
+    function hideSkeletonLoading() {
+        const skeleton = document.getElementById('profileSkeleton');
+        const bannerSection = document.getElementById('bannerSection');
+        const profileContent = document.getElementById('profileContent');
+        
+        if (skeleton) {
+            skeleton.style.opacity = '0';
+            skeleton.style.transition = 'opacity 0.2s ease-out';
+            setTimeout(() => {
+                skeleton.classList.add('hidden');
+                skeleton.style.opacity = '1';
+            }, 200);
+        }
+        if (bannerSection) {
+            bannerSection.classList.remove('hidden');
+        }
+        if (profileContent) {
+            profileContent.classList.remove('hidden');
+        }
+    }
+
     // Fetch restaurant profile
     async function fetchRestaurantProfile() {
         try {
             const restaurantId = await getRestaurantId();
             if (!restaurantId) {
                 alert('Unable to determine restaurant. Please try logging in again.');
+                hideSkeletonLoading();
                 return;
             }
 
             const response = await apiRequest(`/restaurants/${restaurantId}`);
             const restaurant = response.data;
+            
+            // Hide skeleton and show content
+            hideSkeletonLoading();
 
             // Update header and sidebar
             document.getElementById('headerRestaurantName').textContent = restaurant.name;
@@ -616,6 +756,7 @@
 
         } catch (error) {
             console.error('Error fetching restaurant profile:', error);
+            hideSkeletonLoading();
             alert('Failed to load restaurant profile. Please try again.');
         }
     }

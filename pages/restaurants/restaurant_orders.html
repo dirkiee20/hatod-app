@@ -115,6 +115,60 @@
                 margin-bottom: 0 !important;
             }
         }
+        
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        .skeleton-stat-card {
+            height: 120px;
+            border-radius: 12px;
+        }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 </head>
 <body class="bg-background min-h-screen">
@@ -284,10 +338,44 @@
             </div>
         </div>
 
+        <!-- Orders List Skeleton -->
+        <div id="ordersSkeleton" class="space-y-4">
+            <div class="skeleton-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text h-5 mb-2 w-1/3"></div>
+                        <div class="skeleton skeleton-text h-4 mb-1 w-1/2"></div>
+                    </div>
+                    <div class="skeleton skeleton-text w-24 h-6 rounded-full"></div>
+                </div>
+                <div class="skeleton skeleton-text h-16"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text h-5 mb-2 w-1/3"></div>
+                        <div class="skeleton skeleton-text h-4 mb-1 w-1/2"></div>
+                    </div>
+                    <div class="skeleton skeleton-text w-24 h-6 rounded-full"></div>
+                </div>
+                <div class="skeleton skeleton-text h-16"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text h-5 mb-2 w-1/3"></div>
+                        <div class="skeleton skeleton-text h-4 mb-1 w-1/2"></div>
+                    </div>
+                    <div class="skeleton skeleton-text w-24 h-6 rounded-full"></div>
+                </div>
+                <div class="skeleton skeleton-text h-16"></div>
+            </div>
+        </div>
+
         <!-- Orders List -->
-        <div class="space-y-4">
-            <!-- Empty State -->
-            <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
+        <div id="ordersList" class="space-y-4 hidden">
+            <!-- Empty State (hidden initially) -->
+            <div id="ordersEmptyState" class="bg-surface rounded-lg p-12 shadow-card border border-border text-center hidden">
                 <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
@@ -557,13 +645,38 @@
         }
     }
 
+    function hideSkeletonLoading() {
+        const skeleton = document.getElementById('ordersSkeleton');
+        const ordersList = document.getElementById('ordersList');
+        const emptyState = document.getElementById('ordersEmptyState');
+        
+        if (skeleton) {
+            skeleton.style.opacity = '0';
+            skeleton.style.transition = 'opacity 0.2s ease-out';
+            setTimeout(() => {
+                skeleton.classList.add('hidden');
+                skeleton.style.opacity = '1';
+            }, 200);
+        }
+        if (ordersList) {
+            ordersList.classList.remove('hidden');
+        }
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+    }
+
     async function displayOrders(orders) {
-        const ordersContainer = document.querySelector('.space-y-4');
+        const ordersContainer = document.getElementById('ordersList');
+        const emptyState = document.getElementById('ordersEmptyState');
 
         if (orders.length === 0) {
             showEmptyState();
             return;
         }
+
+        // Hide empty state
+        if (emptyState) emptyState.classList.add('hidden');
 
         let ordersHtml = '';
 
@@ -617,7 +730,12 @@
             `;
         }
 
-        ordersContainer.innerHTML = ordersHtml;
+        // Hide skeleton and show orders
+        hideSkeletonLoading();
+        
+        if (ordersContainer) {
+            ordersContainer.innerHTML = ordersHtml;
+        }
     }
 
     function updateOrderStats(orders) {
@@ -641,19 +759,13 @@
     }
 
     function showEmptyState() {
-        const ordersContainer = document.querySelector('.space-y-4');
-        ordersContainer.innerHTML = `
-            <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
-                <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                <h3 class="text-lg font-semibold text-text-primary mb-2">No orders yet</h3>
-                <p class="text-text-secondary mb-6">When customers place orders, they will appear here for you to manage.</p>
-                <button class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
-                    Check Back Later
-                </button>
-            </div>
-        `;
+        // Hide skeleton and show empty state
+        hideSkeletonLoading();
+        const ordersContainer = document.getElementById('ordersList');
+        const emptyState = document.getElementById('ordersEmptyState');
+        
+        if (ordersContainer) ordersContainer.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
     }
 
     function getStatusClass(status) {

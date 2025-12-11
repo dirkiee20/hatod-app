@@ -26,10 +26,48 @@
   </head>
 <body class="welcome-body">
     <div class="welcome-container">
-        <img src="public/logos/logo_192x192.png" alt="HATOD Logo" class="welcome-logo">
+        <img id="welcomeLogo" src="public/logos/logo_192x192.png" alt="HATOD Logo" class="welcome-logo" onerror="handleLogoError(this)">
     </div>
 
+    <script src="public/config.js"></script>
     <script>
+        // Function to handle logo loading errors
+        function handleLogoError(img) {
+            console.warn('Logo failed to load, trying fallback URL');
+            
+            // Try to use API_ORIGIN if available (from config.js)
+            if (window.API_ORIGIN) {
+                const fallbackUrl = `${window.API_ORIGIN}/public/logos/logo_192x192.png`;
+                img.src = fallbackUrl;
+                img.onerror = function() {
+                    // If API URL also fails, try relative path with leading slash
+                    img.src = '/public/logos/logo_192x192.png';
+                    img.onerror = function() {
+                        // Last resort: try without leading slash
+                        img.src = 'public/logos/logo_192x192.png';
+                        img.onerror = null; // Prevent infinite loop
+                    };
+                };
+            } else {
+                // If config.js hasn't loaded yet, try alternative paths
+                img.src = '/public/logos/logo_192x192.png';
+                img.onerror = function() {
+                    img.src = 'public/logos/logo_192x192.png';
+                    img.onerror = null; // Prevent infinite loop
+                };
+            }
+        }
+
+        // Update logo source when config is available (for Capacitor apps)
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoImg = document.getElementById('welcomeLogo');
+            if (logoImg && window.API_ORIGIN && window.Capacitor) {
+                // In Capacitor, use absolute URL from API_ORIGIN
+                const logoUrl = `${window.API_ORIGIN}/public/logos/logo_192x192.png`;
+                logoImg.src = logoUrl;
+            }
+        });
+
         // Redirect to unified login page after 3 seconds
         setTimeout(function() {
             window.location.href = 'pages/login.html';

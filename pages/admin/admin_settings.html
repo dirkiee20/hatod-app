@@ -21,7 +21,16 @@
         }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
             font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        @media (min-width: 1024px) {
+            .content-wrapper {
+                margin-bottom: 0; /* No bottom margin on desktop */
+            }
+            main {
+                padding-bottom: 2rem !important; /* Reset to normal padding on desktop */
+            }
         }
         /* Reduce font sizes */
         .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
@@ -94,7 +103,7 @@
         @media (max-width: 1023px) {
             main {
                 margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+                /* padding-bottom is set inline to allow scrolling above fixed footer */
             }
             .content-wrapper {
                 margin-bottom: 0 !important;
@@ -181,7 +190,7 @@
     </header>
 
     <!-- Content Wrapper with Scale Transform -->
-    <div class="content-wrapper">
+    <div class="content-wrapper" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <!-- Page Header -->
@@ -249,6 +258,9 @@
     </main>
     </div>
     <!-- End Content Wrapper -->
+
+    <!-- Mobile Navigation Bar Spacer (Fixed Footer) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-background z-30" style="height: calc(3rem + max(1rem, env(safe-area-inset-bottom)));"></div>
 
 <script>
     const API_BASE_URL = window.__HATOD_API_BASE_URL__ || `${window.location.origin}/api`;

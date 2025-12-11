@@ -356,7 +356,7 @@
                     <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
                     </svg>
-                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center text-[10px]">0</span>
+                    <span id="mobileCartCount" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center text-[10px]">0</span>
                 </div>
                 <span class="text-xs font-medium text-text-secondary">Cart</span>
             </a>
@@ -855,6 +855,32 @@
                 }
             };
 
+            async function updateCartCount() {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) return;
+
+                    const response = await fetch(`${API_BASE_URL}/cart/count`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const totalItems = data.data.count;
+
+                        // Update mobile cart count badge
+                        const mobileCartCount = document.getElementById('mobileCartCount');
+                        if (mobileCartCount) {
+                            mobileCartCount.textContent = totalItems;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating cart count:', error);
+                }
+            }
+
             async function loadUserProfile() {
                 try {
                     const token = localStorage.getItem('authToken');
@@ -892,6 +918,9 @@
                     console.error('Error loading user profile:', error);
                 }
             }
+
+            // Update cart count on page load
+            updateCartCount();
         });
     </script>
 
