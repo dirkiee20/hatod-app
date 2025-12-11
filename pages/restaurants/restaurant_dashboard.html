@@ -1092,10 +1092,31 @@
         // Handle form submission
         saveBtn.addEventListener('click', async function() {
             if (addMenuForm.checkValidity()) {
+                // Prevent double submission
+                if (saveBtn.disabled) {
+                    return;
+                }
+
+                // Set loading state
+                const originalText = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                `;
+                saveBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
                 try {
                     // Get restaurant ID
                     const restaurantId = await getRestaurantId();
                     if (!restaurantId) {
+                        // Reset button state
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                         alert('Unable to determine restaurant. Please try logging in again.');
                         return;
                     }
@@ -1107,6 +1128,10 @@
 
                     // Validate variants if hasVariants is true
                     if (hasVariants && variants.length === 0) {
+                        // Reset button state
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                         alert('Please add at least one variant.');
                         return;
                     }
@@ -1142,6 +1167,10 @@
                             }
                         } catch (error) {
                             console.error('Error handling category:', error);
+                            // Reset button state
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = originalText;
+                            saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                             alert('Failed to handle category. Please try again.');
                             return;
                         }
@@ -1175,6 +1204,10 @@
                             imageUrl = uploadResult.data.imageUrl;
                         } catch (error) {
                             console.error('Error uploading image:', error);
+                            // Reset button state
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = originalText;
+                            saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                             alert('Failed to upload image. Please try again.');
                             return;
                         }
@@ -1212,6 +1245,10 @@
 
                 } catch (error) {
                     console.error('Error adding menu item:', error);
+                    // Reset button state on error
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                     alert('Failed to add menu item. Please try again.');
                 }
             } else {
