@@ -59,7 +59,9 @@ export const createOrder = asyncHandler(async (req, res) => {
             price,
             name,
             is_available AS "isAvailable",
-            has_variants AS "hasVariants"
+            has_variants AS "hasVariants",
+            admin_markup_amount AS "adminMarkupAmount",
+            admin_markup_percentage AS "adminMarkupPercentage"
      FROM menu_items
      WHERE id = ANY($1::uuid[])
        AND restaurant_id = $2`,
@@ -115,6 +117,9 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
   }
 
+  // Check if user is admin (admins see original prices, customers see final prices)
+  const isAdmin = req.user && req.user.role === 'admin';
+
   const subtotal = items.reduce((acc, item) => {
     const menuItem = menuItemsMap[item.menuItemId];
     if (!menuItem) {
@@ -124,20 +129,33 @@ export const createOrder = asyncHandler(async (req, res) => {
       throw badRequest(`Menu item ${menuItem.name} is not available`);
     }
     
-    // Use variant price if variantId is provided, otherwise use menu item price
-    let unitPrice;
+    // Get base price (variant or menu item)
+    let basePrice;
     if (item.variantId) {
       const variant = variantsMap[item.variantId];
       if (!variant) {
         throw badRequest(`Variant ${item.variantId} not found for menu item ${menuItem.name}`);
       }
-      unitPrice = Number(variant.price);
+      basePrice = Number(variant.price);
     } else {
       // If menu item has variants but no variantId provided, that's an error
       if (menuItem.hasVariants) {
         throw badRequest(`Menu item ${menuItem.name} requires a variant selection`);
       }
-      unitPrice = Number(menuItem.price);
+      basePrice = Number(menuItem.price);
+    }
+    
+    // Calculate final price with admin markup (for customers)
+    let unitPrice;
+    if (isAdmin) {
+      // Admins see original prices
+      unitPrice = basePrice;
+    } else {
+      // Customers see final prices with markup
+      const markupAmount = parseFloat(menuItem.adminMarkupAmount || 0);
+      const markupPercentage = parseFloat(menuItem.adminMarkupPercentage || 0);
+      unitPrice = basePrice + markupAmount + (basePrice * markupPercentage / 100);
+      unitPrice = Math.round(unitPrice * 100) / 100; // Round to 2 decimal places
     }
     
     const quantity = Number(item.quantity ?? 1);
@@ -333,16 +351,29 @@ export const createOrder = asyncHandler(async (req, res) => {
     const orderItemsValues = items.flatMap((item) => {
       const menuItem = menuItemsMap[item.menuItemId];
       
-      // Use variant price if variantId is provided, otherwise use menu item price
-      let unitPrice;
+      // Get base price (variant or menu item)
+      let basePrice;
       if (item.variantId) {
         const variant = variantsMap[item.variantId];
         if (!variant) {
           throw badRequest(`Variant ${item.variantId} not found`);
         }
-        unitPrice = Number(variant.price);
+        basePrice = Number(variant.price);
       } else {
-        unitPrice = Number(menuItem.price);
+        basePrice = Number(menuItem.price);
+      }
+      
+      // Calculate final price with admin markup (for customers)
+      let unitPrice;
+      if (isAdmin) {
+        // Admins see original prices
+        unitPrice = basePrice;
+      } else {
+        // Customers see final prices with markup
+        const markupAmount = parseFloat(menuItem.adminMarkupAmount || 0);
+        const markupPercentage = parseFloat(menuItem.adminMarkupPercentage || 0);
+        unitPrice = basePrice + markupAmount + (basePrice * markupPercentage / 100);
+        unitPrice = Math.round(unitPrice * 100) / 100; // Round to 2 decimal places
       }
       
       return [
