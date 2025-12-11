@@ -116,6 +116,40 @@
                 margin-bottom: 0 !important;
             }
         }
+        
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 <body class="bg-background min-h-screen">
     <!-- Header Navigation -->
@@ -309,6 +343,17 @@
                 </table>
             </div>
 
+            <!-- Users Table Skeleton -->
+            <div id="usersTableSkeleton" class="px-6 py-8 border-t border-border">
+                <div class="space-y-3">
+                    <div class="skeleton skeleton-text h-12"></div>
+                    <div class="skeleton skeleton-text h-12"></div>
+                    <div class="skeleton skeleton-text h-12"></div>
+                    <div class="skeleton skeleton-text h-12"></div>
+                    <div class="skeleton skeleton-text h-12"></div>
+                </div>
+            </div>
+            
             <div id="usersTableLoading" class="px-6 py-8 border-t border-border hidden">
                 <div class="flex items-center justify-center space-x-3 text-text-secondary">
                     <svg class="w-5 h-5 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -501,7 +546,25 @@
             window.alert(message);
         }
 
+        function hideSkeletonLoading() {
+            const skeleton = document.getElementById('usersTableSkeleton');
+            if (skeleton) {
+                skeleton.style.opacity = '0';
+                skeleton.style.transition = 'opacity 0.2s ease-out';
+                setTimeout(() => {
+                    skeleton.classList.add('hidden');
+                    skeleton.style.opacity = '1';
+                }, 200);
+            }
+        }
+
         function setLoading(isLoading) {
+            const skeleton = document.getElementById('usersTableSkeleton');
+            if (isLoading) {
+                if (skeleton) skeleton.classList.remove('hidden');
+            } else {
+                hideSkeletonLoading();
+            }
             if (elements.loadingIndicator) {
                 toggleHidden(elements.loadingIndicator, !isLoading);
             }

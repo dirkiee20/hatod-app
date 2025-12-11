@@ -15,9 +15,20 @@
             margin: 0;
             padding: 0;
         }
+        @media (min-width: 1024px) {
+            main {
+                padding-bottom: 2rem !important; /* Reset to normal padding on desktop */
+            }
+        }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
             font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        @media (min-width: 1024px) {
+            .content-wrapper {
+                margin-bottom: 0; /* No bottom margin on desktop */
+            }
         }
         /* Reduce font sizes */
         .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
@@ -90,7 +101,7 @@
         @media (max-width: 1023px) {
             main {
                 margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+                /* padding-bottom is set inline to allow scrolling above fixed footer */
             }
             .content-wrapper {
                 margin-bottom: 0 !important;
@@ -114,6 +125,54 @@
             .space-y-8 > *:last-child {
                 margin-bottom: 0 !important;
             }
+        }
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
         }
     </style>
 </head>
@@ -173,14 +232,8 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
         <div class="content-wrapper">
-        <!-- Loading State -->
-        <div id="loadingState" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            <p class="mt-4 text-text-secondary">Loading order details...</p>
-        </div>
-
         <!-- Error State -->
         <div id="errorState" class="hidden bg-surface rounded-lg p-12 shadow-card border border-border text-center">
             <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,6 +244,45 @@
             <a href="restaurant_orders.html" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-smooth btn-hover inline-block">
                 Back to Orders
             </a>
+        </div>
+
+        <!-- Order Details Skeleton -->
+        <div id="orderSkeleton">
+            <div class="mb-6">
+                <div class="skeleton skeleton-text h-4 mb-4 w-1/4"></div>
+                <div class="skeleton skeleton-text h-8 mb-2 w-1/3"></div>
+                <div class="skeleton skeleton-text h-4 w-1/4"></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-text h-6 mb-4 w-1/4"></div>
+                        <div class="space-y-4">
+                            <div class="skeleton skeleton-text h-20"></div>
+                            <div class="skeleton skeleton-text h-20"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-text h-6 mb-4 w-1/3"></div>
+                        <div class="space-y-3">
+                            <div class="skeleton skeleton-text h-4"></div>
+                            <div class="skeleton skeleton-text h-4"></div>
+                            <div class="skeleton skeleton-text h-4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-text h-6 mb-4 w-1/3"></div>
+                        <div class="space-y-3">
+                            <div class="skeleton skeleton-text h-4"></div>
+                            <div class="skeleton skeleton-text h-4"></div>
+                            <div class="skeleton skeleton-text h-4"></div>
+                            <div class="skeleton skeleton-text h-6 mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Order Details Content -->
@@ -333,7 +425,11 @@
         </div>
     </main>
 
+    <!-- Mobile Navigation Bar Spacer (Fixed Footer) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-background z-30" style="height: calc(3rem + max(1rem, env(safe-area-inset-bottom)));"></div>
+
     <script src="../../public/config.js"></script>
+    <script src="../../public/js/cache-manager.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
@@ -438,9 +534,8 @@
             const items = data.items || [];
             const delivery = data.delivery;
 
-            // Hide loading, show content
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('orderContent').classList.remove('hidden');
+            // Hide full-page loading overlay and show content
+            hideSkeletonLoading();
 
             // Order Header
             document.getElementById('orderNumber').textContent = `Order #${order.id.slice(-8).toUpperCase()}`;
@@ -545,10 +640,11 @@
         }
 
         function showError(message) {
-            document.getElementById('loadingState').classList.add('hidden');
+            hideSkeletonLoading();
             document.getElementById('errorState').classList.remove('hidden');
             document.getElementById('errorMessage').textContent = message;
         }
+
 
         async function updateOrderStatus(orderId, newStatus) {
             if (!confirm(`Are you sure you want to update the order status to "${getStatusText(newStatus)}"?`)) {
@@ -618,8 +714,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            updateHeaderProfile();
-            loadOrderDetails();
+            // Load data
+            Promise.all([
+                updateHeaderProfile(),
+                loadOrderDetails()
+            ]).catch(error => {
+                console.error('Error during page load:', error);
+                hideSkeletonLoading();
+            });
 
             // Profile dropdown functionality
             const profileDropdownBtn = document.getElementById('profileDropdownBtn');

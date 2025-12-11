@@ -115,6 +115,66 @@
                 margin-bottom: 0 !important;
             }
         }
+        
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-image {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 </head>
 <body class="bg-background min-h-screen">
@@ -191,8 +251,38 @@
         </div>
 
 
+        <!-- Menu Items Skeleton -->
+        <div id="menuItemsSkeleton" class="space-y-8">
+            <div class="mb-8">
+                <div class="flex items-center mb-4 pb-3 border-b-2 border-primary-200">
+                    <div class="skeleton skeleton-text h-8 w-48"></div>
+                    <div class="skeleton skeleton-text h-6 w-24 rounded-full ml-3"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Empty State -->
-        <div class="bg-surface rounded-xl p-12 shadow-card border border-border text-center" style="display: none;">
+        <div id="menuEmptyState" class="bg-surface rounded-xl p-12 shadow-card border border-border text-center hidden">
             <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -208,33 +298,10 @@
             </a>
         </div>
         <!-- Menu Items Container -->
-        <div id="menuItemsContainer" class="space-y-8">
+        <div id="menuItemsContainer" class="space-y-8 hidden">
             <!-- Menu items will be dynamically loaded here -->
         </div>
 
-        <!-- Bulk Actions -->
-        <div class="mt-8 bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-6 shadow-md border border-primary-200">
-            <h3 class="text-lg font-semibold text-text-primary mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                Bulk Actions
-            </h3>
-            <div class="flex flex-wrap gap-3">
-                <button class="bg-success text-white px-5 py-2.5 rounded-lg hover:bg-success-600 transition-smooth btn-hover text-sm font-medium shadow-sm hover:shadow-md">
-                    Mark Available
-                </button>
-                <button class="bg-warning text-white px-5 py-2.5 rounded-lg hover:bg-warning-600 transition-smooth btn-hover text-sm font-medium shadow-sm hover:shadow-md">
-                    Mark Unavailable
-                </button>
-                <button class="bg-error text-white px-5 py-2.5 rounded-lg hover:bg-error-600 transition-smooth btn-hover text-sm font-medium shadow-sm hover:shadow-md">
-                    Delete Selected
-                </button>
-                <button class="bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-600 transition-smooth btn-hover text-sm font-medium shadow-sm hover:shadow-md">
-                    Update Prices
-                </button>
-            </div>
-        </div>
         </div>
     </main>
 
@@ -404,12 +471,34 @@
         }
     }
 
+    function hideSkeletonLoading() {
+        const skeleton = document.getElementById('menuItemsSkeleton');
+        const container = document.getElementById('menuItemsContainer');
+        const emptyState = document.getElementById('menuEmptyState');
+        
+        if (skeleton) {
+            skeleton.style.opacity = '0';
+            skeleton.style.transition = 'opacity 0.2s ease-out';
+            setTimeout(() => {
+                skeleton.classList.add('hidden');
+                skeleton.style.opacity = '1';
+            }, 200);
+        }
+        if (container) {
+            container.classList.remove('hidden');
+        }
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+    }
+
     // Fetch menu items and categories
     async function fetchMenuItems() {
         try {
             const restaurantId = await getRestaurantId();
             if (!restaurantId) {
                 showError('Unable to determine restaurant');
+                hideSkeletonLoading();
                 return;
             }
 
@@ -424,24 +513,29 @@
             populateCategorySelect();
         } catch (error) {
             console.error('Error fetching menu items:', error);
+            hideSkeletonLoading();
             showError('Failed to load menu items');
         }
     }
 
     // Render menu items
     function renderMenuItems() {
+        // Hide skeleton first
+        hideSkeletonLoading();
+        
         const container = document.getElementById('menuItemsContainer');
-        const emptyState = document.querySelector('.bg-surface.rounded-xl.p-12');
+        const emptyState = document.getElementById('menuEmptyState');
 
         if (menuData.length === 0) {
             // Show empty state
-            emptyState.style.display = 'block';
-            container.innerHTML = '';
+            if (emptyState) emptyState.classList.remove('hidden');
+            if (container) container.classList.add('hidden');
             return;
         }
 
         // Hide empty state
-        emptyState.style.display = 'none';
+        if (emptyState) emptyState.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
 
         // Group items by category
         const itemsByCategory = menuData.reduce((acc, category) => {
@@ -1208,11 +1302,13 @@
             addVariantButton.addEventListener('click', () => addVariantInput());
         }
 
-        // Update header profile
-        updateHeaderProfile();
-        
-        // Load menu items
-        fetchMenuItems();
+        // Load data in parallel for faster loading
+        Promise.all([
+            updateHeaderProfile(),
+            fetchMenuItems()
+        ]).catch(error => {
+            console.error('Error loading page data:', error);
+        });
 
         // Profile dropdown functionality
         const profileDropdownBtn = document.getElementById('profileDropdownBtn');

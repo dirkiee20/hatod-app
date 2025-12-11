@@ -131,9 +131,67 @@
                 margin-bottom: 0 !important;
             }
         }
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-image {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 <body class="bg-background min-h-screen">
-
     <!-- Header Navigation -->
 
     <header class="fixed top-0 left-0 right-0 bg-surface shadow-card border-b border-border z-50" style="padding-top: max(2rem, env(safe-area-inset-top));">
@@ -336,9 +394,31 @@
 
             <div class="w-full">
 
-                <!-- Empty State -->
+                <!-- Menu Skeleton -->
+                <div id="menuSkeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Skeleton menu items -->
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-image w-full h-48 rounded-lg mb-4"></div>
+                        <div class="skeleton skeleton-text h-6 mb-2"></div>
+                        <div class="skeleton skeleton-text h-4 mb-3 short"></div>
+                        <div class="skeleton skeleton-text h-5 w-24"></div>
+                    </div>
+                </div>
 
-                <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
+                <!-- Empty State (hidden initially) -->
+                <div id="menuEmptyState" class="bg-surface rounded-lg p-12 shadow-card border border-border text-center hidden">
 
                     <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 
@@ -490,6 +570,7 @@
 
 
     <script src="../../public/config.js"></script>
+    <script src="../../public/js/cache-manager.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         document.addEventListener('DOMContentLoaded', () => {
@@ -1127,6 +1208,19 @@
 
 
 
+                // Hide skeleton and show menu
+                const menuSkeleton = document.getElementById('menuSkeleton');
+                const menuEmptyState = document.getElementById('menuEmptyState');
+                if (menuSkeleton) {
+                    menuSkeleton.style.opacity = '0';
+                    menuSkeleton.style.transition = 'opacity 0.2s ease-out';
+                    setTimeout(() => {
+                        menuSkeleton.classList.add('hidden');
+                        menuSkeleton.style.opacity = '1';
+                    }, 200);
+                }
+                if (menuEmptyState) menuEmptyState.classList.add('hidden');
+                
                 menuContainer.innerHTML = menuHtml;
             }
 
@@ -1176,8 +1270,8 @@
                     renderMenu();
 
                     updateCartCount();
-
-
+                    
+                    // Data loaded - page is already visible
 
                 } catch (error) {
 

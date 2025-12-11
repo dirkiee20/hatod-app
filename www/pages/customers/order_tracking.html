@@ -21,7 +21,13 @@
         }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
             font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        @media (min-width: 1024px) {
+            main {
+                padding-bottom: 2rem !important; /* Reset to normal padding on desktop */
+            }
         }
         /* Reduce font sizes */
         .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
@@ -90,8 +96,59 @@
         .content-wrapper .space-y-4 > * + * { margin-top: calc(1rem * 0.78) !important; }
         .content-wrapper .space-y-6 > * + * { margin-top: calc(1.5rem * 0.78) !important; }
         .content-wrapper .space-y-8 > * + * { margin-top: calc(2rem * 0.78) !important; }
+        /* Full-page loading overlay */
+        #pageLoadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(250, 250, 250, 0.95);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.3s ease-out;
+        }
+        #pageLoadingOverlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #pageLoadingOverlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(139, 92, 246, 0.1);
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #pageLoadingOverlay .loading-text {
+            margin-top: 1rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        /* Hide main content until loaded */
+        body:not(.content-loaded) main {
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.content-loaded main {
+            opacity: 1;
+            transition: opacity 0.3s ease-in;
+        }
     </style>
 <body class="bg-background min-h-screen">
+    <!-- Full-page Loading Overlay -->
+    <div id="pageLoadingOverlay">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading...</p>
+    </div>
+
     <!-- Header Navigation -->
     <header class="bg-surface shadow-card border-b border-border fixed top-0 left-0 right-0 z-50" style="padding-top: max(2rem, env(safe-area-inset-top));">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -127,7 +184,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
         <div class="content-wrapper">
         <!-- Back Button -->
         <div class="mb-4">
@@ -158,7 +215,7 @@
         </div>
 
         <!-- Order Content -->
-        <div id="orderContent" class="hidden">
+        <div id="orderContent">
             <!-- Page Header -->
             <div class="mb-8">
                 <h2 class="text-3xl font-bold text-text-primary mb-2">Track Your Order</h2>
@@ -458,6 +515,9 @@
         </div>
     </main>
 
+    <!-- Mobile Navigation Bar Spacer (Fixed Footer) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-background z-30" style="height: calc(3rem + max(1rem, env(safe-area-inset-bottom)));"></div>
+
     <!-- Footer -->
     <footer class="bg-surface border-t border-border mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -471,14 +531,20 @@
             </div>
         </div>
     </footer>
-<script src="../../public/config.js"></script>
+    <script src="../../public/config.js"></script>
+    <script src="../../public/js/cache-manager.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadUserProfile();
-        loadOrderTracking();
+        Promise.all([
+            loadUserProfile(),
+            loadOrderTracking()
+        ]).catch(error => {
+            console.error('Error during page load:', error);
+            hidePageLoading();
+        });
     });
 
     async function loadUserProfile() {
@@ -542,53 +608,83 @@
                 return;
             }
 
-            // Fetch order details and status history
-            const orderResponse = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Fetch order details with cache-first strategy
+            const cacheKey = `order_${orderId}`;
+            const orderResult = await window.CacheManager.fetchWithCache(
+                cacheKey,
+                async () => {
+                    const orderResponse = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
 
-            let statusHistoryResponse = null;
-            try {
-                statusHistoryResponse = await fetch(`${API_BASE_URL}/orders/${orderId}/history`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                    if (!orderResponse.ok) {
+                        throw new Error('Failed to load order details');
                     }
-                });
-            } catch (e) {
-                // Status history is optional
-                console.log('Status history not available');
+
+                    const result = await orderResponse.json();
+                    const { order, items, delivery } = result.data;
+
+                    // Fetch status history (optional)
+                    let statusHistory = [];
+                    try {
+                        const statusHistoryResponse = await fetch(`${API_BASE_URL}/orders/${orderId}/history`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        if (statusHistoryResponse.ok) {
+                            const historyResult = await statusHistoryResponse.json();
+                            statusHistory = historyResult.data || [];
+                        }
+                    } catch (e) {
+                        console.log('Status history not available');
+                    }
+
+                    return { order, items, delivery, statusHistory };
+                },
+                {
+                    ttl: 30 * 1000, // 30 seconds TTL for order tracking (frequent updates)
+                    forceRefresh: false,
+                    onCached: (cachedData) => {
+                        updateOrderTracking(cachedData.order, cachedData.items, cachedData.delivery, cachedData.statusHistory);
+                        hidePageLoading();
+                    },
+                    onFresh: (freshData) => {
+                        updateOrderTracking(freshData.order, freshData.items, freshData.delivery, freshData.statusHistory);
+                    }
+                }
+            );
+
+            const { order, items, delivery, statusHistory } = orderResult.data;
+
+            // Update the page with real data (if not already updated by onCached callback)
+            if (!orderResult.fromCache) {
+                await updateOrderTracking(order, items, delivery, statusHistory);
+                hidePageLoading();
             }
-
-            if (!orderResponse.ok) {
-                throw new Error('Failed to load order details');
-            }
-
-            const result = await orderResponse.json();
-            const { order, items, delivery } = result.data;
-
-            let statusHistory = [];
-            if (statusHistoryResponse && statusHistoryResponse.ok) {
-                const historyResult = await statusHistoryResponse.json();
-                statusHistory = historyResult.data || [];
-            }
-
-            // Hide loading, show content
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('orderContent').classList.remove('hidden');
-
-            // Update the page with real data
-            await updateOrderTracking(order, items, delivery, statusHistory);
 
         } catch (error) {
             console.error('Error loading order tracking:', error);
             showError('Failed to load order details. Please try again.');
+            hidePageLoading();
+        }
+    }
+
+    function hidePageLoading() {
+        const overlay = document.getElementById('pageLoadingOverlay');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                document.body.classList.add('content-loaded');
+            }, 300);
         }
     }
 
     function showError(message) {
-        document.getElementById('loadingState').classList.add('hidden');
+        hidePageLoading();
         document.getElementById('errorState').classList.remove('hidden');
         document.getElementById('errorMessage').textContent = message;
     }

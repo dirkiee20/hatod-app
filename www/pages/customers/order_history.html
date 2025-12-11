@@ -90,6 +90,92 @@
         .content-wrapper .space-y-4 > * + * { margin-top: calc(1rem * 0.78) !important; }
         .content-wrapper .space-y-6 > * + * { margin-top: calc(1.5rem * 0.78) !important; }
         .content-wrapper .space-y-8 > * + * { margin-top: calc(2rem * 0.78) !important; }
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-right: 0.75rem;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-text.medium {
+            width: 80%;
+        }
+
+        .skeleton-text.long {
+            width: 100%;
+        }
+
+        .skeleton-button {
+            height: 2.5rem;
+            border-radius: 6px;
+            margin-left: 0.75rem;
+        }
+
+        .skeleton-status {
+            width: 80px;
+            height: 1.5rem;
+            border-radius: 9999px;
+        }
+
+        .skeleton-image {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+        }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
     </style>
 <body class="bg-background min-h-screen">
     <!-- Header Navigation -->
@@ -158,9 +244,12 @@
         </div>
 
         <!-- Orders List -->
-        <div class="space-y-4">
-            <!-- Empty State -->
-            <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
+        <div id="orders-list" class="space-y-4">
+            <!-- Orders will be loaded here, skeleton shown initially -->
+        </div>
+
+        <!-- Empty State (hidden initially) -->
+        <div id="empty-state" class="bg-surface rounded-lg p-12 shadow-card border border-border text-center hidden">
                 <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
@@ -195,7 +284,7 @@
                     <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"/>
                     </svg>
-                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center text-[10px]">3</span>
+                    <span id="mobileCartCount" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center text-[10px]">0</span>
                 </div>
                 <span class="text-xs font-medium text-text-secondary">Cart</span>
             </a>
@@ -227,18 +316,63 @@
             </div>
         </div>
     </footer>
-<script src="../../public/config.js"></script>
+    <script src="../../public/config.js"></script>
+    <script src="../../public/js/cache-manager.js"></script>
+    <script src="../../public/js/skeleton-loader.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
 
-    let currentStatusFilter = 'all';
-    let allOrders = [];
+        let currentStatusFilter = 'all';
+        let allOrders = [];
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadUserProfile();
-        loadOrderHistory();
-    });
+        function showSkeletonLoaders() {
+            const ordersContainer = document.getElementById('orders-list');
+            if (ordersContainer) {
+                ordersContainer.innerHTML = window.SkeletonLoader.createOrderSkeleton(3);
+            }
+        }
+
+        async function updateCartCount() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE_URL}/cart/count`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const totalItems = data.data.count;
+
+                    // Update mobile cart count badge
+                    const mobileCartCount = document.getElementById('mobileCartCount');
+                    if (mobileCartCount) {
+                        mobileCartCount.textContent = totalItems;
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating cart count:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show skeleton loaders immediately - page is already visible
+            showSkeletonLoaders();
+
+            // Update cart count on page load
+            updateCartCount();
+
+            Promise.all([
+                loadUserProfile(),
+                loadOrderHistory()
+            ]).catch(error => {
+                console.error('Error during page load:', error);
+            });
+        });
 
     async function loadUserProfile() {
         try {
@@ -291,7 +425,7 @@
                 return;
             }
 
-            const url = status === 'all' 
+            const url = status === 'all'
                 ? `${API_BASE_URL}/orders`
                 : `${API_BASE_URL}/orders?status=${status}`;
 
@@ -320,7 +454,7 @@
 
     async function filterOrders(status) {
         currentStatusFilter = status;
-        
+
         // Update active tab
         document.querySelectorAll('.filter-tab').forEach(tab => {
             const tabStatus = tab.getAttribute('data-status');
@@ -331,17 +465,25 @@
             }
         });
 
+        // Show skeletons while filtering
+        showSkeletonLoaders();
+
         // Reload orders with filter
         await loadOrderHistory(status);
     }
 
     function displayOrders(orders) {
-        const ordersContainer = document.querySelector('.space-y-4');
+        const ordersContainer = document.getElementById('orders-list');
+        const emptyState = document.getElementById('empty-state');
 
         if (orders.length === 0) {
-            showEmptyState();
+            if (ordersContainer) ordersContainer.classList.add('hidden');
+            if (emptyState) emptyState.classList.remove('hidden');
             return;
         }
+
+        if (emptyState) emptyState.classList.add('hidden');
+        if (ordersContainer) ordersContainer.classList.remove('hidden');
 
         let ordersHtml = '';
 
@@ -385,23 +527,17 @@
             `;
         });
 
-        ordersContainer.innerHTML = ordersHtml;
+        if (ordersContainer) {
+            ordersContainer.innerHTML = ordersHtml;
+        }
     }
 
     function showEmptyState() {
-        const ordersContainer = document.querySelector('.space-y-4');
-        ordersContainer.innerHTML = `
-            <div class="bg-surface rounded-lg p-12 shadow-card border border-border text-center">
-                <svg class="w-16 h-16 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                <h3 class="text-lg font-semibold text-text-primary mb-2">No orders yet</h3>
-                <p class="text-text-secondary mb-6">When you place your first order, it will appear here.</p>
-                <a href="../restaurants/restaurant_browse.html" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-smooth btn-hover inline-block">
-                    Start Browsing
-                </a>
-            </div>
-        `;
+        const ordersContainer = document.getElementById('orders-list');
+        const emptyState = document.getElementById('empty-state');
+        
+        if (ordersContainer) ordersContainer.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
     }
 
     function getStatusClass(status) {

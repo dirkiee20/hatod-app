@@ -17,7 +17,16 @@
         }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
+            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
             font-size: 0.78em; /* Base font size reduction by 22% */
+        }
+        @media (min-width: 1024px) {
+            .content-wrapper {
+                margin-bottom: 0; /* No bottom margin on desktop */
+            }
+            main {
+                padding-bottom: 0 !important; /* Reset to normal padding on desktop */
+            }
         }
         /* Reduce font sizes */
         .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
@@ -90,7 +99,7 @@
         @media (max-width: 1023px) {
             main {
                 margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+                /* padding-bottom is set inline to allow scrolling above fixed footer */
             }
             .content-wrapper {
                 margin-bottom: 0 !important;
@@ -114,6 +123,65 @@
             .space-y-8 > *:last-child {
                 margin-bottom: 0 !important;
             }
+        }
+        /* Skeleton Loading Styles - Modern shimmer effect */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .skeleton-image {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #e0e0e0 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.short { width: 60%; }
+        .skeleton-text.medium { width: 80%; }
+        .skeleton-text.long { width: 100%; }
+
+        /* Progressive content reveal */
+        main {
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
         }
     </style>
 </head>
@@ -162,15 +230,24 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
         <div class="content-wrapper">
-        <!-- Loading State -->
-        <div id="loadingState" class="text-center py-12">
-            <svg class="w-12 h-12 animate-spin text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
-            <p class="text-text-secondary">Loading menu item details...</p>
+        <!-- Menu Item Skeleton -->
+        <div id="itemSkeleton">
+            <div class="mb-6">
+                <div class="skeleton skeleton-text h-5 w-32"></div>
+            </div>
+            <div class="bg-surface rounded-lg shadow-card border border-border overflow-hidden">
+                <div class="skeleton skeleton-image w-full h-64 sm:h-96"></div>
+                <div class="p-6">
+                    <div class="skeleton skeleton-text h-8 mb-4 w-2/3"></div>
+                    <div class="skeleton skeleton-text h-6 mb-2 w-1/4"></div>
+                    <div class="skeleton skeleton-text h-4 mb-4 w-full"></div>
+                    <div class="skeleton skeleton-text h-4 mb-2 w-3/4"></div>
+                    <div class="skeleton skeleton-text h-4 mb-4 w-1/2"></div>
+                    <div class="skeleton skeleton-text h-12 w-48 rounded-lg"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Error State -->
@@ -250,6 +327,9 @@
         </div>
     </main>
 
+    <!-- Mobile Navigation Bar Spacer (Fixed Footer) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-background z-30" style="height: calc(3rem + max(1rem, env(safe-area-inset-bottom)));"></div>
+
     <!-- Footer -->
     <footer class="bg-surface border-t border-border mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -265,6 +345,7 @@
     </footer>
 
     <script src="../../public/config.js"></script>
+    <script src="../../public/js/cache-manager.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
@@ -391,22 +472,48 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/menu/items/${itemId}`);
+                const cacheKey = `menu_item_${restaurantId}_${itemId}`;
+                
+                const result = await window.CacheManager.fetchWithCache(
+                    cacheKey,
+                    async () => {
+                        const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/menu/items/${itemId}`);
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
-                    console.error('Error response:', response.status, errorData);
-                    if (response.status === 401) {
-                        throw new Error('Unauthorized - Please make sure the API server has been restarted with the new route');
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
+                            console.error('Error response:', response.status, errorData);
+                            if (response.status === 401) {
+                                throw new Error('Unauthorized - Please make sure the API server has been restarted with the new route');
+                            }
+                            throw new Error(errorData.message || `Item not found (${response.status})`);
+                        }
+
+                        const result = await response.json();
+                        return result.data;
+                    },
+                    {
+                        ttl: 5 * 60 * 1000, // 5 minutes TTL for menu item
+                        forceRefresh: false,
+                        onCached: (cachedItem) => {
+                            menuItem = cachedItem;
+                            displayMenuItem(menuItem);
+                            updateBackLink();
+                        },
+                        onFresh: (freshItem) => {
+                            menuItem = freshItem;
+                            displayMenuItem(menuItem);
+                            updateBackLink();
+                        }
                     }
-                    throw new Error(errorData.message || `Item not found (${response.status})`);
-                }
+                );
 
-                const result = await response.json();
                 menuItem = result.data;
-
-                displayMenuItem(menuItem);
-                updateBackLink();
+                
+                // Display menu item (if not already displayed by onCached callback)
+                if (!result.fromCache) {
+                    displayMenuItem(menuItem);
+                    updateBackLink();
+                }
 
             } catch (error) {
                 console.error('Error loading menu item:', error);
@@ -414,10 +521,25 @@
             }
         }
 
+        function hideSkeletonLoading() {
+            const skeleton = document.getElementById('itemSkeleton');
+            const details = document.getElementById('itemDetails');
+            if (skeleton) {
+                skeleton.style.opacity = '0';
+                skeleton.style.transition = 'opacity 0.2s ease-out';
+                setTimeout(() => {
+                    skeleton.classList.add('hidden');
+                    skeleton.style.opacity = '1';
+                }, 200);
+            }
+            if (details) {
+                details.classList.remove('hidden');
+            }
+        }
+
         function displayMenuItem(item) {
-            // Hide loading, show details
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('itemDetails').classList.remove('hidden');
+            // Hide skeleton and show details
+            hideSkeletonLoading();
 
             // Set image
             const imageUrl = resolveImageUrl(item.imageUrl) || MENU_PLACEHOLDER_IMAGE;
@@ -525,8 +647,9 @@
             }
         }
 
+
         function showError() {
-            document.getElementById('loadingState').classList.add('hidden');
+            hideSkeletonLoading();
             document.getElementById('errorState').classList.remove('hidden');
         }
 
@@ -615,10 +738,17 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
-            await loadUserProfile();
-            await loadCartItems();
-            await loadRestaurantData();
-            await loadMenuItemDetails();
+            try {
+                await Promise.all([
+                    loadUserProfile(),
+                    loadCartItems(),
+                    loadRestaurantData(),
+                    loadMenuItemDetails()
+                ]);
+            } catch (error) {
+                console.error('Error during page load:', error);
+                hideSkeletonLoading();
+            }
         });
     </script>
 <script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
