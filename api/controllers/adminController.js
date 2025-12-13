@@ -611,6 +611,136 @@ export const rejectRestaurant = asyncHandler(async (req, res) => {
   });
 });
 
+export const deleteRestaurant = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+
+  // First check if restaurant exists
+  const checkResult = await query(
+    `SELECT id, name FROM restaurants WHERE id = $1`,
+    [restaurantId]
+  );
+
+  if (checkResult.rowCount === 0) {
+    throw notFound('Restaurant not found');
+  }
+
+  const restaurantName = checkResult.rows[0].name;
+
+  // Delete restaurant (cascade will handle related data)
+  // Note: Due to foreign key constraints, we need to delete in order:
+  // 1. Order status events for restaurant orders
+  // 2. Payments for restaurant orders
+  // 3. Order items for restaurant orders
+  // 4. Deliveries for restaurant orders
+  // 5. Reviews for restaurant
+  // 6. Favorites for restaurant
+  // 7. Menu item variants
+  // 8. Menu items
+  // 9. Menu categories
+  // 10. Business hours
+  // 11. Orders
+  // 12. Delivery requests
+  // 13. Restaurant itself
+
+  await query('BEGIN');
+
+  try {
+    // Delete order status events
+    await query(
+      `DELETE FROM order_status_events 
+       WHERE order_id IN (SELECT id FROM orders WHERE restaurant_id = $1)`,
+      [restaurantId]
+    );
+
+    // Delete payments
+    await query(
+      `DELETE FROM payments 
+       WHERE order_id IN (SELECT id FROM orders WHERE restaurant_id = $1)`,
+      [restaurantId]
+    );
+
+    // Delete order items
+    await query(
+      `DELETE FROM order_items 
+       WHERE order_id IN (SELECT id FROM orders WHERE restaurant_id = $1)`,
+      [restaurantId]
+    );
+
+    // Delete deliveries
+    await query(
+      `DELETE FROM deliveries 
+       WHERE order_id IN (SELECT id FROM orders WHERE restaurant_id = $1)`,
+      [restaurantId]
+    );
+
+    // Delete reviews
+    await query(
+      `DELETE FROM reviews WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete favorites
+    await query(
+      `DELETE FROM favorites WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete menu item variants
+    await query(
+      `DELETE FROM menu_item_variants 
+       WHERE menu_item_id IN (SELECT id FROM menu_items WHERE restaurant_id = $1)`,
+      [restaurantId]
+    );
+
+    // Delete menu items
+    await query(
+      `DELETE FROM menu_items WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete menu categories
+    await query(
+      `DELETE FROM menu_categories WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete business hours
+    await query(
+      `DELETE FROM business_hours WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete orders
+    await query(
+      `DELETE FROM orders WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Delete delivery requests
+    await query(
+      `DELETE FROM delivery_requests WHERE restaurant_id = $1`,
+      [restaurantId]
+    );
+
+    // Finally delete the restaurant
+    await query(
+      `DELETE FROM restaurants WHERE id = $1`,
+      [restaurantId]
+    );
+
+    await query('COMMIT');
+
+    res.json({
+      status: 'success',
+      message: `Restaurant "${restaurantName}" deleted successfully`,
+      data: { id: restaurantId, name: restaurantName }
+    });
+  } catch (error) {
+    await query('ROLLBACK');
+    throw error;
+  }
+});
+
 export const adjustRestaurantPrices = asyncHandler(async (req, res) => {
   const { restaurantId } = req.params;
   const { percentage } = req.body;

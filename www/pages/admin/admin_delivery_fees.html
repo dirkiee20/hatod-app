@@ -252,26 +252,22 @@
 
         <!-- Barangay Selection -->
         <div class="bg-surface rounded-lg p-6 shadow-card border border-border mb-6">
-            <label for="barangayFilter" class="block text-sm font-medium text-text-primary mb-2">Filter by Barangay</label>
-            <select id="barangayFilter" class="w-full md:w-64 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                <option value="">All Barangays</option>
-                <option value="Barangay Tayaga">Barangay Tayaga</option>
-                <option value="Barangay Bagacay">Barangay Bagacay</option>
-                <option value="Barangay Ladgaron">Barangay Ladgaron</option>
-                <option value="Barangay Magallanes">Barangay Magallanes</option>
-                <option value="Barangay Daywan">Barangay Daywan</option>
-                <option value="Barangay Sabang">Barangay Sabang</option>
-                <option value="Barangay Panatao">Barangay Panatao</option>
-                <option value="Barangay Wangke">Barangay Wangke</option>
-                <option value="Barangay Cabugo">Barangay Cabugo</option>
-                <option value="Barangay Urbitundo">Barangay Urbitundo</option>
-                <option value="Barangay Taganito">Barangay Taganito</option>
-                <option value="Barangay Hayanggabon">Barangay Hayanggabon</option>
-                <option value="Barangay Cagdianao">Barangay Cagdianao</option>
-                <option value="Barangay Gigaquit">Barangay Gigaquit</option>
-                <option value="Barangay Claver">Barangay Claver</option>
-                <option value="PGMC">PGMC</option>
-            </select>
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div class="flex-1">
+                    <label for="barangayFilter" class="block text-sm font-medium text-text-primary mb-2">Filter by Barangay</label>
+                    <select id="barangayFilter" class="w-full md:w-64 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">All Barangays</option>
+                        <!-- Barangays will be loaded dynamically -->
+                    </select>
+                </div>
+                <button onclick="openAddBarangayModal()" 
+                        class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-smooth flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <span>Add Barangay</span>
+                </button>
+            </div>
         </div>
 
         <!-- Delivery Fees Skeleton -->
@@ -301,6 +297,86 @@
     </main>
     </div>
     <!-- End Content Wrapper -->
+
+    <!-- Add Barangay Modal -->
+    <div id="addBarangayModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-surface rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-text-primary">Add New Barangay</h3>
+                    <button onclick="closeAddBarangayModal()" class="text-text-secondary hover:text-text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="addBarangayForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-primary mb-2">Barangay Name</label>
+                        <input type="text" id="newBarangayName" required
+                               placeholder="e.g., Barangay Example"
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        <p class="text-xs text-text-secondary mt-1">Enter the full barangay name (e.g., "Barangay Example" or "PGMC")</p>
+                    </div>
+
+                    <div class="border-t border-border pt-4">
+                        <h4 class="text-sm font-semibold text-text-primary mb-4">Default Delivery Fee Tiers</h4>
+                        <p class="text-xs text-text-secondary mb-4">These are the default tiers that will be created. You can edit them after creation.</p>
+                        
+                        <div class="space-y-3">
+                            <!-- Tier 1: 0-500 -->
+                            <div class="bg-gray-50 p-4 rounded-lg border border-border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-text-primary">Tier 1: ₱0.00 - ₱500.00</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-text-secondary mb-1">Delivery Fee (₱)</label>
+                                    <input type="number" id="tier1Fee" value="30.00" step="0.01" min="0" required
+                                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                            </div>
+
+                            <!-- Tier 2: 501-1000 -->
+                            <div class="bg-gray-50 p-4 rounded-lg border border-border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-text-primary">Tier 2: ₱501.00 - ₱1,000.00</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-text-secondary mb-1">Delivery Fee (₱)</label>
+                                    <input type="number" id="tier2Fee" value="50.00" step="0.01" min="0" required
+                                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                            </div>
+
+                            <!-- Tier 3: 1001-1500 -->
+                            <div class="bg-gray-50 p-4 rounded-lg border border-border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-text-primary">Tier 3: ₱1,001.00 - ₱1,500.00</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-text-secondary mb-1">Delivery Fee (₱)</label>
+                                    <input type="number" id="tier3Fee" value="100.00" step="0.01" min="0" required
+                                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" onclick="closeAddBarangayModal()"
+                                class="flex-1 bg-gray-100 text-text-secondary py-2 px-4 rounded-lg hover:bg-gray-200 transition-smooth">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-600 transition-smooth">
+                            Add Barangay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Edit Tier Modal -->
     <div id="editTierModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
@@ -432,10 +508,15 @@
 
                 const data = await apiCall('/delivery-fees/tiers');
                 const tiersByBarangay = data.data || {};
+                
+                // Update barangay dropdown
+                await loadBarangays();
+                // Get filter value again after dropdown update
+                const currentFilter = document.getElementById('barangayFilter').value;
 
                 // Filter by barangay if selected
-                const filteredBarangays = barangayFilter
-                    ? { [barangayFilter]: tiersByBarangay[barangayFilter] || [] }
+                const filteredBarangays = currentFilter
+                    ? { [currentFilter]: tiersByBarangay[currentFilter] || [] }
                     : tiersByBarangay;
 
                 if (Object.keys(filteredBarangays).length === 0) {
@@ -585,13 +666,122 @@
             }
         });
 
+        // Add Barangay Modal Functions
+        function openAddBarangayModal() {
+            const modal = document.getElementById('addBarangayModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeAddBarangayModal() {
+            const modal = document.getElementById('addBarangayModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                // Reset form
+                document.getElementById('addBarangayForm').reset();
+                document.getElementById('tier1Fee').value = '30.00';
+                document.getElementById('tier2Fee').value = '50.00';
+                document.getElementById('tier3Fee').value = '100.00';
+            }
+        }
+
+        // Handle add barangay form submission
+        document.getElementById('addBarangayForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const barangayName = document.getElementById('newBarangayName').value.trim();
+            const tier1Fee = parseFloat(document.getElementById('tier1Fee').value);
+            const tier2Fee = parseFloat(document.getElementById('tier2Fee').value);
+            const tier3Fee = parseFloat(document.getElementById('tier3Fee').value);
+
+            if (!barangayName) {
+                alert('Please enter a barangay name');
+                return;
+            }
+
+            if (isNaN(tier1Fee) || isNaN(tier2Fee) || isNaN(tier3Fee) || 
+                tier1Fee < 0 || tier2Fee < 0 || tier3Fee < 0) {
+                alert('Please enter valid delivery fees');
+                return;
+            }
+
+            try {
+                // Create all three tiers
+                const tiers = [
+                    { min: 0, max: 500, fee: tier1Fee },
+                    { min: 501, max: 1000, fee: tier2Fee },
+                    { min: 1001, max: 1500, fee: tier3Fee }
+                ];
+
+                // Create tiers in parallel
+                await Promise.all(tiers.map(tier => 
+                    apiCall('/delivery-fees/tiers', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            barangay: barangayName,
+                            minOrderAmount: tier.min,
+                            maxOrderAmount: tier.max,
+                            deliveryFee: tier.fee,
+                            isActive: true
+                        })
+                    })
+                ));
+
+                alert('Barangay added successfully!');
+                closeAddBarangayModal();
+                // Reload delivery fees and update dropdown
+                await loadDeliveryFees();
+            } catch (error) {
+                alert('Failed to add barangay: ' + error.message);
+            }
+        });
+
+        // Close add barangay modal when clicking outside
+        document.getElementById('addBarangayModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddBarangayModal();
+            }
+        });
+
+        // Load barangays into dropdown
+        async function loadBarangays() {
+            try {
+                const data = await apiCall('/delivery-fees/tiers');
+                const tiersByBarangay = data.data || {};
+                const barangayFilter = document.getElementById('barangayFilter');
+                
+                // Get current selected value
+                const currentValue = barangayFilter.value;
+                
+                // Clear existing options except "All Barangays"
+                barangayFilter.innerHTML = '<option value="">All Barangays</option>';
+                
+                // Add barangays from API
+                const barangays = Object.keys(tiersByBarangay).sort();
+                barangays.forEach(barangay => {
+                    const option = document.createElement('option');
+                    option.value = barangay;
+                    option.textContent = barangay;
+                    barangayFilter.appendChild(option);
+                });
+                
+                // Restore selected value if it still exists
+                if (currentValue && barangays.includes(currentValue)) {
+                    barangayFilter.value = currentValue;
+                }
+            } catch (error) {
+                console.error('Error loading barangays:', error);
+            }
+        }
+
         // Filter change
         document.getElementById('barangayFilter').addEventListener('change', loadDeliveryFees);
 
         // Load on page load
         document.addEventListener('DOMContentLoaded', function() {
             setupProfileDropdown();
-            loadDeliveryFees();
+            loadBarangays().then(() => loadDeliveryFees());
             loadAdminProfile();
         });
 

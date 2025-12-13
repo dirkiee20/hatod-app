@@ -727,6 +727,10 @@ body {
   left: 0px;
 }
 
+.left-2{
+  left: 0.5rem;
+}
+
 .left-3{
   left: 0.75rem;
 }
@@ -1045,6 +1049,10 @@ body {
 
 .max-h-96{
   max-height: 24rem;
+}
+
+.max-h-\[90vh\]{
+  max-height: 90vh;
 }
 
 .min-h-screen{
@@ -2027,12 +2035,20 @@ body {
   padding-left: 1rem;
 }
 
+.pl-6{
+  padding-left: 1.5rem;
+}
+
 .pl-8{
   padding-left: 2rem;
 }
 
 .pr-10{
   padding-right: 2.5rem;
+}
+
+.pr-2{
+  padding-right: 0.5rem;
 }
 
 .pr-3{
@@ -3234,6 +3250,10 @@ body {
 
   .md\:flex-row{
     flex-direction: row;
+  }
+
+  .md\:items-end{
+    align-items: flex-end;
   }
 
   .md\:items-center{
