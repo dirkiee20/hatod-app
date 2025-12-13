@@ -1348,6 +1348,17 @@
                     return;
                 }
 
+                // Store original button state
+                const originalButtonHTML = button.innerHTML;
+                const originalButtonClasses = button.className;
+                const originalButtonDisabled = button.disabled;
+
+                // Show loading state
+                button.disabled = true;
+                button.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                button.classList.add('opacity-75', 'cursor-not-allowed');
+                button.classList.remove('hover:bg-primary-600');
+
                 try {
 
                     const response = await fetch(`${API_BASE_URL}/cart`, {
@@ -1400,10 +1411,10 @@
                     // Update cart items to track the new item
                     await fetchCartItems();
 
-                    // Immediately update the button state
+                    // Immediately update the button state to success
                     button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
                     button.classList.add('added', 'opacity-50', 'cursor-not-allowed');
-                    button.classList.remove('hover:bg-primary-600');
+                    button.classList.remove('opacity-75', 'hover:bg-primary-600');
                     button.disabled = true;
                     button.title = 'Item in cart';
 
@@ -1419,7 +1430,12 @@
                 } catch (error) {
 
                     console.error('Error adding to cart:', error);
-
+                    
+                    // Restore button on error
+                    button.disabled = originalButtonDisabled;
+                    button.innerHTML = originalButtonHTML;
+                    button.className = originalButtonClasses;
+                    
                     alert('Failed to add item to cart. Please try again.');
 
                 }

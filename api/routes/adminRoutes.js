@@ -16,6 +16,7 @@ import {
   getAdminRestaurants,
   approveRestaurant,
   rejectRestaurant,
+  deleteRestaurant,
   adjustRestaurantPrices,
   resetRestaurantPrices,
   getPaymentQrCode,
@@ -154,6 +155,13 @@ router.post(
   [param('restaurantId').isUUID()],
   validate,
   approveRestaurant
+);
+
+router.delete(
+  '/restaurants/:restaurantId',
+  [param('restaurantId').isUUID()],
+  validate,
+  deleteRestaurant
 );
 
 router.post(

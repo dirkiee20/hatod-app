@@ -525,7 +525,7 @@
                         </button>
                         ${restaurant.isOpen ? `
                             <!-- Restaurant is Active - Show Deactivate button only -->
-                            <button class="bg-error text-white p-2 rounded-lg hover:bg-error-600 transition-smooth btn-hover flex items-center justify-center" onclick="rejectRestaurant('${restaurant.id}')" title="Deactivate Restaurant">
+                            <button class="bg-warning text-white p-2 rounded-lg hover:bg-warning-600 transition-smooth btn-hover flex items-center justify-center" onclick="rejectRestaurant('${restaurant.id}')" title="Deactivate Restaurant">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -538,6 +538,11 @@
                                 </svg>
                             </button>
                         `}
+                        <button class="bg-error text-white p-2 rounded-lg hover:bg-error-600 transition-smooth btn-hover flex items-center justify-center" onclick="deleteRestaurant('${restaurant.id}', '${restaurant.name.replace(/'/g, "\\'")}')" title="Delete Restaurant">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             `;
@@ -641,6 +646,43 @@
             } catch (error) {
                 console.error('Error approving restaurant:', error);
                 alert('Failed to approve restaurant');
+            }
+        }
+
+        async function deleteRestaurant(restaurantId, restaurantName) {
+            if (!confirm(`Are you sure you want to DELETE "${restaurantName}"?\n\nThis action cannot be undone. This will permanently delete:\n- The restaurant\n- All menu items and categories\n- All orders and order history\n- All reviews\n- All related data`)) {
+                return;
+            }
+
+            // Double confirmation for safety
+            if (!confirm(`FINAL WARNING: You are about to permanently delete "${restaurantName}".\n\nThis action CANNOT be undone. Continue?`)) {
+                return;
+            }
+
+            try {
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    throw new Error('Not authenticated');
+                }
+
+                const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({ message: 'Failed to delete restaurant' }));
+                    throw new Error(error.message || 'Failed to delete restaurant');
+                }
+
+                alert('Restaurant deleted successfully!');
+                fetchRestaurants(); // Refresh the list
+            } catch (error) {
+                console.error('Error deleting restaurant:', error);
+                alert('Failed to delete restaurant: ' + error.message);
             }
         }
 

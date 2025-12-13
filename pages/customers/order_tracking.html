@@ -215,7 +215,7 @@
         </div>
 
         <!-- Order Content -->
-        <div id="orderContent">
+        <div id="orderContent" class="hidden">
             <!-- Page Header -->
             <div class="mb-8">
                 <h2 class="text-3xl font-bold text-text-primary mb-2">Track Your Order</h2>
@@ -544,6 +544,11 @@
         ]).catch(error => {
             console.error('Error during page load:', error);
             hidePageLoading();
+        }).finally(() => {
+            // Ensure overlay is hidden even if something goes wrong
+            setTimeout(() => {
+                hidePageLoading();
+            }, 1000);
         });
     });
 
@@ -597,12 +602,14 @@
 
             if (!orderId) {
                 // Silently redirect to order history if no orderId provided
+                hidePageLoading();
                 window.location.href = 'order_history.html';
                 return;
             }
 
             const token = localStorage.getItem('authToken');
             if (!token) {
+                hidePageLoading();
                 alert('Please log in to track your order');
                 window.location.href = '../login.html';
                 return;
@@ -653,15 +660,19 @@
                     },
                     onFresh: (freshData) => {
                         updateOrderTracking(freshData.order, freshData.items, freshData.delivery, freshData.statusHistory);
+                        hidePageLoading();
                     }
                 }
             );
 
             const { order, items, delivery, statusHistory } = orderResult.data;
 
-            // Update the page with real data (if not already updated by onCached callback)
-            if (!orderResult.fromCache) {
+            // Update the page with real data (if not already updated by callbacks)
+            if (!orderResult.fromCache && !orderResult.data) {
                 await updateOrderTracking(order, items, delivery, statusHistory);
+                hidePageLoading();
+            } else if (!orderResult.fromCache) {
+                // Ensure overlay is hidden even if updateOrderTracking was called
                 hidePageLoading();
             }
 
@@ -733,6 +744,15 @@
     }
 
     async function updateOrderTracking(order, items, delivery, statusHistory) {
+        // Hide loading state and show order content
+        const loadingState = document.getElementById('loadingState');
+        const orderContent = document.getElementById('orderContent');
+        const errorState = document.getElementById('errorState');
+        
+        if (loadingState) loadingState.classList.add('hidden');
+        if (errorState) errorState.classList.add('hidden');
+        if (orderContent) orderContent.classList.remove('hidden');
+        
         // Update order ID
         const orderIdElement = document.getElementById('order-id-display');
         if (orderIdElement) {
@@ -769,7 +789,21 @@
         
         if (statusElement) {
             statusElement.className = `${statusColor} px-4 py-2 rounded-lg text-center`;
-            const etaText = calculateETA(order);
+            // Try to calculate ETA, but don't let it break the page
+            let etaText = 'ETA: Calculating...';
+            try {
+                etaText = calculateETA(order);
+            } catch (error) {
+                console.error('Error calculating ETA:', error);
+                // Use a simple fallback
+                try {
+                    const orderDate = new Date(order.createdAt);
+                    const deliveryDate = new Date(orderDate.getTime() + (35 * 60 * 1000));
+                    etaText = `ETA: ${deliveryDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+                } catch (e) {
+                    etaText = 'ETA: --';
+                }
+            }
             statusElement.innerHTML = `
                 <div class="font-semibold">${statusText}</div>
                 <div class="text-sm">${etaText}</div>

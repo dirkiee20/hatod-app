@@ -737,7 +737,7 @@
 
     }
 
-    // Attach event listeners specifically for edit mode buttons
+        // Attach event listeners specifically for edit mode buttons
     function attachEditModeListeners(itemId) {
         // Save edit button
         const saveButton = document.querySelector(`[data-edit-item-id="${itemId}"] .save-edit`);
@@ -767,6 +767,123 @@
                 }
             });
         });
+
+        // Add variant button in edit mode
+        const addVariantBtn = document.querySelector(`[data-edit-item-id="${itemId}"] .add-edit-variant`);
+        if (addVariantBtn) {
+            addVariantBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                addEditVariantInput(itemId);
+            });
+        }
+
+        // Remove variant buttons in edit mode
+        const removeVariantBtns = document.querySelectorAll(`[data-edit-item-id="${itemId}"] .remove-edit-variant`);
+        const variantsList = document.querySelector(`[data-edit-item-id="${itemId}"] .edit-variants-list`);
+        removeVariantBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.closest('.edit-variant-item').remove();
+                // Show "No variants" message if list is empty
+                if (variantsList && variantsList.querySelectorAll('.edit-variant-item').length === 0) {
+                    variantsList.innerHTML = '<p class="text-sm text-text-secondary italic">No variants. Click "Add Variant" to add one.</p>';
+                }
+            });
+        });
+    }
+
+    // Add variant input in edit mode
+    function addEditVariantInput(itemId) {
+        const variantsList = document.querySelector(`[data-edit-item-id="${itemId}"] .edit-variants-list`);
+        if (!variantsList) return;
+
+        // Remove "No variants" message if present
+        const noVariantsMsg = variantsList.querySelector('p.text-sm.text-text-secondary.italic');
+        if (noVariantsMsg) {
+            noVariantsMsg.remove();
+        }
+
+        const variantDiv = document.createElement('div');
+        variantDiv.className = 'flex items-center space-x-2 edit-variant-item bg-white p-2 rounded-lg border border-border';
+        variantDiv.innerHTML = `
+            <input type="text" 
+                   name="edit-variant-name" 
+                   placeholder="Size/Name" 
+                   value="" 
+                   class="flex-1 px-3 py-2 border border-border rounded-lg text-sm" 
+                   required>
+            <div class="relative">
+                <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-text-secondary">₱</span>
+                <input type="number" 
+                       name="edit-variant-price" 
+                       placeholder="Price" 
+                       value="" 
+                       step="0.01" 
+                       min="0" 
+                       class="w-24 pl-6 pr-2 py-2 border border-border rounded-lg text-sm" 
+                       required>
+            </div>
+            <label class="flex items-center space-x-1 cursor-pointer">
+                <input type="checkbox" 
+                       name="edit-variant-available" 
+                       checked 
+                       class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                <span class="text-xs text-text-secondary">Available</span>
+            </label>
+            <button type="button" class="text-error hover:text-error-600 remove-edit-variant" title="Remove variant">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+
+        // Add remove event listener
+        variantDiv.querySelector('.remove-edit-variant').addEventListener('click', function(e) {
+            e.stopPropagation();
+            variantDiv.remove();
+            // Show "No variants" message if list is empty
+            if (variantsList.querySelectorAll('.edit-variant-item').length === 0) {
+                variantsList.innerHTML = '<p class="text-sm text-text-secondary italic">No variants. Click "Add Variant" to add one.</p>';
+            }
+        });
+
+        variantsList.appendChild(variantDiv);
+        
+        // Focus on the name input
+        const nameInput = variantDiv.querySelector('input[name="edit-variant-name"]');
+        if (nameInput) {
+            nameInput.focus();
+        }
+    }
+
+    // Collect variant data from edit form
+    function collectEditVariantsData(itemId) {
+        const editCard = document.querySelector(`[data-edit-item-id="${itemId}"]`);
+        if (!editCard) return [];
+
+        const variants = [];
+        const variantItems = editCard.querySelectorAll('.edit-variant-item');
+
+        variantItems.forEach((item, index) => {
+            const nameInput = item.querySelector('input[name="edit-variant-name"]');
+            const priceInput = item.querySelector('input[name="edit-variant-price"]');
+            const availableCheckbox = item.querySelector('input[name="edit-variant-available"]');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const price = priceInput ? parseFloat(priceInput.value) : NaN;
+            const isAvailable = availableCheckbox ? availableCheckbox.checked : true;
+
+            if (name && !isNaN(price) && price > 0) {
+                variants.push({
+                    name,
+                    price,
+                    displayOrder: index,
+                    isAvailable
+                });
+            }
+        });
+
+        return variants;
     }
 
     // Global Escape key handler for canceling edit (only one listener)
@@ -891,17 +1008,52 @@
                     </div>
 
                     ${item.hasVariants ? `
-                        <!-- Variants Display (read-only for now) -->
-                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-                            <p class="text-xs font-semibold text-text-secondary mb-2 uppercase tracking-wide">Variants</p>
-                            <div class="flex flex-wrap gap-2">
-                                ${item.variants && item.variants.length > 0 ? item.variants.map(variant => `
-                                    <span class="inline-flex px-3 py-1 text-xs font-medium bg-primary-50 text-primary-700 rounded-full border border-primary-200">
-                                        ${variant.name} - ₱${parseFloat(variant.price).toFixed(2)}
-                                    </span>
-                                `).join('') : '<span class="text-sm text-text-secondary">No variants</span>'}
+                        <!-- Variants Editing -->
+                        <div class="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-primary-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <p class="text-xs font-semibold text-text-secondary uppercase tracking-wide">Variants</p>
+                                <button type="button" class="text-primary hover:text-primary-600 text-sm font-medium add-edit-variant" data-item-id="${item.id}">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Add Variant
+                                </button>
                             </div>
-                            <p class="text-xs text-text-secondary mt-2 italic">Variant editing coming soon</p>
+                            <div class="edit-variants-list space-y-2">
+                                ${item.variants && item.variants.length > 0 ? item.variants.map((variant, index) => `
+                                    <div class="flex items-center space-x-2 edit-variant-item bg-white p-2 rounded-lg border border-border">
+                                        <input type="text" 
+                                               name="edit-variant-name" 
+                                               placeholder="Size/Name" 
+                                               value="${variant.name || ''}" 
+                                               class="flex-1 px-3 py-2 border border-border rounded-lg text-sm" 
+                                               required>
+                                        <div class="relative">
+                                            <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-text-secondary">₱</span>
+                                            <input type="number" 
+                                                   name="edit-variant-price" 
+                                                   placeholder="Price" 
+                                                   value="${variant.price ? parseFloat(variant.price).toFixed(2) : ''}" 
+                                                   step="0.01" 
+                                                   min="0" 
+                                                   class="w-24 pl-6 pr-2 py-2 border border-border rounded-lg text-sm" 
+                                                   required>
+                                        </div>
+                                        <label class="flex items-center space-x-1 cursor-pointer">
+                                            <input type="checkbox" 
+                                                   name="edit-variant-available" 
+                                                   ${variant.isAvailable ? 'checked' : ''} 
+                                                   class="h-4 w-4 text-primary focus:ring-primary border-border rounded">
+                                            <span class="text-xs text-text-secondary">Available</span>
+                                        </label>
+                                        <button type="button" class="text-error hover:text-error-600 remove-edit-variant" title="Remove variant">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                `).join('') : '<p class="text-sm text-text-secondary italic">No variants. Click "Add Variant" to add one.</p>'}
+                            </div>
                         </div>
                     ` : `
                         <!-- Price Input -->
@@ -987,15 +1139,26 @@
             isAvailable: availableCheckbox?.checked ?? true
         };
 
-        // Add price only if item doesn't have variants
-        if (!item.hasVariants && priceInput) {
-            const price = parseFloat(priceInput.value);
-            if (isNaN(price) || price <= 0) {
-                alert('Please enter a valid price');
-                priceInput.focus();
+        // Handle variants if item has variants
+        if (item.hasVariants) {
+            const variants = collectEditVariantsData(itemId);
+            if (variants.length === 0) {
+                alert('Please add at least one variant.');
                 return;
             }
-            updateData.price = price;
+            updateData.variants = variants;
+            updateData.price = null; // Clear price when using variants
+        } else {
+            // Add price only if item doesn't have variants
+            if (priceInput) {
+                const price = parseFloat(priceInput.value);
+                if (isNaN(price) || price <= 0) {
+                    alert('Please enter a valid price');
+                    priceInput.focus();
+                    return;
+                }
+                updateData.price = price;
+            }
         }
 
         try {
