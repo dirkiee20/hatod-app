@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { register, login, refresh } from '../controllers/authController.js';
+import { register, login, refresh, verifyEmail, resendVerificationEmail } from '../controllers/authController.js';
 import { validate } from '../middleware/validate.js';
 
 const router = Router();
@@ -46,6 +46,20 @@ router.post(
   [body('refreshToken').notEmpty().withMessage('Refresh token is required')],
   validate,
   refresh
+);
+
+router.post(
+  '/verify-email',
+  [body('token').notEmpty().withMessage('Verification token is required')],
+  validate,
+  verifyEmail
+);
+
+router.post(
+  '/resend-verification',
+  [body('email').isEmail().withMessage('Valid email is required')],
+  validate,
+  resendVerificationEmail
 );
 
 export default router;

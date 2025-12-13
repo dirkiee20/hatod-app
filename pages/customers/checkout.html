@@ -928,7 +928,7 @@
                 // Check if restaurant is open
                 await checkRestaurantStatus(cart);
 
-                // Update UI with real data
+                // Update UI with real data - support multiple restaurants
                 updateRestaurantInfo(cart);
                 await updateOrderSummary(cart);
                 
@@ -1029,83 +1029,183 @@
         function updateRestaurantInfo(cart) {
             if (cart.length === 0) return;
 
-            const firstItem = cart[0];
-            const restaurantLogo = document.querySelector('img[alt="Pizza Palace"]');
-            const restaurantName = document.querySelector('h4.font-semibold.text-text-primary');
-            const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
+            // Group items by restaurant
+            const restaurants = {};
+            cart.forEach(item => {
+                if (!restaurants[item.restaurantId]) {
+                    restaurants[item.restaurantId] = {
+                        id: item.restaurantId,
+                        name: item.restaurantName || 'Restaurant',
+                        imageUrl: item.restaurantImageUrl,
+                        items: []
+                    };
+                }
+                restaurants[item.restaurantId].items.push(item);
+            });
 
-            restaurantLogo.src = firstItem.restaurantImageUrl || restaurantLogo.src;
-            restaurantName.textContent = firstItem.restaurantName || 'Restaurant';
-            deliveryInfo.textContent = '25-35 min • ₱50 delivery';
+            // If single restaurant, update the existing info section
+            const restaurantIds = Object.keys(restaurants);
+            if (restaurantIds.length === 1) {
+                const firstItem = cart[0];
+                const restaurantLogo = document.querySelector('img[alt="Pizza Palace"]');
+                const restaurantName = document.querySelector('h4.font-semibold.text-text-primary');
+                const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
+
+                if (restaurantLogo) restaurantLogo.src = firstItem.restaurantImageUrl || restaurantLogo.src;
+                if (restaurantName) restaurantName.textContent = firstItem.restaurantName || 'Restaurant';
+                if (deliveryInfo) deliveryInfo.textContent = '25-35 min • ₱50 delivery';
+            }
+            // For multiple restaurants, the summary will be updated in updateOrderSummary
         }
 
         async function updateOrderSummary(cart) {
-            // Find the order summary section more specifically
-            const orderSummarySection = document.querySelector('.lg\\:col-span-1 .space-y-3') || 
-                                       document.querySelector('.p-6.border-b .space-y-3');
+            // Group items by restaurant
+            const restaurants = {};
+            cart.forEach(item => {
+                if (!restaurants[item.restaurantId]) {
+                    restaurants[item.restaurantId] = {
+                        id: item.restaurantId,
+                        name: item.restaurantName || 'Restaurant',
+                        imageUrl: item.restaurantImageUrl,
+                        items: []
+                    };
+                }
+                restaurants[item.restaurantId].items.push(item);
+            });
+
+            const restaurantIds = Object.keys(restaurants);
+            const orderSummaryContainer = document.querySelector('.lg\\:col-span-1');
             
-            if (!orderSummarySection) {
+            if (!orderSummaryContainer) {
                 console.error('Order summary container not found');
                 return;
             }
 
-            // Find price elements more reliably - look within the price breakdown section
-            const priceBreakdown = document.querySelector('.p-6:not(.border-b) .space-y-2') ||
-                                  document.querySelector('.lg\\:col-span-1 .space-y-2');
-            
-            if (!priceBreakdown) {
-                console.error('Price breakdown container not found');
-                return;
-            }
-            
-            const priceElements = priceBreakdown.querySelectorAll('.flex.justify-between.text-sm span:last-child');
-            const subtotalElement = priceElements[0]; // Subtotal
-            const deliveryFeeElement = priceElements[1]; // Delivery fee
-            const taxElement = priceElements[2]; // Tax
+            // Clear existing content
+            orderSummaryContainer.innerHTML = '';
 
-            const totalElement = document.querySelector('.border-t.border-border .flex.justify-between span:last-child');
+            // Create summary for each restaurant
+            let grandTotal = 0;
+            restaurantIds.forEach((restaurantId, index) => {
+                const restaurant = restaurants[restaurantId];
+                let subtotal = 0;
 
-            let orderItemsHtml = '';
-            let subtotal = 0;
+                // Calculate subtotal for this restaurant
+                restaurant.items.forEach(item => {
+                    const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                    const quantity = item.quantity || 1;
+                    const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
+                    subtotal += isNaN(itemTotal) ? 0 : itemTotal;
+                });
 
-            cart.forEach(item => {
-                // For items with variants, use variantPrice, otherwise use price
-                const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
-                const quantity = item.quantity || 1;
-                const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
-                subtotal += isNaN(itemTotal) ? 0 : itemTotal;
+                const deliveryFee = 0; // Will be calculated after address validation
+                const total = subtotal + deliveryFee;
+                grandTotal += total;
+
+                // Create restaurant summary card
+                const restaurantCard = document.createElement('div');
+                restaurantCard.className = 'bg-surface rounded-lg shadow-card border border-border sticky top-8' + (index > 0 ? ' mt-6' : '');
                 
-                // Show variant name if available
-                const variantInfo = item.variantName ? ` (${item.variantName})` : '';
+                restaurantCard.innerHTML = `
+                    <!-- Restaurant Info -->
+                    <div class="p-6 border-b border-border">
+                        <div class="flex items-center space-x-3">
+                            <img src="${restaurant.imageUrl || 'https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}" 
+                                 alt="${restaurant.name}" 
+                                 class="w-12 h-12 rounded-lg object-cover"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                            <div>
+                                <h4 class="font-semibold text-text-primary">${restaurant.name}</h4>
+                                <p class="text-sm text-text-secondary">25-35 min • ₱50.00 delivery</p>
+                            </div>
+                        </div>
+                    </div>
 
-                orderItemsHtml += `
-                    <div class="flex justify-between text-sm">
-                        <span class="text-text-secondary">${item.name}${variantInfo} x${item.quantity}</span>
-                        <span class="text-text-primary">₱${itemTotal.toFixed(2)}</span>
+                    <!-- Order Items -->
+                    <div class="p-6 border-b border-border">
+                        <h3 class="font-semibold text-text-primary mb-4">Order Summary</h3>
+                        <div class="space-y-3" data-restaurant-id="${restaurantId}">
+                            ${restaurant.items.map(item => {
+                                const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                                const quantity = item.quantity || 1;
+                                const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
+                                const variantInfo = item.variantName ? ` (${item.variantName})` : '';
+                                return `
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-text-secondary">${item.name}${variantInfo} x${item.quantity}</span>
+                                        <span class="text-text-primary">₱${itemTotal.toFixed(2)}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="p-6" data-restaurant-id="${restaurantId}">
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-text-secondary">Subtotal</span>
+                                <span class="text-text-primary restaurant-subtotal">₱${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-text-secondary">Delivery fee</span>
+                                <span class="text-text-primary restaurant-delivery-fee">₱0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-text-secondary">Tax</span>
+                                <span class="text-text-primary">₱0.00</span>
+                            </div>
+                            <div class="border-t border-border pt-2 mt-2">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-text-primary">Total</span>
+                                    <span class="font-bold text-text-primary text-lg restaurant-total">₱${total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
+
+                orderSummaryContainer.appendChild(restaurantCard);
             });
 
-            orderSummarySection.innerHTML = orderItemsHtml;
-
-            // Initially set delivery fee to 0 - will be calculated after address is fetched and validated
-            const validSubtotal = isNaN(subtotal) ? 0 : subtotal;
-            const deliveryFee = 0; // Delivery fee calculated after address validation
-            const total = validSubtotal + deliveryFee;
-
-            if (subtotalElement) subtotalElement.textContent = `₱${validSubtotal.toFixed(2)}`;
-            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱0.00`;
-            if (taxElement) taxElement.textContent = `₱0.00`;
-            if (totalElement) totalElement.textContent = `₱${total.toFixed(2)}`;
+            // Add single place order button at the bottom if multiple restaurants
+            if (restaurantIds.length > 1) {
+                const placeOrderCard = document.createElement('div');
+                placeOrderCard.className = 'bg-surface rounded-lg shadow-card border border-border mt-6';
+                placeOrderCard.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-semibold text-text-primary text-lg">Grand Total</span>
+                            <span class="font-bold text-text-primary text-xl" id="grand-total">₱${grandTotal.toFixed(2)}</span>
+                        </div>
+                        <button onclick="placeOrder()" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth btn-hover">
+                            Place All Orders
+                        </button>
+                        <p class="text-xs text-text-secondary text-center mt-3">You will place ${restaurantIds.length} separate order${restaurantIds.length > 1 ? 's' : ''} - one for each restaurant</p>
+                    </div>
+                `;
+                orderSummaryContainer.appendChild(placeOrderCard);
+            } else {
+                // Single restaurant - add place order button to the restaurant card
+                const restaurantCard = orderSummaryContainer.querySelector('.bg-surface');
+                if (restaurantCard) {
+                    const priceBreakdown = restaurantCard.querySelector('.p-6[data-restaurant-id]');
+                    if (priceBreakdown) {
+                        priceBreakdown.innerHTML += `
+                            <button onclick="placeOrder()" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth btn-hover">
+                                Place Order
+                            </button>
+                            <p class="text-xs text-text-secondary text-center mt-3">By placing your order, you agree to our Terms of Service and Privacy Policy</p>
+                        `;
+                    }
+                }
+            }
 
             // Update cash payment instructions
             const cashAmountElement = document.getElementById('cash-amount');
             if (cashAmountElement) {
-                cashAmountElement.textContent = total.toFixed(2);
+                cashAmountElement.textContent = grandTotal.toFixed(2);
             }
-
-            // Update delivery info - will be updated after address validation
-            const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
             if (deliveryInfo) {
                 deliveryInfo.textContent = '25-35 min • Delivery fee calculated after address confirmation';
             }
@@ -1337,8 +1437,20 @@
                     return;
                 }
 
-                // Get unique restaurants from cart
-                const restaurantIds = [...new Set(cart.map(item => item.restaurantId))];
+                // Group items by restaurant
+                const restaurants = {};
+                cart.forEach(item => {
+                    if (!restaurants[item.restaurantId]) {
+                        restaurants[item.restaurantId] = {
+                            id: item.restaurantId,
+                            name: item.restaurantName || 'Restaurant',
+                            items: []
+                        };
+                    }
+                    restaurants[item.restaurantId].items.push(item);
+                });
+
+                const restaurantIds = Object.keys(restaurants);
                 const closedRestaurants = [];
 
                 // Check if all restaurants are open before placing order
@@ -1380,45 +1492,84 @@
                     return;
                 }
 
-                // Get restaurant ID from first cart item for order creation
-                const restaurantId = cart[0].restaurantId;
+                // Create orders for each restaurant
+                const orderResults = [];
+                const failedOrders = [];
 
-                // Convert cart items to order items format
-                const items = cart.map(item => ({
-                    menuItemId: item.menuItemId,
-                    variantId: item.variantId || null,
-                    quantity: item.quantity,
-                    specialInstructions: item.specialInstructions || null
-                }));
+                for (const restaurantId of restaurantIds) {
+                    const restaurant = restaurants[restaurantId];
+                    
+                    try {
+                        // Convert cart items to order items format for this restaurant
+                        const items = restaurant.items.map(item => ({
+                            menuItemId: item.menuItemId,
+                            variantId: item.variantId || null,
+                            quantity: item.quantity,
+                            specialInstructions: item.specialInstructions || null
+                        }));
 
-                const orderData = {
-                    customerId,
-                    restaurantId,
-                    deliveryAddressId: deliveryAddressId,
-                    orderType: 'delivery',
-                    tipAmount: 0,
-                    items,
-                    specialInstructions: null
-                };
+                        const orderData = {
+                            customerId,
+                            restaurantId,
+                            deliveryAddressId: deliveryAddressId,
+                            orderType: 'delivery',
+                            tipAmount: 0,
+                            items,
+                            specialInstructions: null
+                        };
 
-                const response = await fetch(`${API_BASE_URL}/orders`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(orderData)
-                });
+                        const response = await fetch(`${API_BASE_URL}/orders`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(orderData)
+                        });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to place order');
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({ message: 'Failed to place order' }));
+                            throw new Error(errorData.message || `Failed to place order for ${restaurant.name}`);
+                        }
+
+                        const result = await response.json();
+                        orderResults.push({
+                            restaurantName: restaurant.name,
+                            orderId: result.data.orderId
+                        });
+                        console.log(`Order placed for ${restaurant.name}:`, result);
+                    } catch (error) {
+                        console.error(`Error placing order for ${restaurant.name}:`, error);
+                        failedOrders.push({
+                            restaurantName: restaurant.name,
+                            error: error.message
+                        });
+                    }
                 }
 
-                const result = await response.json();
-                console.log('Order placed:', result);
+                // Check if all orders were successful
+                if (failedOrders.length > 0) {
+                    const failedNames = failedOrders.map(f => f.restaurantName).join(', ');
+                    alert(`Some orders failed:\n${failedNames}\n\nSuccessful orders: ${orderResults.length}\nFailed orders: ${failedOrders.length}`);
+                    
+                    // If some orders succeeded, still clear cart and redirect
+                    if (orderResults.length > 0) {
+                        // Clear cart after successful orders
+                        await fetch(`${API_BASE_URL}/cart`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        // Redirect to first successful order confirmation
+                        window.location.href = `payment_confirmation.html?orderId=${orderResults[0].orderId}`;
+                    }
+                    return;
+                }
 
-                // Clear cart after successful order
+                // All orders successful
+                // Clear cart after successful orders
                 await fetch(`${API_BASE_URL}/cart`, {
                     method: 'DELETE',
                     headers: {
@@ -1426,8 +1577,17 @@
                     }
                 });
 
-                // Redirect to payment confirmation with order ID
-                window.location.href = `payment_confirmation.html?orderId=${result.data.orderId}`;
+                // Show success message
+                if (orderResults.length > 1) {
+                    alert(`Successfully placed ${orderResults.length} orders!\n\n${orderResults.map(r => `• ${r.restaurantName}`).join('\n')}\n\nYou will be redirected to track your orders.`);
+                }
+
+                // Redirect to payment confirmation with first order ID (or order history if multiple)
+                if (orderResults.length === 1) {
+                    window.location.href = `payment_confirmation.html?orderId=${orderResults[0].orderId}`;
+                } else {
+                    window.location.href = `order_history.html`;
+                }
 
             } catch (error) {
                 console.error('Error placing order:', error);

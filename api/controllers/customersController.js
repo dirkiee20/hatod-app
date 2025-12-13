@@ -25,6 +25,7 @@ export const getProfile = asyncHandler(async (req, res) => {
             phone,
             image_url AS "imageUrl",
             barangay,
+            email_verified AS "emailVerified",
             created_at AS "createdAt"
      FROM users
      WHERE id = $1 AND user_type = 'customer'`,

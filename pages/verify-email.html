@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - HATOD</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <script src="../public/config.js"></script>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <div class="bg-surface rounded-lg shadow-card border border-border p-8">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-text-primary mb-2">Verify Your Email</h1>
+                <p class="text-text-secondary" id="statusMessage">Please wait while we verify your email address...</p>
+            </div>
+
+            <div id="loadingState" class="text-center">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-text-secondary">Verifying...</p>
+            </div>
+
+            <div id="successState" class="hidden text-center">
+                <div class="mb-4">
+                    <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">Email Verified!</h2>
+                <p class="text-text-secondary mb-6">Your email address has been successfully verified.</p>
+                <a href="login.html" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth">
+                    Continue to Login
+                </a>
+            </div>
+
+            <div id="errorState" class="hidden text-center">
+                <div class="mb-4">
+                    <svg class="w-16 h-16 text-error mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">Verification Failed</h2>
+                <p class="text-text-secondary mb-4" id="errorMessage"></p>
+                <div class="space-y-3">
+                    <button onclick="resendVerification()" class="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth">
+                        Resend Verification Email
+                    </button>
+                    <a href="login.html" class="block text-center text-primary hover:text-primary-600">
+                        Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
+        let userEmail = null;
+
+        async function verifyEmail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                showError('No verification token provided');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess();
+                } else {
+                    showError(data.message || 'Verification failed. The link may have expired.');
+                }
+            } catch (error) {
+                console.error('Error verifying email:', error);
+                showError('An error occurred while verifying your email. Please try again.');
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('successState').classList.remove('hidden');
+            document.getElementById('statusMessage').textContent = 'Email verified successfully!';
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('statusMessage').textContent = 'Verification failed';
+        }
+
+        async function resendVerification() {
+            // Try to get email from localStorage or prompt user
+            const storedEmail = localStorage.getItem('userEmail');
+            
+            if (!storedEmail) {
+                const email = prompt('Please enter your email address:');
+                if (!email) return;
+                userEmail = email;
+            } else {
+                userEmail = storedEmail;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: userEmail })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Verification email sent! Please check your inbox.');
+                } else {
+                    alert(data.message || 'Failed to resend verification email');
+                }
+            } catch (error) {
+                console.error('Error resending verification:', error);
+                alert('An error occurred. Please try again later.');
+            }
+        }
+
+        // Verify on page load
+        document.addEventListener('DOMContentLoaded', verifyEmail);
+    </script>
+</body>
+</html>
+

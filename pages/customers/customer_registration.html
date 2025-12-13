@@ -353,6 +353,12 @@
 
                     console.log('Registration successful:', registerData);
 
+                    // Store email for potential resend
+                    localStorage.setItem('userEmail', email);
+
+                    // Show verification message
+                    alert('Registration successful! Please check your email to verify your account before logging in.');
+                    
                     // Redirect to login page
                     window.location.href = '../login.html';
 

@@ -7,6 +7,32 @@
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/pages.css">
     <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideInRight 0.3s ease-out;
+        }
+
         html, body {
             overflow-x: hidden;
             position: relative;
@@ -555,7 +581,11 @@
         // Update header profile
         updateHeaderProfile();
         
+        // Load orders initially
         loadRestaurantOrders();
+        
+        // Start polling for new orders
+        startOrderPolling();
 
         // Profile dropdown functionality
         const profileDropdownBtn = document.getElementById('profileDropdownBtn');
@@ -595,7 +625,12 @@
         }
     });
 
-    async function loadRestaurantOrders() {
+    // Store last known order IDs for change detection
+    let lastOrderIds = new Set();
+    let pollingInterval = null;
+    let isPolling = false;
+
+    async function loadRestaurantOrders(silent = false) {
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
@@ -636,14 +671,104 @@
             const ordersResult = await ordersResponse.json();
             const orders = ordersResult.data || [];
 
+            // Detect new orders
+            const currentOrderIds = new Set(orders.map(o => o.id));
+            const newOrderIds = [...currentOrderIds].filter(id => !lastOrderIds.has(id));
+            
+            if (!silent && newOrderIds.length > 0 && lastOrderIds.size > 0) {
+                // Show notification for new orders
+                showNewOrderNotification(newOrderIds.length);
+            }
+
+            // Update last known order IDs
+            lastOrderIds = currentOrderIds;
+
             await displayOrders(orders);
             updateOrderStats(orders);
 
         } catch (error) {
             console.error('Error loading restaurant orders:', error);
-            showEmptyState();
+            if (!silent) {
+                showEmptyState();
+            }
         }
     }
+
+    function showNewOrderNotification(count) {
+        // Remove existing notification if any
+        const existingNotification = document.getElementById('newOrderNotification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification
+        const notification = document.createElement('div');
+        notification.id = 'newOrderNotification';
+        notification.className = 'fixed top-20 right-4 bg-primary text-white px-6 py-4 rounded-lg shadow-lg z-50 flex items-center space-x-3 animate-slide-in';
+        notification.style.animation = 'slideInRight 0.3s ease-out';
+        notification.innerHTML = `
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <div>
+                <p class="font-semibold">New Order${count > 1 ? 's' : ''}!</p>
+                <p class="text-sm opacity-90">${count} new order${count > 1 ? 's' : ''} received</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    function startOrderPolling() {
+        // Stop existing polling if any
+        stopOrderPolling();
+
+        // Only poll if page is visible
+        if (document.hidden) {
+            return;
+        }
+
+        // Poll every 5 seconds
+        pollingInterval = setInterval(() => {
+            if (!document.hidden && !isPolling) {
+                isPolling = true;
+                loadRestaurantOrders(true).finally(() => {
+                    isPolling = false;
+                });
+            }
+        }, 5000); // 5 seconds
+    }
+
+    function stopOrderPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopOrderPolling();
+        } else {
+            // Reload immediately when page becomes visible, then start polling
+            loadRestaurantOrders(true);
+            startOrderPolling();
+        }
+    });
 
     function hideSkeletonLoading() {
         const skeleton = document.getElementById('ordersSkeleton');

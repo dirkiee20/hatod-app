@@ -124,6 +124,11 @@ app.get('/api/test', (_req, res) => {
   res.json({ test: 'ok' });
 });
 
+// Serve email verification page (for mobile app email links)
+app.get('/verify-email.html', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verify-email.html'));
+});
+
 app.use('/api', routes);
 
 app.use(notFoundHandler);

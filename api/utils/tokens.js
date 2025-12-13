@@ -53,3 +53,49 @@ export const verifyRefreshToken = (token) => {
   }
 };
 
+/**
+ * Generate email verification token
+ * @param {string} userId - User ID
+ * @param {string} email - User email
+ * @returns {string} Verification token
+ */
+export const generateVerificationToken = (userId, email) => {
+  if (!JWT_SECRET || JWT_SECRET === 'change-this-secret') {
+    throw new Error('JWT_SECRET is not configured');
+  }
+  try {
+    return jwt.sign(
+      { 
+        sub: userId, 
+        email: email.toLowerCase(),
+        type: 'email_verification'
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+  } catch (error) {
+    console.error('Error generating verification token:', error);
+    throw new Error('Failed to generate verification token');
+  }
+};
+
+/**
+ * Verify email verification token
+ * @param {string} token - Verification token
+ * @returns {object} Decoded token payload
+ */
+export const verifyVerificationToken = (token) => {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.type !== 'email_verification') {
+      throw new Error('Invalid token type');
+    }
+    return decoded;
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      throw new Error('Verification token has expired');
+    }
+    throw new Error('Invalid verification token');
+  }
+};
+

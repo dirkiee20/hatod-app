@@ -6,6 +6,32 @@
     <title>Restaurant Dashboard - HATOD</title>
     <link rel="stylesheet" href="../../css/main.css">
     <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideInRight 0.3s ease-out;
+        }
+
         html, body {
             overflow-x: hidden;
             position: relative;
@@ -830,8 +856,13 @@
         return variants;
     }
 
+    // Store last known order IDs for change detection
+    let lastDashboardOrderIds = new Set();
+    let dashboardPollingInterval = null;
+    let isDashboardPolling = false;
+
     // Load dashboard data
-    async function loadDashboardData() {
+    async function loadDashboardData(silent = false) {
         try {
             const restaurantId = await getRestaurantId();
             if (!restaurantId) {
@@ -855,6 +886,20 @@
 
             const response = await apiRequest(`/restaurants/${restaurantId}/dashboard/stats`);
             const stats = response.data;
+
+            // Detect new orders from recent orders
+            if (stats.recentOrders && stats.recentOrders.length > 0) {
+                const currentOrderIds = new Set(stats.recentOrders.map(o => o.id));
+                const newOrderIds = [...currentOrderIds].filter(id => !lastDashboardOrderIds.has(id));
+                
+                if (!silent && newOrderIds.length > 0 && lastDashboardOrderIds.size > 0) {
+                    // Show notification for new orders
+                    showNewOrderNotification(newOrderIds.length);
+                }
+
+                // Update last known order IDs
+                lastDashboardOrderIds = currentOrderIds;
+            }
 
             // Update stats cards
             document.getElementById('todayOrders').textContent = stats.orders.today_orders || 0;
@@ -940,6 +985,82 @@
         }
     }
 
+    function showNewOrderNotification(count) {
+        // Remove existing notification if any
+        const existingNotification = document.getElementById('newOrderNotification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification
+        const notification = document.createElement('div');
+        notification.id = 'newOrderNotification';
+        notification.className = 'fixed top-20 right-4 bg-primary text-white px-6 py-4 rounded-lg shadow-lg z-50 flex items-center space-x-3 animate-slide-in';
+        notification.style.animation = 'slideInRight 0.3s ease-out';
+        notification.innerHTML = `
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <div>
+                <p class="font-semibold">New Order${count > 1 ? 's' : ''}!</p>
+                <p class="text-sm opacity-90">${count} new order${count > 1 ? 's' : ''} received</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    function startDashboardPolling() {
+        // Stop existing polling if any
+        stopDashboardPolling();
+
+        // Only poll if page is visible
+        if (document.hidden) {
+            return;
+        }
+
+        // Poll every 5 seconds
+        dashboardPollingInterval = setInterval(() => {
+            if (!document.hidden && !isDashboardPolling) {
+                isDashboardPolling = true;
+                loadDashboardData(true).finally(() => {
+                    isDashboardPolling = false;
+                });
+            }
+        }, 5000); // 5 seconds
+    }
+
+    function stopDashboardPolling() {
+        if (dashboardPollingInterval) {
+            clearInterval(dashboardPollingInterval);
+            dashboardPollingInterval = null;
+        }
+    }
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopDashboardPolling();
+        } else {
+            // Reload immediately when page becomes visible, then start polling
+            loadDashboardData(true);
+            startDashboardPolling();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // Set default avatar initially
         const profileImage = document.getElementById('headerProfileImage');
@@ -953,6 +1074,9 @@
         
         // Load dashboard data
         loadDashboardData();
+        
+        // Start polling for new orders
+        startDashboardPolling();
         
         // Check URL parameters for initial tab
         const urlParams = new URLSearchParams(window.location.search);
