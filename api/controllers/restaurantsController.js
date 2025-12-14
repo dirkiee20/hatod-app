@@ -488,8 +488,8 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
   // Attach variants and use final price for customer display
   const itemsWithVariantsData = items.rows.map(item => {
     const itemVariants = variants.filter(v => v.menuItemId === item.id);
-    // For customer view, use finalPrice; for admin, keep original price visible
-    const displayPrice = isAdmin ? item.price : (item.finalPrice || item.price);
+    // For customer view, use finalPrice; for admin and restaurant owners, keep original price visible
+    const displayPrice = (isAdmin || isOwner) ? item.price : (item.finalPrice || item.price);
     
     // Calculate markup for variants (apply parent item's markup to all variants)
     const markupAmount = parseFloat(item.adminMarkupAmount || 0);
@@ -497,21 +497,33 @@ export const getRestaurantMenu = asyncHandler(async (req, res) => {
     
     return {
       ...item,
-      price: displayPrice, // Use final price for customers
+      price: displayPrice, // Use original price for admin/owners, final price for customers
+      // Keep original price and finalPrice for restaurant owners and admins
+      originalPrice: (isAdmin || isOwner) ? item.price : undefined,
+      finalPrice: item.finalPrice || item.price, // Always include finalPrice for owners/admins
       variants: itemVariants.map(v => {
         const variantPrice = parseFloat(v.price);
         // Apply parent item's markup to variant price for customer display
-        const finalVariantPrice = isAdmin 
-          ? variantPrice // Admin sees original prices
+        const finalVariantPrice = (isAdmin || isOwner)
+          ? variantPrice // Admin and owners see original prices in variants
           : variantPrice + markupAmount + (variantPrice * markupPercentage / 100); // Customer sees final prices
         
-        return {
+        const variantResult = {
           id: v.id,
           name: v.name,
           price: Math.round(finalVariantPrice * 100) / 100, // Round to 2 decimal places
           isAvailable: v.isAvailable,
           displayOrder: v.displayOrder
         };
+        
+        // For admin and owners, also include original price and final price for variants
+        if (isAdmin || isOwner) {
+          const variantFinalPrice = variantPrice + markupAmount + (variantPrice * markupPercentage / 100);
+          variantResult.originalPrice = variantPrice;
+          variantResult.finalPrice = Math.round(variantFinalPrice * 100) / 100;
+        }
+        
+        return variantResult;
       })
     };
   });

@@ -597,20 +597,46 @@
             approvalBadge = '<span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-error-100 text-error-700 ml-2">Rejected</span>';
         }
 
+        // Calculate markup info
+        const originalPrice = item.originalPrice !== undefined ? parseFloat(item.originalPrice) : (item.price ? parseFloat(item.price) : 0);
+        const finalPrice = item.finalPrice ? parseFloat(item.finalPrice) : originalPrice;
+        const markupAmount = item.adminMarkupAmount ? parseFloat(item.adminMarkupAmount) : 0;
+        const markupPercentage = item.adminMarkupPercentage ? parseFloat(item.adminMarkupPercentage) : 0;
+        const totalMarkup = markupAmount + (originalPrice * markupPercentage / 100);
+        
         // Render price or variants
         let priceDisplay = '';
+        let priceInfo = '';
         if (item.hasVariants && item.variants && item.variants.length > 0) {
             const availableVariants = item.variants.filter(v => v.isAvailable);
             if (availableVariants.length > 0) {
-                const prices = availableVariants.map(v => parseFloat(v.price));
-                const minPrice = Math.min(...prices);
-                const maxPrice = Math.max(...prices);
-                priceDisplay = `₱${minPrice.toFixed(2)}${minPrice !== maxPrice ? ` - ₱${maxPrice.toFixed(2)}` : ''}`;
+                // Get original prices for range
+                const originalPrices = availableVariants.map(v => parseFloat(v.originalPrice !== undefined ? v.originalPrice : v.price));
+                const minOriginalPrice = Math.min(...originalPrices);
+                const maxOriginalPrice = Math.max(...originalPrices);
+                
+                // Get final prices (with markup) for range
+                const finalPrices = availableVariants.map(v => parseFloat(v.finalPrice !== undefined ? v.finalPrice : v.price));
+                const minFinalPrice = Math.min(...finalPrices);
+                const maxFinalPrice = Math.max(...finalPrices);
+                
+                priceDisplay = `₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                
+                // Show original price range if markup is applied
+                if (markupAmount > 0 || markupPercentage > 0) {
+                    priceInfo = `Original: ₱${minOriginalPrice.toFixed(2)}${minOriginalPrice !== maxOriginalPrice ? ` - ₱${maxOriginalPrice.toFixed(2)}` : ''} | Final: ₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                }
             } else {
                 priceDisplay = 'No variants available';
             }
         } else {
-            priceDisplay = `₱${item.price ? parseFloat(item.price).toFixed(2) : '0.00'}`;
+            priceDisplay = `₱${finalPrice.toFixed(2)}`;
+            if (totalMarkup > 0) {
+                priceDisplay = `₱${originalPrice.toFixed(2)} → ₱${finalPrice.toFixed(2)}`;
+            }
+            if (totalMarkup > 0) {
+                priceInfo = `Original: ₱${originalPrice.toFixed(2)} | Final: ₱${finalPrice.toFixed(2)}`;
+            }
         }
 
         const resolvedImage = resolveImageUrl(item.imageUrl) || PLACEHOLDER_IMAGE;
@@ -646,8 +672,26 @@
                         </div>
                     ` : ''}
                     <div class="flex items-center justify-between pt-4 border-t border-border">
-                        <div>
-                            <span class="text-2xl font-bold text-primary">${priceDisplay}</span>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="text-2xl font-bold text-primary">${priceDisplay}</span>
+                                ${(markupAmount > 0 || markupPercentage > 0) ? `
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-700">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                                        </svg>
+                                        ${item.hasVariants ? 
+                                            (markupAmount > 0 ? `+₱${markupAmount.toFixed(2)}/variant` : `+${markupPercentage.toFixed(1)}%/variant`) :
+                                            `+₱${totalMarkup.toFixed(2)}`
+                                        }
+                                    </span>
+                                ` : ''}
+                            </div>
+                            ${priceInfo ? `
+                                <div class="text-xs text-text-secondary">
+                                    ${priceInfo}
+                                </div>
+                            ` : ''}
                         </div>
                         <div class="flex gap-2">
                             <button class="p-2 rounded-lg transition-all duration-200 toggle-availability ${item.isAvailable ? 'text-warning hover:bg-warning-50' : 'text-success hover:bg-success-50'}" data-item-id="${item.id}" title="${item.isAvailable ? 'Mark as Unavailable' : 'Mark as Available'}">

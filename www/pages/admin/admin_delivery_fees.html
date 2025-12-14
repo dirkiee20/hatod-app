@@ -543,6 +543,13 @@
                     barangayCard.innerHTML = `
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-semibold text-text-primary">${barangay}</h3>
+                            <button onclick="deleteBarangay('${barangay.replace(/'/g, "\\'")}')" 
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-smooth text-sm font-medium flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                <span>Delete Barangay</span>
+                            </button>
                         </div>
                         <div class="space-y-3">
                             ${tiers.map(tier => `
@@ -628,6 +635,51 @@
                     // Redirect to login page
                     window.location.href = '../login.html';
                 });
+            }
+        }
+
+        // Load admin profile for header
+        async function loadAdminProfile() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE_URL}/admin/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const profile = result.data;
+                    
+                    const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+                    const PLACEHOLDER_IMAGE = window.DEFAULT_AVATAR_URL || `${API_ORIGIN}/public/default-avatar.svg`;
+                    
+                    // Update admin name
+                    const adminNameEl = document.getElementById('adminName');
+                    if (adminNameEl) {
+                        adminNameEl.textContent = 'Admin';
+                    }
+                    
+                    // Update profile image
+                    const profileImageEl = document.getElementById('adminProfileImage');
+                    if (profileImageEl) {
+                        if (profile.imageUrl) {
+                            let imageUrl = profile.imageUrl;
+                            if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+                                const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+                                imageUrl = `${API_ORIGIN}${path}`;
+                            }
+                            profileImageEl.src = imageUrl;
+                        } else {
+                            profileImageEl.src = PLACEHOLDER_IMAGE;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading admin profile:', error);
             }
         }
 
@@ -791,6 +843,27 @@
                 closeEditModal();
             }
         });
+
+        // Delete barangay (all tiers for that barangay)
+        async function deleteBarangay(barangay) {
+            if (!confirm(`Are you sure you want to delete all delivery fee tiers for "${barangay}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                // Encode barangay name for URL (handle special characters)
+                const encodedBarangay = encodeURIComponent(barangay);
+                await apiCall(`/delivery-fees/barangays/${encodedBarangay}`, {
+                    method: 'DELETE'
+                });
+
+                alert(`Successfully deleted all delivery fee tiers for ${barangay}`);
+                // Reload delivery fees and update dropdown
+                await loadDeliveryFees();
+            } catch (error) {
+                alert('Failed to delete barangay: ' + error.message);
+            }
+        }
     </script>
 
     <!-- Mobile Bottom Tab Navigation -->

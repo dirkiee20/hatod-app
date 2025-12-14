@@ -186,6 +186,51 @@ export const deleteDeliveryFeeTier = asyncHandler(async (req, res) => {
   res.json({ status: 'success', message: 'Delivery fee tier deleted successfully' });
 });
 
+// Delete all delivery fee tiers for a barangay (admin only)
+export const deleteBarangayTiers = asyncHandler(async (req, res) => {
+  // Decode the barangay parameter (Express should do this automatically, but let's be explicit)
+  let { barangay } = req.params;
+  
+  // Decode URI component in case it's double-encoded
+  try {
+    barangay = decodeURIComponent(barangay);
+  } catch (e) {
+    // If decoding fails, use as-is
+  }
+
+  if (!barangay) {
+    throw badRequest('Barangay is required');
+  }
+
+  // First, check if the barangay exists
+  const checkResult = await query(
+    `SELECT COUNT(*) as count FROM delivery_fee_tiers WHERE barangay = $1`,
+    [barangay]
+  );
+
+  if (parseInt(checkResult.rows[0].count) === 0) {
+    throw notFound(`No delivery fee tiers found for barangay: ${barangay}`);
+  }
+
+  // Delete all tiers for this barangay
+  const result = await query(
+    `DELETE FROM delivery_fee_tiers
+     WHERE barangay = $1
+     RETURNING id, barangay`,
+    [barangay]
+  );
+
+  if (result.rowCount === 0) {
+    throw notFound('No delivery fee tiers found for this barangay');
+  }
+
+  res.json({ 
+    status: 'success', 
+    message: `Successfully deleted ${result.rowCount} delivery fee tier(s) for ${barangay}`,
+    deletedCount: result.rowCount
+  });
+});
+
 // Legacy: Get simple delivery fee (for backward compatibility)
 export const getDeliveryFee = asyncHandler(async (req, res) => {
   const { barangay } = req.params;

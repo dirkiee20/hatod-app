@@ -24,6 +24,8 @@ const mapDbRoleToClient = (role) => (role === 'rider' ? 'delivery' : role);
 export const register = asyncHandler(async (req, res) => {
   const { email, password, fullName, phone, role = 'customer' } = req.body;
 
+  console.log('[Register] Starting registration for:', email);
+
   if (!allowedRoles.includes(role)) {
     throw badRequest('Invalid role specified');
   }
@@ -40,53 +42,120 @@ export const register = asyncHandler(async (req, res) => {
     throw conflict('Email already registered');
   }
 
+  console.log('[Register] Hashing password...');
   const passwordHash = await hashPassword(password);
+  console.log('[Register] Password hashed successfully');
   
-  // Generate verification token
-  const verificationToken = generateVerificationToken(
-    'temp', // Will be replaced after user is created
-    email.toLowerCase()
-  );
+  // Check if email verification columns exist
+  let hasEmailVerification = false;
+  try {
+    console.log('[Register] Checking for email verification columns...');
+    const columnCheck = await query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' 
+      AND column_name IN ('email_verification_token', 'email_verification_token_expires_at')
+    `);
+    hasEmailVerification = columnCheck.rows.length === 2;
+    console.log(`[Register] Email verification columns: ${hasEmailVerification ? 'EXIST' : 'NOT FOUND'}`);
+  } catch (checkError) {
+    console.warn('[Register] Could not check for email verification columns:', checkError.message);
+  }
   
-  // Calculate token expiration (24 hours from now)
-  const tokenExpiresAt = new Date();
-  tokenExpiresAt.setHours(tokenExpiresAt.getHours() + 24);
+  let verificationToken = null;
+  let tokenExpiresAt = null;
+  
+  if (hasEmailVerification) {
+    // Generate verification token
+    verificationToken = generateVerificationToken(
+      'temp', // Will be replaced after user is created
+      email.toLowerCase()
+    );
+    
+    // Calculate token expiration (24 hours from now)
+    tokenExpiresAt = new Date();
+    tokenExpiresAt.setHours(tokenExpiresAt.getHours() + 24);
+  }
 
-  const result = await query(
-    `INSERT INTO users (email, password_hash, full_name, phone, user_type, email_verified, email_verification_token, email_verification_token_expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-     RETURNING id, email, full_name AS "fullName", user_type AS role, created_at AS "createdAt"`,
-    [
-      email.toLowerCase(),
-      passwordHash,
-      fullName,
-      phone ?? null,
-      role,
-      false,
-      verificationToken,
-      tokenExpiresAt
-    ]
-  );
+  console.log('[Register] Inserting user into database...');
+  let result;
+  try {
+    if (hasEmailVerification) {
+      console.log('[Register] Using email verification columns');
+      result = await query(
+        `INSERT INTO users (email, password_hash, full_name, phone, user_type, email_verified, email_verification_token, email_verification_token_expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING id, email, full_name AS "fullName", user_type AS role, created_at AS "createdAt"`,
+        [
+          email.toLowerCase(),
+          passwordHash,
+          fullName,
+          phone ?? null,
+          role,
+          false,
+          verificationToken,
+          tokenExpiresAt
+        ]
+      );
+    } else {
+      console.log('[Register] Inserting without email verification columns');
+      // Fallback: insert without verification columns
+      result = await query(
+        `INSERT INTO users (email, password_hash, full_name, phone, user_type, email_verified)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, email, full_name AS "fullName", user_type AS role, created_at AS "createdAt"`,
+        [
+          email.toLowerCase(),
+          passwordHash,
+          fullName,
+          phone ?? null,
+          role,
+          false
+        ]
+      );
+    }
+    console.log('[Register] User inserted successfully. User ID:', result.rows[0].id);
+  } catch (dbError) {
+    console.error('[Register] Database error:', dbError.message);
+    console.error('[Register] Database error details:', dbError);
+    throw dbError; // Re-throw to be handled by error handler
+  }
 
   const user = result.rows[0];
   
-  // Regenerate token with actual user ID
-  const finalVerificationToken = generateVerificationToken(user.id, user.email);
-  
-  // Update with final token
-  await query(
-    `UPDATE users 
-     SET email_verification_token = $1, email_verification_token_expires_at = $2
-     WHERE id = $3`,
-    [finalVerificationToken, tokenExpiresAt, user.id]
-  );
-  
-  // Send verification email (don't block registration if it fails)
-  try {
-    await sendVerificationEmail(user.email, fullName, finalVerificationToken);
-  } catch (emailError) {
-    console.error('Failed to send verification email:', emailError);
-    // Continue with registration even if email fails
+  // Only process email verification if columns exist
+  if (hasEmailVerification) {
+    try {
+      // Regenerate token with actual user ID
+      const finalVerificationToken = generateVerificationToken(user.id, user.email);
+      
+      // Update with final token
+      await query(
+        `UPDATE users 
+         SET email_verification_token = $1, email_verification_token_expires_at = $2
+         WHERE id = $3`,
+        [finalVerificationToken, tokenExpiresAt, user.id]
+      );
+      
+      // Send verification email (don't block registration if it fails)
+      try {
+        await sendVerificationEmail(user.email, fullName, finalVerificationToken);
+        console.log(`Verification email sent to ${user.email}`);
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError.message);
+        console.error('Email error details:', emailError);
+        // Continue with registration even if email fails
+        // Log but don't throw - registration should succeed
+      }
+    } catch (verificationError) {
+      console.error('Error in email verification setup:', verificationError.message);
+      console.error('Verification error details:', verificationError);
+      // Don't fail registration if verification setup fails
+      // User is already created, just log the error
+    }
+  } else {
+    console.warn('Email verification columns not found. Registration succeeded but email verification is disabled.');
+    console.warn('Please run the migration: database/migrations/20250108_1000_add_email_verification_token.sql');
   }
   
   try {

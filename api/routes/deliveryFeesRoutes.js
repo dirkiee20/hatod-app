@@ -6,6 +6,7 @@ import {
   listAllDeliveryFeeTiers,
   upsertDeliveryFeeTier,
   deleteDeliveryFeeTier,
+  deleteBarangayTiers,
   getDeliveryFee
 } from '../controllers/deliveryFeesController.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
@@ -22,10 +23,7 @@ router.post('/calculate', [
 router.get('/tiers', listAllDeliveryFeeTiers);
 router.get('/tiers/:barangay', [param('barangay').isString()], validate, getDeliveryFeeTiers);
 
-// Legacy endpoint for backward compatibility
-router.get('/:barangay', [param('barangay').isString()], validate, getDeliveryFee);
-
-// Admin endpoints
+// Admin endpoints - define before general routes to avoid conflicts
 router.post('/tiers',
   authenticate,
   requireRoles('admin'),
@@ -47,6 +45,17 @@ router.delete('/tiers/:tierId',
   validate,
   deleteDeliveryFeeTier
 );
+
+router.delete('/barangays/:barangay',
+  authenticate,
+  requireRoles('admin'),
+  [param('barangay').isString().notEmpty()],
+  validate,
+  deleteBarangayTiers
+);
+
+// Legacy endpoint for backward compatibility (must be last)
+router.get('/:barangay', [param('barangay').isString()], validate, getDeliveryFee);
 
 export default router;
 

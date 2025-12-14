@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Restaurant Dashboard - HATOD</title>
     <link rel="stylesheet" href="../../css/main.css">
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
     <style>
         @keyframes slideInRight {
             from {
@@ -468,12 +470,8 @@
                     <div class="space-y-4">
                         <h4 class="text-md font-medium text-text-primary">Item Image</h4>
 
-                        <!-- Image Preview/Upload Area -->
+                        <!-- Image Upload Area -->
                         <div class="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                            <div id="imagePreview" class="hidden mb-4">
-                                <img id="previewImg" src="" alt="Preview" class="max-w-full h-48 object-cover rounded-lg mx-auto">
-                            </div>
-
                             <div id="uploadArea">
                                 <svg class="w-12 h-12 text-text-secondary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
@@ -490,6 +488,42 @@
                                     Choose Image
                                 </button>
                             </div>
+                        </div>
+
+                        <!-- Image Cropper Section (hidden initially) -->
+                        <div id="cropperSection" class="hidden space-y-4">
+                            <div class="bg-surface border border-border rounded-lg p-4">
+                                <h5 class="text-sm font-medium text-text-primary mb-3">Adjust Image Crop</h5>
+                                <div class="mb-4">
+                                    <img id="cropperImage" src="" alt="Crop" style="max-width: 100%; max-height: 400px;">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <button type="button" id="cancelCropBtn" class="px-4 py-2 text-text-secondary bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth">
+                                        Cancel
+                                    </button>
+                                    <button type="button" id="applyCropBtn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
+                                        Apply Crop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Preview Section -->
+                        <div id="customerPreviewSection" class="hidden space-y-2">
+                            <h5 class="text-sm font-medium text-text-primary">Customer View Preview</h5>
+                            <div class="bg-gray-50 border border-border rounded-lg p-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <img id="customerPreviewImg" src="" alt="Customer Preview" class="w-20 h-20 object-cover rounded-lg">
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-text-primary text-lg mb-1">Sample Menu Item</h3>
+                                        <p class="text-text-secondary text-sm mb-2">This is how your image will appear to customers</p>
+                                        <span class="font-bold text-text-primary text-xl">₱0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-text-secondary">The image is displayed as a square (80x80px) to customers</p>
                         </div>
 
                         <!-- Image URL Alternative -->
@@ -657,6 +691,8 @@
         </div>
     </footer>
 <script src="../../public/config.js"></script>
+    <!-- Cropper.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
     <script>
         // API base URL (from config.js - automatically uses Railway URL in mobile apps)
     // API base URL
@@ -1129,12 +1165,20 @@
         const saveBtn = document.getElementById('saveBtn');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Image upload functionality
+        // Image upload and cropping functionality
         const uploadBtn = document.getElementById('uploadBtn');
         const itemImageFile = document.getElementById('itemImageFile');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewImg = document.getElementById('previewImg');
         const uploadArea = document.getElementById('uploadArea');
+        const cropperSection = document.getElementById('cropperSection');
+        const cropperImage = document.getElementById('cropperImage');
+        const customerPreviewSection = document.getElementById('customerPreviewSection');
+        const customerPreviewImg = document.getElementById('customerPreviewImg');
+        const cancelCropBtn = document.getElementById('cancelCropBtn');
+        const applyCropBtn = document.getElementById('applyCropBtn');
+        
+        let cropper = null;
+        let croppedImageBlob = null;
+        let originalImageFile = null;
 
         uploadBtn.addEventListener('click', function() {
             itemImageFile.click();
@@ -1143,24 +1187,96 @@
         itemImageFile.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                originalImageFile = file;
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
+                    // Destroy existing cropper if any
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    
+                    // Set image source and show cropper
+                    cropperImage.src = e.target.result;
                     uploadArea.classList.add('hidden');
+                    cropperSection.classList.remove('hidden');
+                    customerPreviewSection.classList.add('hidden');
+                    
+                    // Initialize cropper with square aspect ratio (1:1)
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 0.8,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                    });
                 };
                 reader.readAsDataURL(file);
+            }
+        });
+
+        // Cancel crop - reset to upload area
+        cancelCropBtn.addEventListener('click', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropperSection.classList.add('hidden');
+            customerPreviewSection.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            itemImageFile.value = '';
+            croppedImageBlob = null;
+            originalImageFile = null;
+        });
+
+        // Apply crop - show customer preview
+        applyCropBtn.addEventListener('click', function() {
+            if (!cropper) return;
+            
+            // Get cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            
+            if (canvas) {
+                // Convert canvas to blob
+                canvas.toBlob(function(blob) {
+                    croppedImageBlob = blob;
+                    
+                    // Update customer preview
+                    const previewUrl = URL.createObjectURL(blob);
+                    customerPreviewImg.src = previewUrl;
+                    customerPreviewSection.classList.remove('hidden');
+                    
+                    // Hide cropper section
+                    cropperSection.classList.add('hidden');
+                }, 'image/jpeg', 0.9);
             }
         });
 
         // Reset form function
         function resetForm() {
             addMenuForm.reset();
-            // Reset image preview
-            imagePreview.classList.add('hidden');
+            // Reset image preview and cropper
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
             uploadArea.classList.remove('hidden');
-            previewImg.src = '';
+            cropperSection.classList.add('hidden');
+            customerPreviewSection.classList.add('hidden');
             itemImageFile.value = '';
+            croppedImageBlob = null;
+            originalImageFile = null;
             // Reset variants
             document.getElementById('variantsList').innerHTML = '';
             toggleVariantsSection();
@@ -1302,13 +1418,18 @@
 
                     // Handle image upload - upload file if selected, otherwise use URL
                     let imageUrl = formData.get('itemImageUrl') || null;
-                    const imageFile = formData.get('itemImageFile');
                     
-                    if (imageFile && imageFile.size > 0) {
-                        // Upload the file first
+                    // Use cropped image if available, otherwise use original file
+                    if (croppedImageBlob) {
+                        // Upload the cropped image
                         try {
                             const uploadFormData = new FormData();
-                            uploadFormData.append('image', imageFile);
+                            // Create a File object from the blob with a proper filename
+                            const croppedFile = new File([croppedImageBlob], originalImageFile?.name || 'menu-item.jpg', {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            uploadFormData.append('image', croppedFile);
                             
                             const token = getAuthToken();
                             const uploadResponse = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/menu/items/upload-image`, {
@@ -1334,6 +1455,40 @@
                             saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                             alert('Failed to upload image. Please try again.');
                             return;
+                        }
+                    } else {
+                        const imageFile = formData.get('itemImageFile');
+                        if (imageFile && imageFile.size > 0) {
+                            // Upload the original file if no crop was applied
+                            try {
+                                const uploadFormData = new FormData();
+                                uploadFormData.append('image', imageFile);
+                                
+                                const token = getAuthToken();
+                                const uploadResponse = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/menu/items/upload-image`, {
+                                    method: 'POST',
+                                    headers: {
+                                        ...(token && { 'Authorization': `Bearer ${token}` })
+                                    },
+                                    body: uploadFormData
+                                });
+
+                                if (!uploadResponse.ok) {
+                                    const error = await uploadResponse.json().catch(() => ({ message: 'Upload failed' }));
+                                    throw new Error(error.message || 'Failed to upload image');
+                                }
+
+                                const uploadResult = await uploadResponse.json();
+                                imageUrl = uploadResult.data.imageUrl;
+                            } catch (error) {
+                                console.error('Error uploading image:', error);
+                                // Reset button state
+                                saveBtn.disabled = false;
+                                saveBtn.innerHTML = originalText;
+                                saveBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                                alert('Failed to upload image. Please try again.');
+                                return;
+                            }
                         }
                     }
 

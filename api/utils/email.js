@@ -30,6 +30,13 @@ const createTransporter = () => {
  * @returns {Promise<void>}
  */
 export const sendVerificationEmail = async (to, name, verificationToken) => {
+  // Check if SMTP is configured - return early if not configured (don't throw)
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+    console.warn('⚠️  SMTP not configured. Email verification email will not be sent.');
+    console.warn('   Please set SMTP_USER and SMTP_PASSWORD in Railway environment variables.');
+    return; // Don't throw - just return silently
+  }
+
   try {
     const transporter = createTransporter();
     
@@ -115,12 +122,18 @@ export const sendVerificationEmail = async (to, name, verificationToken) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`Verification email sent to ${to}`);
+    console.log(`✅ Verification email sent to ${to}`);
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error('❌ Error sending verification email:', error.message);
+    console.error('Error details:', {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode
+    });
     // Don't throw error - we don't want to block registration if email fails
-    // Log it for monitoring
-    throw new Error('Failed to send verification email');
+    // Just log it for monitoring and return
+    return;
   }
 };
 

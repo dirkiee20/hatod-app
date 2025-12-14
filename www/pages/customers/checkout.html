@@ -224,6 +224,37 @@
                 <section class="bg-surface rounded-lg p-6 shadow-card border border-border">
                     <h3 class="text-lg font-semibold text-text-primary mb-4">Delivery Address</h3>
                     <div class="space-y-4">
+                        <!-- Manual Address Input -->
+                        <div class="space-y-4">
+                            <div>
+                                <label for="barangay-input" class="block text-sm font-medium text-text-primary mb-2">
+                                    Barangay <span class="text-error">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="barangay-input" 
+                                       name="barangayInput"
+                                       required
+                                       placeholder="Enter your barangay"
+                                       class="w-full px-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-smooth"
+                                       autocomplete="address-level2">
+                                <p class="text-xs text-text-secondary mt-1">Select or enter your barangay</p>
+                            </div>
+                            
+                            <div>
+                                <label for="purok-input" class="block text-sm font-medium text-text-primary mb-2">
+                                    Purok <span class="text-error">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="purok-input" 
+                                       name="purokInput"
+                                       required
+                                       placeholder="Enter your purok"
+                                       class="w-full px-4 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-smooth"
+                                       autocomplete="address-line1">
+                                <p class="text-xs text-text-secondary mt-1">Enter your purok or street area</p>
+                            </div>
+                        </div>
+                        
                         <div id="location-status" class="space-y-3">
                             <button id="fetch-location-btn" 
                                     onclick="fetchCustomerLocation()" 
@@ -232,8 +263,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
-                                <span>Fetch My Location</span>
+                                <span>Fetch My Location <span class="text-error">*</span></span>
                             </button>
+                            <p class="text-xs text-text-secondary">Location is required for delivery. The rider will use this exact location.</p>
                             
                             <div id="location-loading" class="hidden p-3 bg-blue-50 rounded-lg">
                                 <div class="flex items-center space-x-2">
@@ -250,9 +282,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     <div class="flex-1">
-                                        <p class="text-sm font-medium text-text-primary mb-1">Delivery Address:</p>
-                                        <p id="address-text" class="text-sm text-text-secondary"></p>
-                                        <p id="barangay-text" class="text-xs text-primary mt-1 font-medium"></p>
+                                        <p class="text-sm font-medium text-text-primary mb-1">Delivery Location:</p>
+                                        <p id="address-text" class="text-sm text-text-secondary break-words"></p>
+                                        <p class="text-xs text-text-secondary mt-2 italic">This is the exact location where the rider will deliver your order.</p>
                                     </div>
                                 </div>
                             </div>
@@ -283,7 +315,6 @@
                     <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                     <input type="hidden" id="full-address" name="fullAddress">
-                    <input type="hidden" id="barangay" name="barangay">
                 </section>
 
                 <!-- Payment Method -->
@@ -540,7 +571,8 @@
         // Mapbox access token for reverse geocoding
         const MAPBOX_TOKEN = 'pk.eyJ1Ijoia3JpZGxsbCIsImEiOiJjbWljdzdmYXUwb3I1MmpwcTJyNWVsN252In0.2lBD_f8wyFrpViRg8n6cOw';
         let allowedBarangays = [];
-
+        let selectedBarangay = '';
+        
         // Load allowed barangays on page load
         async function loadAllowedBarangays() {
             try {
@@ -557,10 +589,188 @@
                     const data = await response.json();
                     allowedBarangays = Object.keys(data.data || {});
                     console.log('Allowed barangays loaded:', allowedBarangays);
+                    
+                    // Populate barangay autocomplete
+                    populateBarangayOptions();
                 }
             } catch (error) {
                 console.error('Error loading allowed barangays:', error);
             }
+        }
+        
+        // Helper function to normalize barangay name (remove "barangay" prefix for comparison)
+        function normalizeBarangayName(barangay) {
+            if (!barangay) return '';
+            return barangay.trim()
+                .replace(/^barangay\s+/i, '')
+                .replace(/^brgy\.?\s+/i, '')
+                .trim();
+        }
+        
+        // Helper function to check if a barangay matches any allowed barangay (using normalized comparison)
+        function isBarangayAllowed(barangay, allowedList) {
+            if (!barangay || allowedList.length === 0) return false;
+            const normalized = normalizeBarangayName(barangay);
+            return allowedList.some(allowed => {
+                const normalizedAllowed = normalizeBarangayName(allowed);
+                return normalized.toLowerCase() === normalizedAllowed.toLowerCase();
+            });
+        }
+        
+        // Helper function to find the matching allowed barangay (returns the original format from allowed list)
+        function findMatchingBarangay(barangay, allowedList) {
+            if (!barangay || allowedList.length === 0) return null;
+            const normalized = normalizeBarangayName(barangay);
+            const match = allowedList.find(allowed => {
+                const normalizedAllowed = normalizeBarangayName(allowed);
+                return normalized.toLowerCase() === normalizedAllowed.toLowerCase();
+            });
+            return match || null;
+        }
+        
+        // Populate barangay input with datalist for autocomplete
+        function populateBarangayOptions() {
+            const barangayInput = document.getElementById('barangay-input');
+            if (!barangayInput || allowedBarangays.length === 0) return;
+            
+            // Create or get datalist
+            let datalist = document.getElementById('barangay-options');
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = 'barangay-options';
+                barangayInput.setAttribute('list', 'barangay-options');
+                document.body.appendChild(datalist);
+            }
+            
+            // Clear existing options
+            datalist.innerHTML = '';
+            
+            // Add options
+            allowedBarangays.forEach(barangay => {
+                const option = document.createElement('option');
+                option.value = barangay;
+                datalist.appendChild(option);
+            });
+        }
+        
+        // Validate deliverable area based on fetched location
+        async function validateDeliverableArea(fetchedAddress) {
+            if (!fetchedAddress || allowedBarangays.length === 0) {
+                return { isValid: false, message: 'Could not validate delivery area' };
+            }
+            
+            // Try to extract barangay from the fetched address
+            // Mapbox response may have barangay in context or in place_name
+            let extractedBarangay = null;
+            
+            // Check if fetchedAddress is a Mapbox feature object
+            if (typeof fetchedAddress === 'object' && fetchedAddress.context) {
+                // Try to find barangay in context
+                const context = fetchedAddress.context;
+                // Look for neighborhood or place that might be barangay
+                const neighborhood = context.find(c => c.id.startsWith('neighborhood'))?.text;
+                const place = context.find(c => c.id.startsWith('place'))?.text;
+                
+                // Try neighborhood first, then place
+                extractedBarangay = neighborhood || place;
+            } else if (typeof fetchedAddress === 'string') {
+                // Parse from place_name string
+                // Common formats: "Barangay Name, City, Province" or "Name, City"
+                const addressParts = fetchedAddress.split(',').map(p => p.trim());
+                for (const part of addressParts) {
+                    // Check if any part matches an allowed barangay
+                    if (isBarangayAllowed(part, allowedBarangays)) {
+                        extractedBarangay = part;
+                        break;
+                    }
+                }
+            }
+            
+            // If we found a barangay, validate it
+            if (extractedBarangay) {
+                if (isBarangayAllowed(extractedBarangay, allowedBarangays)) {
+                    return { isValid: true, barangay: findMatchingBarangay(extractedBarangay, allowedBarangays) };
+                } else {
+                    return {
+                        isValid: false,
+                        message: `Delivery is not available to ${extractedBarangay}. We currently deliver to: ${allowedBarangays.join(', ')}.`
+                    };
+                }
+            }
+            
+            // If we couldn't extract barangay, we'll be lenient and allow it
+            // The backend will do final validation
+            return { isValid: true, barangay: null };
+        }
+        
+        // Validate manually entered barangay (for delivery fee calculation only)
+        function validateBarangay() {
+            const barangayInput = document.getElementById('barangay-input');
+            const purokInput = document.getElementById('purok-input');
+            const barangayWarning = document.getElementById('barangay-warning');
+            const warningText = document.getElementById('barangay-warning-text');
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const fullAddress = document.getElementById('full-address').value.trim();
+            
+            if (!barangayInput || !purokInput) return false;
+            
+            const enteredBarangay = barangayInput.value.trim();
+            const enteredPurok = purokInput.value.trim();
+            
+            // Check if location is fetched (required)
+            if (!latitude || !longitude || !fullAddress) {
+                if (barangayWarning) {
+                    barangayWarning.classList.add('hidden');
+                }
+                selectedBarangay = '';
+                disablePlaceOrder('Please fetch your location first');
+                return false;
+            }
+            
+            // Check if both fields are filled
+            if (!enteredBarangay || !enteredPurok) {
+                if (barangayWarning) {
+                    barangayWarning.classList.add('hidden');
+                }
+                selectedBarangay = '';
+                disablePlaceOrder('Please enter both barangay and purok');
+                return false;
+            }
+            
+            // Check if barangay is in allowed list (using normalized comparison for delivery fee)
+            const matchingBarangay = findMatchingBarangay(enteredBarangay, allowedBarangays);
+            if (!matchingBarangay) {
+                if (barangayWarning) {
+                    let warningMessage = 'The entered barangay is not in our delivery area. ';
+                    if (allowedBarangays.length > 0) {
+                        warningMessage += `We currently deliver to: ${allowedBarangays.join(', ')}.`;
+                    } else {
+                        warningMessage += 'Please contact support for delivery availability.';
+                    }
+                    if (warningText) {
+                        warningText.textContent = warningMessage;
+                    }
+                    barangayWarning.classList.remove('hidden');
+                }
+                selectedBarangay = '';
+                disablePlaceOrder('Delivery not available to your location');
+                return false;
+            }
+            
+            // Valid barangay and location (use the matching barangay from allowed list for delivery fee)
+            selectedBarangay = matchingBarangay;
+            if (barangayWarning) {
+                barangayWarning.classList.add('hidden');
+            }
+            
+            // Update delivery fee
+            updateDeliveryFee(selectedBarangay);
+            
+            // Enable place order button
+            enablePlaceOrder();
+            
+            return true;
         }
 
         // Fetch customer location when button is clicked
@@ -648,7 +858,7 @@
             }
         }
 
-        // Reverse geocode coordinates to get address and extract barangay
+        // Reverse geocode coordinates to get full address (for rider navigation)
         async function reverseGeocode(lng, lat) {
             try {
                 const response = await fetch(
@@ -659,167 +869,54 @@
                 if (data.features && data.features.length > 0) {
                     const feature = data.features[0];
                     const placeName = feature.place_name || '';
-                    const context = feature.context || [];
                     
-                    // Store full address
+                    // Store full address for rider navigation
                     document.getElementById('full-address').value = placeName;
                     
-                    // Extract barangay from address
-                    // Barangay might be in different parts of the address
-                    let barangay = null;
-                    
-                    // Normalize allowed barangays for matching
-                    const normalizedBarangays = allowedBarangays.map(b => ({
-                        original: b,
-                        normalized: b.toLowerCase().replace(/^barangay\s+/i, '').trim(),
-                        fullLower: b.toLowerCase()
-                    }));
-                    
-                    // Check context items for barangay - prioritize place name (without "Barangay" prefix)
-                    // Look for context items with "locality" or "neighborhood" type that might contain barangay
-                    for (const ctx of context) {
-                        const text = (ctx.text || '').toLowerCase().trim();
-                        const id = (ctx.id || '').toLowerCase();
-                        
-                        // Only check if this is a locality or neighborhood context
-                        if (id.includes('locality') || id.includes('neighborhood') || id.includes('place')) {
-                            // Prioritize matching just the place name (e.g., "tayaga", "espina") without "Barangay" prefix
-                            for (const { original, normalized, fullLower } of normalizedBarangays) {
-                                // First check for normalized name only (e.g., "espina", "tayaga") - most flexible
-                                if (normalized.length >= 3) {
-                                    // Exact match for normalized name
-                                    if (text === normalized) {
-                                        barangay = original;
-                                        break;
-                                    }
-                                    // Word boundary match for normalized name
-                                    const normalizedRegex = new RegExp(`\\b${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-                                    if (normalizedRegex.test(text)) {
-                                        barangay = original;
-                                        break;
-                                    }
-                                }
-                                // Then check for full "Barangay X" format
-                                if (text === fullLower) {
-                                    barangay = original;
-                                    break;
-                                }
-                                if (fullLower.length > 3) {
-                                    const fullRegex = new RegExp(`\\b${fullLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-                                    if (fullRegex.test(text)) {
-                                        barangay = original;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (barangay) break;
-                    }
-                    
-                    // Check full address string - but only if no match found yet
-                    // Prioritize matching just the place name (e.g., "tayaga", "espina") without "Barangay" prefix
-                    if (!barangay) {
-                        const addressLower = placeName.toLowerCase();
-                        for (const { original, normalized, fullLower } of normalizedBarangays) {
-                            // Prioritize matching just the place name (without "Barangay" prefix)
-                            if (normalized.length >= 3) {
-                                // Use word boundaries to ensure exact match
-                                const patterns = [
-                                    // First: Check for just the normalized name (e.g., "tayaga", "espina") - most flexible
-                                    new RegExp(`\\b${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
-                                    // Then: Check for "Barangay X" format
-                                    new RegExp(`\\bbarangay ${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
-                                    // Finally: Check for abbreviated format "Brgy. X"
-                                    new RegExp(`\\bbrgy[\\s\\.]${normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
-                                ];
-                                
-                                for (const pattern of patterns) {
-                                    if (pattern.test(addressLower)) {
-                                        barangay = original;
-                                        console.log('Barangay matched from address pattern:', { pattern: pattern.toString(), barangay });
-                                        break;
-                                    }
-                                }
-                            }
-                            if (barangay) break;
-                        }
-                    }
-                    
-                    console.log('=== BARANGAY EXTRACTION ===');
-                    console.log('Address:', placeName);
-                    console.log('Extracted barangay:', barangay);
-                    console.log('Is in allowed list:', barangay ? allowedBarangays.includes(barangay) : false);
-                    console.log('Context items:', context.map(c => ({ id: c.id, text: c.text })));
-                    
-                    // Store barangay - only if actually found in address
-                    document.getElementById('barangay').value = barangay || '';
-                    
-                    // Display address
+                    // Display full exact address
                     const addressDisplay = document.getElementById('address-display');
                     const addressText = document.getElementById('address-text');
-                    const barangayText = document.getElementById('barangay-text');
-                    const barangayWarning = document.getElementById('barangay-warning');
-                    const warningText = document.getElementById('barangay-warning-text');
                     
                     if (addressText) {
                         addressText.textContent = placeName;
                     }
                     
-                    // Only display barangay if it was actually found in the address
-                    // Validate barangay
-                    if (!barangay || !allowedBarangays.includes(barangay)) {
-                        // Hide address display
-                        addressDisplay.classList.add('hidden');
-                        
-                        // Clear barangay text if not found
-                        if (barangayText) {
-                            barangayText.textContent = '';
-                        }
-                        
-                        // Show warning
-                        if (barangayWarning) {
-                            let warningMessage = 'Your location is outside our delivery area. ';
-                            if (allowedBarangays.length > 0) {
-                                warningMessage += `We currently deliver to: ${allowedBarangays.join(', ')}.`;
-                            } else {
-                                warningMessage += 'Please contact support for delivery availability.';
-                            }
-                            if (warningText) {
-                                warningText.textContent = warningMessage;
-                            }
-                            barangayWarning.classList.remove('hidden');
-                        }
-                        
-                        // Disable place order button
-                        disablePlaceOrder('Delivery not available to your location');
-                    } else {
-                        // Show address display
+                    // Show address display
+                    if (addressDisplay) {
                         addressDisplay.classList.remove('hidden');
-                        // Only show barangay if it was found, is valid, and is in the allowed list
-                        if (barangayText) {
-                            if (barangay && allowedBarangays.includes(barangay)) {
-                                barangayText.textContent = `Barangay: ${barangay}`;
-                            } else {
-                                // Clear barangay text if not found or invalid
-                                barangayText.textContent = '';
-                            }
-                        }
-                        
-                        // Hide warning
-                        barangayWarning.classList.add('hidden');
-                        
-                        // Enable place order button
-                        enablePlaceOrder();
-                        
-                        // Calculate and update delivery fee based on validated barangay
-                        await updateDeliveryFee(barangay);
                     }
                     
-                    console.log('Address processed:', { placeName, barangay, isValid: allowedBarangays.includes(barangay || '') });
+                    console.log('Location fetched and displayed:', placeName);
+                    
+                    // Validate deliverable area based on fetched location
+                    const deliverableValidation = await validateDeliverableArea(feature);
+                    if (!deliverableValidation.isValid) {
+                        // Show error and disable place order
+                        const barangayWarning = document.getElementById('barangay-warning');
+                        const warningText = document.getElementById('barangay-warning-text');
+                        if (barangayWarning && warningText) {
+                            warningText.textContent = deliverableValidation.message;
+                            barangayWarning.classList.remove('hidden');
+                        }
+                        disablePlaceOrder('Delivery not available to your location');
+                        return;
+                    } else {
+                        // Hide warning if validation passes
+                        const barangayWarning = document.getElementById('barangay-warning');
+                        if (barangayWarning) {
+                            barangayWarning.classList.add('hidden');
+                        }
+                    }
+                    
+                    // Trigger validation to check if barangay/purok are entered and update delivery fee
+                    validateBarangay();
+                } else {
+                    console.error('No address found for coordinates');
+                    alert('Could not find address for your location. Please try again.');
                 }
             } catch (error) {
                 console.error('Error reverse geocoding:', error);
-                alert('Failed to get address from location. Please try again.');
+                alert('Error getting address. Please try again.');
             }
         }
 
@@ -925,16 +1022,30 @@
                 // Load allowed barangays
                 await loadAllowedBarangays();
 
-                // Check if restaurant is open
-                await checkRestaurantStatus(cart);
-
                 // Update UI with real data - support multiple restaurants
                 updateRestaurantInfo(cart);
                 await updateOrderSummary(cart);
+
+                // Check if restaurant is open (after order summary is created)
+                await checkRestaurantStatus(cart);
                 
-                // Initially disable place order button until location is fetched (only if mobile number exists and restaurant is open)
+                // Initially disable place order button until location is fetched and barangay/purok are entered (only if mobile number exists and restaurant is open)
                 if (hasMobileNumber) {
-                    disablePlaceOrder('Please fetch your location first');
+                    disablePlaceOrder('Please fetch your location and enter your barangay and purok');
+                }
+                
+                // Add event listeners for barangay and purok inputs
+                const barangayInput = document.getElementById('barangay-input');
+                const purokInput = document.getElementById('purok-input');
+                
+                if (barangayInput) {
+                    barangayInput.addEventListener('input', validateBarangay);
+                    barangayInput.addEventListener('blur', validateBarangay);
+                }
+                
+                if (purokInput) {
+                    purokInput.addEventListener('input', validateBarangay);
+                    purokInput.addEventListener('blur', validateBarangay);
                 }
 
                 // Data loaded - page is already visible
@@ -1008,15 +1119,17 @@
                         </div>
                     `;
                     
-                    // Insert warning before the place order button
-                    const placeOrderSection = document.querySelector('button[onclick="placeOrder()"]')?.closest('.bg-surface');
-                    if (placeOrderSection) {
-                        placeOrderSection.insertBefore(warningDiv, placeOrderSection.querySelector('button[onclick="placeOrder()"]'));
-                    } else {
-                        // Fallback: insert at the top of the order summary
-                        const orderSummary = document.querySelector('.bg-surface.rounded-lg.p-6.shadow-card.border.border-border');
-                        if (orderSummary) {
-                            orderSummary.insertBefore(warningDiv, orderSummary.firstChild);
+                    // Insert warning in the order summary container
+                    const orderSummaryContainer = document.querySelector('.lg\\:col-span-1');
+                    if (orderSummaryContainer) {
+                        // Find the first restaurant card or place order card
+                        const firstCard = orderSummaryContainer.querySelector('.bg-surface.rounded-lg');
+                        if (firstCard && firstCard.parentNode === orderSummaryContainer) {
+                            // Insert before the first card if it's a direct child
+                            orderSummaryContainer.insertBefore(warningDiv, firstCard);
+                        } else {
+                            // Fallback: prepend to container
+                            orderSummaryContainer.insertBefore(warningDiv, orderSummaryContainer.firstChild);
                         }
                     }
                 }
@@ -1206,76 +1319,25 @@
             if (cashAmountElement) {
                 cashAmountElement.textContent = grandTotal.toFixed(2);
             }
-            // Find the order summary section more specifically
-            const orderSummarySection = document.querySelector('.lg\\:col-span-1 .space-y-3') || 
-                                       document.querySelector('.p-6.border-b .space-y-3');
-            
-            if (!orderSummarySection) {
-                console.error('Order summary container not found');
-                return;
-            }
 
-            // Find price elements more reliably - look within the price breakdown section
-            const priceBreakdown = document.querySelector('.p-6:not(.border-b) .space-y-2') ||
-                                  document.querySelector('.lg\\:col-span-1 .space-y-2');
-            
-            if (!priceBreakdown) {
-                console.error('Price breakdown container not found');
-                return;
-            }
-            
-            const priceElements = priceBreakdown.querySelectorAll('.flex.justify-between.text-sm span:last-child');
-            const subtotalElement = priceElements[0]; // Subtotal
-            const deliveryFeeElement = priceElements[1]; // Delivery fee
-            const taxElement = priceElements[2]; // Tax
-
-            const totalElement = document.querySelector('.border-t.border-border .flex.justify-between span:last-child');
-
-            let orderItemsHtml = '';
-            let subtotal = 0;
-
-            cart.forEach(item => {
-                // For items with variants, use variantPrice, otherwise use price
-                const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
-                const quantity = item.quantity || 1;
-                const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
-                subtotal += isNaN(itemTotal) ? 0 : itemTotal;
-                
-                // Show variant name if available
-                const variantInfo = item.variantName ? ` (${item.variantName})` : '';
-
-                orderItemsHtml += `
-                    <div class="flex justify-between text-sm">
-                        <span class="text-text-secondary">${item.name}${variantInfo} x${item.quantity}</span>
-                        <span class="text-text-primary">₱${itemTotal.toFixed(2)}</span>
-                    </div>
-                `;
-            });
-
-            orderSummarySection.innerHTML = orderItemsHtml;
-
-            // Initially set delivery fee to 0 - will be calculated after address is fetched and validated
-            const validSubtotal = isNaN(subtotal) ? 0 : subtotal;
-            const deliveryFee = 0; // Delivery fee calculated after address validation
-            const total = validSubtotal + deliveryFee;
-
-            if (subtotalElement) subtotalElement.textContent = `₱${validSubtotal.toFixed(2)}`;
-            if (deliveryFeeElement) deliveryFeeElement.textContent = `₱0.00`;
-            if (taxElement) taxElement.textContent = `₱0.00`;
-            if (totalElement) totalElement.textContent = `₱${total.toFixed(2)}`;
-
-            // Update cash payment instructions
-            const cashAmountElement = document.getElementById('cash-amount');
-            if (cashAmountElement) {
-                cashAmountElement.textContent = total.toFixed(2);
-            }
-
-            // Update delivery info - will be updated after address validation
-            const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
+            // Update delivery info if it exists (for single restaurant view)
+            const deliveryInfo = document.querySelector('p.text-sm.text-secondary');
             if (deliveryInfo) {
                 deliveryInfo.textContent = '25-35 min • Delivery fee calculated after address confirmation';
             }
-            
+
+            // Calculate and store subtotal for later use (sum of all restaurant subtotals)
+            let validSubtotal = 0;
+            restaurantIds.forEach(restaurantId => {
+                const restaurant = restaurants[restaurantId];
+                restaurant.items.forEach(item => {
+                    const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                    const quantity = item.quantity || 1;
+                    const itemTotal = (isNaN(price) ? 0 : price) * (isNaN(quantity) ? 1 : quantity);
+                    validSubtotal += isNaN(itemTotal) ? 0 : itemTotal;
+                });
+            });
+
             // Store subtotal for later use
             window.checkoutSubtotal = validSubtotal;
         }
@@ -1404,32 +1466,45 @@
                     console.warn('Could not verify mobile number, but allowing order to proceed');
                 }
 
-                // Get address from fetched location
+                // Get location data (required)
                 const fullAddress = document.getElementById('full-address').value.trim();
-                const barangay = document.getElementById('barangay').value.trim();
                 const latitude = document.getElementById('latitude').value;
                 const longitude = document.getElementById('longitude').value;
-
-                // Validate that location was fetched
+                
+                // Validate that location was fetched (required)
                 if (!fullAddress || !latitude || !longitude) {
                     alert('Please fetch your location first by clicking "Fetch My Location" button');
                     return;
                 }
-
-                // Validate barangay
-                if (!barangay) {
-                    alert('Unable to determine your barangay from the location. Delivery is only available to specific areas. Please contact support if you believe this is an error.');
+                
+                // Get manually entered barangay and purok (for delivery fee and rider info)
+                const barangayInput = document.getElementById('barangay-input');
+                const purokInput = document.getElementById('purok-input');
+                
+                if (!barangayInput || !purokInput) {
+                    alert('Please enter your barangay and purok');
                     return;
                 }
-
-                // Validate barangay is in allowed list
+                
+                const enteredBarangay = barangayInput.value.trim();
+                const enteredPurok = purokInput.value.trim();
+                
+                // Validate barangay and purok are entered
+                if (!enteredBarangay || !enteredPurok) {
+                    alert('Please enter both barangay and purok');
+                    return;
+                }
+                
+                // Load allowed barangays if not loaded
                 if (allowedBarangays.length === 0) {
                     await loadAllowedBarangays();
                 }
-
-                if (!allowedBarangays.includes(barangay)) {
+                
+                // Validate barangay is in allowed list (using normalized comparison for delivery fee)
+                const matchingBarangay = findMatchingBarangay(enteredBarangay, allowedBarangays);
+                if (!matchingBarangay) {
                     alert(
-                        `Delivery is not available to your location (${barangay}).\n\n` +
+                        `Delivery is not available to ${enteredBarangay}.\n\n` +
                         `We currently deliver to:\n${allowedBarangays.join(', ')}\n\n` +
                         `Please contact support if you believe this is an error.`
                     );
@@ -1438,25 +1513,25 @@
 
                 // Token and customerId already obtained above
 
-                // Parse address components from full address
-                // Mapbox format: "Street, Neighborhood/Barangay, City, Region, Country"
-                const addressParts = fullAddress.split(',').map(s => s.trim());
-                const streetAddress = fullAddress; // Use full address as street address
-                const city = addressParts.length > 2 ? addressParts[addressParts.length - 3] : (addressParts[addressParts.length - 2] || '');
-                const zipCode = ''; // ZIP code might not be in the address string
+                // Build street address: purok + full fetched address
+                // The full address is the exact location for the rider
+                // Barangay and purok are additional info for the rider
+                const streetAddress = `${enteredPurok}, ${fullAddress}`;
 
                 // Create a temporary address for this order
+                // Use fetched location (latitude/longitude) for rider navigation
+                // Include barangay and purok in address for rider information
                 let deliveryAddressId = null;
                 try {
                     const addressData = {
                         label: 'Delivery Address',
-                        streetAddress: streetAddress,
-                        city: city || barangay, // Use barangay as city if city not found
-                        zipCode: zipCode || '0000',
+                        streetAddress: streetAddress, // Purok + full address
+                        city: enteredBarangay, // Barangay for additional info
+                        zipCode: '0000',
                         apartment: null,
                         state: null,
-                        latitude: latitude ? parseFloat(latitude) : null,
-                        longitude: longitude ? parseFloat(longitude) : null,
+                        latitude: parseFloat(latitude), // Required - for rider navigation
+                        longitude: parseFloat(longitude), // Required - for rider navigation
                         isDefault: false
                     };
 
