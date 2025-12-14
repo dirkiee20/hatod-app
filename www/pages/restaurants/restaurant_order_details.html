@@ -327,6 +327,10 @@
                                 <p class="text-base font-medium text-text-primary" id="customerName"></p>
                             </div>
                             <div>
+                                <p class="text-sm text-text-secondary">Mobile Number</p>
+                                <p class="text-base font-medium text-text-primary" id="customerPhone"></p>
+                            </div>
+                            <div>
                                 <p class="text-sm text-text-secondary">Order Type</p>
                                 <p class="text-base font-medium text-text-primary" id="orderType"></p>
                             </div>
@@ -478,10 +482,10 @@
                     buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'ready')" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-smooth font-medium">Mark as Ready</button>`);
                     break;
                 case 'ready':
-                    buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'picked_up')" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-smooth font-medium">Mark as Picked Up</button>`);
+                    // Restaurants cannot mark as picked up - only riders can do this
                     break;
                 case 'picked_up':
-                    buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'delivered')" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-smooth font-medium">Mark as Delivered</button>`);
+                    // Restaurants cannot mark as delivered - only riders can do this
                     break;
             }
             return buttons.join('');
@@ -577,6 +581,7 @@
 
             // Customer Information
             document.getElementById('customerName').textContent = order.customerName || 'N/A';
+            document.getElementById('customerPhone').textContent = order.customerPhone || 'N/A';
             document.getElementById('orderType').textContent = order.deliveryAddressId ? 'Delivery' : 'Pickup';
 
             // Delivery Address
@@ -636,6 +641,22 @@
                 document.getElementById('actualDeliverySection').classList.remove('hidden');
                 const actualTime = new Date(order.actualDeliveryTime);
                 document.getElementById('actualDeliveryTime').textContent = actualTime.toLocaleString();
+            }
+        }
+
+        function hideSkeletonLoading() {
+            const skeleton = document.getElementById('orderSkeleton');
+            const content = document.getElementById('orderContent');
+            const errorState = document.getElementById('errorState');
+            
+            if (skeleton) {
+                skeleton.classList.add('hidden');
+            }
+            if (content) {
+                content.classList.remove('hidden');
+            }
+            if (errorState) {
+                errorState.classList.add('hidden');
             }
         }
 

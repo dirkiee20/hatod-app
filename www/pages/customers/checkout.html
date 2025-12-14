@@ -283,8 +283,9 @@
                                     </svg>
                                     <div class="flex-1">
                                         <p class="text-sm font-medium text-text-primary mb-1">Delivery Location:</p>
-                                        <p id="address-text" class="text-sm text-text-secondary break-words"></p>
-                                        <p class="text-xs text-text-secondary mt-2 italic">This is the exact location where the rider will deliver your order.</p>
+                                        <p id="address-text" class="text-sm font-medium text-text-primary break-words mb-2"></p>
+                                        <p id="delivery-time-fee" class="text-sm text-text-secondary mb-2"></p>
+                                        <p class="text-xs text-text-secondary italic">This is the exact location where the rider will deliver your order.</p>
                                     </div>
                                 </div>
                             </div>
@@ -876,9 +877,26 @@
                     // Display full exact address
                     const addressDisplay = document.getElementById('address-display');
                     const addressText = document.getElementById('address-text');
+                    const deliveryTimeFee = document.getElementById('delivery-time-fee');
                     
                     if (addressText) {
                         addressText.textContent = placeName;
+                    }
+                    
+                    // Show delivery time and fee if available
+                    if (deliveryTimeFee) {
+                        // Get delivery fee if already calculated
+                        const deliveryFeeElement = document.querySelector('#orderSummary .text-sm.text-text-secondary');
+                        if (deliveryFeeElement && deliveryFeeElement.textContent.includes('₱')) {
+                            const feeMatch = deliveryFeeElement.textContent.match(/₱([\d.]+)/);
+                            if (feeMatch) {
+                                deliveryTimeFee.textContent = `25-35 min • ₱${feeMatch[1]} delivery`;
+                            } else {
+                                deliveryTimeFee.textContent = '25-35 min • Delivery fee will be calculated';
+                            }
+                        } else {
+                            deliveryTimeFee.textContent = '25-35 min • Delivery fee will be calculated';
+                        }
                     }
                     
                     // Show address display
@@ -938,6 +956,45 @@
                 placeOrderBtn.classList.add('btn-hover');
                 placeOrderBtn.title = '';
             }
+        }
+
+        // Set loading state on place order button(s)
+        function setPlaceOrderLoading(isLoading) {
+            const placeOrderButtons = document.querySelectorAll('button[onclick="placeOrder()"]');
+            placeOrderButtons.forEach(btn => {
+                if (isLoading) {
+                    // Store original text
+                    if (!btn.dataset.originalText) {
+                        btn.dataset.originalText = btn.innerHTML;
+                    }
+                    // Show spinner and disable button
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.classList.remove('btn-hover');
+                    btn.innerHTML = `
+                        <span class="inline-flex items-center justify-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
+                    `;
+                } else {
+                    // Restore original text and state
+                    if (btn.dataset.originalText) {
+                        btn.innerHTML = btn.dataset.originalText;
+                        delete btn.dataset.originalText;
+                    }
+                    // Re-enable if it was enabled before (check if it should be enabled)
+                    const shouldBeEnabled = !btn.classList.contains('opacity-50') || btn.classList.contains('btn-hover');
+                    if (shouldBeEnabled) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        btn.classList.add('btn-hover');
+                    }
+                }
+            });
         }
 
         function showMobileNumberWarning() {
@@ -1414,10 +1471,16 @@
                     cashAmountElement.textContent = total.toFixed(2);
                 }
 
-                // Update delivery info
+                // Update delivery info in order summary
                 const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
                 if (deliveryInfo) {
                     deliveryInfo.textContent = `25-35 min • ₱${validDeliveryFee.toFixed(2)} delivery`;
+                }
+                
+                // Update delivery time and fee in address display if visible
+                const deliveryTimeFee = document.getElementById('delivery-time-fee');
+                if (deliveryTimeFee) {
+                    deliveryTimeFee.textContent = `25-35 min • ₱${validDeliveryFee.toFixed(2)} delivery`;
                 }
 
                 console.log('Delivery fee updated:', { barangay, deliveryFee, subtotal, total });
@@ -1428,9 +1491,13 @@
         }
 
         async function placeOrder() {
+            // Set loading state
+            setPlaceOrderLoading(true);
+            
             try {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
+                    setPlaceOrderLoading(false);
                     alert('Please log in to continue');
                     window.location.href = '../login.html';
                     return;
@@ -1554,6 +1621,7 @@
                     console.log('Temporary address created:', deliveryAddressId);
                 } catch (addressError) {
                     console.error('Error creating address:', addressError);
+                    setPlaceOrderLoading(false);
                     alert('Failed to create delivery address: ' + addressError.message);
                     return;
                 }
@@ -1573,6 +1641,7 @@
                 const cart = cartData.data || [];
 
                 if (cart.length === 0) {
+                    setPlaceOrderLoading(false);
                     alert('Your cart is empty');
                     window.location.href = 'shopping_cart.html';
                     return;
@@ -1621,6 +1690,7 @@
 
                 // If any restaurant is closed, prevent order placement
                 if (closedRestaurants.length > 0) {
+                    setPlaceOrderLoading(false);
                     const restaurantList = closedRestaurants.map(r => r.name).join(', ');
                     const isMultiple = closedRestaurants.length > 1;
                     const message = isMultiple
@@ -1732,6 +1802,7 @@
 
             } catch (error) {
                 console.error('Error placing order:', error);
+                setPlaceOrderLoading(false);
                 alert('Failed to place order: ' + error.message);
             }
         }

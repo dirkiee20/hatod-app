@@ -548,6 +548,12 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throw unauthorized('You cannot modify this order');
   }
 
+  // Restaurants cannot mark orders as picked_up or delivered - only riders can do this
+  const role = normalizeRole(req.user.role);
+  if (role === 'restaurant' && (status === 'picked_up' || status === 'delivered')) {
+    throw forbidden('Restaurants cannot mark orders as picked up or delivered. Only riders can perform this action.');
+  }
+
   const result = await withTransaction(async (client) => {
     const updatedOrder = await client.query(
       `UPDATE orders

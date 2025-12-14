@@ -968,10 +968,10 @@
                 buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'ready')" class="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-smooth text-sm font-medium">Mark as Ready</button>`);
                 break;
             case 'ready':
-                buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'picked_up')" class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-smooth text-sm font-medium">Mark as Picked Up</button>`);
+                // Restaurants cannot mark as picked up - only riders can do this
                 break;
             case 'picked_up':
-                buttons.push(`<button onclick="updateOrderStatus('${orderId}', 'delivered')" class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-smooth text-sm font-medium">Mark as Delivered</button>`);
+                // Restaurants cannot mark as delivered - only riders can do this
                 break;
             default:
                 // No action buttons for other statuses
@@ -1118,9 +1118,12 @@
             
             // Find delivery ID (we need to get it from deliveries table)
             // For now, let's use a prompt to select order
-            const orderId = prompt(`Enter Order ID to request rider for:\nAvailable orders:\n${readyOrders.map(o => `- ${o.id.slice(-8).toUpperCase()}`).join('\n')}`);
+            const orderIdInput = prompt(`Enter Order ID to request rider for:\nAvailable orders:\n${readyOrders.map(o => `- ${o.id.slice(-8).toUpperCase()}`).join('\n')}`);
             
-            if (!orderId) return;
+            if (!orderIdInput) return;
+
+            // Normalize the input (remove spaces, convert to uppercase)
+            const normalizedInput = orderIdInput.trim().toUpperCase();
 
             // Find delivery for this order
             const deliveryCheckResponse = await fetch(`${API_BASE_URL}/delivery/available-orders`, {
@@ -1128,10 +1131,16 @@
             });
             const deliveryCheckData = await deliveryCheckResponse.json();
             const availableDeliveries = deliveryCheckData.data || [];
-            const delivery = availableDeliveries.find(d => d.orderId === orderId);
+            
+            // Match by last 8 characters of orderId (since prompt shows last 8 chars)
+            const delivery = availableDeliveries.find(d => {
+                if (!d.orderId) return false;
+                const last8Chars = d.orderId.slice(-8).toUpperCase();
+                return last8Chars === normalizedInput || d.orderId.toUpperCase() === normalizedInput;
+            });
 
             if (!delivery) {
-                alert('Order not found or not available for delivery');
+                alert(`Order not found or not available for delivery.\n\nYou entered: ${orderIdInput}\n\nPlease check the order ID and try again.`);
                 return;
             }
 

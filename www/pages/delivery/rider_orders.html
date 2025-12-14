@@ -482,20 +482,30 @@
             }
         }
 
-        // Claim delivery (direct claim without request)
-        async function claimDelivery(deliveryId) {
-            if (!confirm('Claim this delivery now?')) return;
 
-            try {
-                const data = await apiCall(`/delivery/assignments/${deliveryId}/claim`, {
-                    method: 'POST'
-                });
+        // Hide skeleton loading and show content
+        function hideSkeletonLoading() {
+            const ordersSkeleton = document.getElementById('ordersSkeleton');
+            const ordersList = document.getElementById('ordersList');
+            
+            if (ordersSkeleton) {
+                ordersSkeleton.classList.add('hidden');
+            }
+            if (ordersList) {
+                ordersList.classList.remove('hidden');
+            }
+        }
 
-                alert('Delivery claimed successfully');
-                fetchAvailableOrders();
-            } catch (error) {
-                console.error('Error claiming delivery:', error);
-                alert('Failed to claim delivery: ' + (error.message || 'Unknown error'));
+        // Hide requests skeleton and show requests list
+        function hideRequestsSkeleton() {
+            const requestsSkeleton = document.getElementById('requestsSkeleton');
+            const requestsList = document.getElementById('requestsList');
+            
+            if (requestsSkeleton) {
+                requestsSkeleton.classList.add('hidden');
+            }
+            if (requestsList) {
+                requestsList.classList.remove('hidden');
             }
         }
 
@@ -507,12 +517,25 @@
                 renderDeliveryRequests(requests);
             } catch (error) {
                 console.error('Error fetching delivery requests:', error);
+                // Hide skeleton and show error message
+                hideRequestsSkeleton();
+                const requestsList = document.getElementById('requestsList');
+                if (requestsList) {
+                    requestsList.innerHTML = `
+                        <div class="bg-gray-50 rounded-lg p-8 text-center">
+                            <p class="text-text-secondary">Unable to load delivery requests</p>
+                        </div>
+                    `;
+                }
             }
         }
 
         function renderDeliveryRequests(requests) {
             const requestsList = document.getElementById('requestsList');
             if (!requestsList) return;
+
+            // Hide skeleton and show list
+            hideRequestsSkeleton();
 
             if (requests.length === 0) {
                 requestsList.innerHTML = `
@@ -618,10 +641,6 @@
                                             class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
                                         Request Pickup
                                     </button>
-                                    <button onclick="claimDelivery('${order.id}')" 
-                                            class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-smooth btn-hover">
-                                        Claim Now
-                                    </button>
                                     <button onclick="viewOrderDetails('${order.id}', '${order.orderId}', '${order.customerName}', '${order.restaurantName}', '${order.totalAmount}')" 
                                             class="px-4 py-2 bg-text-secondary text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-smooth btn-hover">
                                         View Details
@@ -687,26 +706,6 @@
             });
 
             window.location.href = `rider_accept_order.html?${params.toString()}`;
-        }
-
-        // Fetch pending delivery requests from restaurants
-        async function fetchDeliveryRequests() {
-            try {
-                const data = await apiCall('/delivery/riders/delivery-requests');
-                const requests = data.data || [];
-                renderDeliveryRequests(requests);
-            } catch (error) {
-                console.error('Error fetching delivery requests:', error);
-                // Silently fail - requests section will just be empty
-                const requestsList = document.getElementById('requestsList');
-                if (requestsList) {
-                    requestsList.innerHTML = `
-                        <div class="bg-gray-50 rounded-lg p-8 text-center">
-                            <p class="text-text-secondary">Unable to load delivery requests</p>
-                        </div>
-                    `;
-                }
-            }
         }
 
         function renderDeliveryRequests(requests) {
