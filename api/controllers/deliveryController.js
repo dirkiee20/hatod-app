@@ -143,6 +143,25 @@ export const updateDeliveryStatus = asyncHandler(async (req, res) => {
       throw notFound('Delivery assignment not found or could not be updated');
     }
 
+    // If delivery is marked as picked_up, also update the order status
+    if (status === 'picked_up' && delivery.order_id) {
+      // Update order status to picked_up
+      await client.query(
+        `UPDATE orders
+         SET status = 'picked_up',
+             updated_at = NOW()
+         WHERE id = $1`,
+        [delivery.order_id]
+      );
+
+      // Add order status event for tracking
+      await client.query(
+        `INSERT INTO order_status_events (order_id, status, note, created_by)
+         VALUES ($1, 'picked_up', 'Order picked up by rider', $2)`,
+        [delivery.order_id, riderId]
+      );
+    }
+
     // If delivery is marked as delivered, also update the order status
     if (status === 'delivered' && delivery.order_id) {
       // Update order status to delivered
@@ -167,8 +186,6 @@ export const updateDeliveryStatus = asyncHandler(async (req, res) => {
   });
 
   res.json({ status: 'success', data: result });
-
-  res.json({ status: 'success', data: result.rows[0] });
 });
 
 export const collectCashPayment = asyncHandler(async (req, res) => {
