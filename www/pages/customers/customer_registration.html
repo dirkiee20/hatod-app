@@ -21,13 +21,7 @@
         }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
-            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
             font-size: 0.78em; /* Base font size reduction by 22% */
-        }
-        @media (min-width: 1024px) {
-            main {
-                padding-bottom: 2rem !important; /* Reset to normal padding on desktop */
-            }
         }
         /* Reduce font sizes */
         .content-wrapper .text-xs { font-size: calc(0.75rem * 0.78) !important; line-height: calc(1rem * 0.78) !important; }
@@ -119,7 +113,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div class="content-wrapper">
         <div class="max-w-md mx-auto">
             <!-- Page Header -->
@@ -353,8 +347,7 @@
 
                     console.log('Registration successful:', registerData);
 
-                    // Show success message and redirect to login page
-                    alert('Registration successful! You can now log in.');
+                    // Redirect to login page
                     window.location.href = '../login.html';
 
                 } catch (error) {

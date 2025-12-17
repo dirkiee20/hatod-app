@@ -21,15 +21,12 @@
         }
         .content-wrapper {
             margin-top: calc(4rem + max(2rem, env(safe-area-inset-top))); /* Push content below fixed header */
-            margin-bottom: 0; /* No margin-bottom, padding-bottom on main handles spacing */
+            margin-bottom: calc(3rem + max(1rem, env(safe-area-inset-bottom))); /* Account for fixed footer */
             font-size: 0.78em; /* Base font size reduction by 22% */
         }
         @media (min-width: 1024px) {
             .content-wrapper {
                 margin-bottom: 0; /* No bottom margin on desktop */
-            }
-            main {
-                padding-bottom: 2rem !important; /* Reset to normal padding on desktop */
             }
         }
         /* Reduce font sizes */
@@ -122,7 +119,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8" style="padding-bottom: calc(6rem + max(1rem, env(safe-area-inset-bottom)));">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div class="content-wrapper">
         <div class="max-w-md mx-auto">
             <!-- Login Form -->

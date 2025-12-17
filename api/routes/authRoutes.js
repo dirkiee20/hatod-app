@@ -48,5 +48,19 @@ router.post(
   refresh
 );
 
+router.post(
+  '/verify-email',
+  [body('token').notEmpty().withMessage('Verification token is required')],
+  validate,
+  verifyEmail
+);
+
+router.post(
+  '/resend-verification',
+  [body('email').isEmail().withMessage('Valid email is required')],
+  validate,
+  resendVerificationEmail
+);
+
 export default router;
 

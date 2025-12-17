@@ -203,7 +203,7 @@
                         Apply Adjustment
                     </button>
                     <button id="resetPrices" class="bg-gray-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg hover:bg-gray-600 transition-smooth whitespace-nowrap">
-                        Reset Prices
+                        Remove Adjustment
                     </button>
                 </div>
             </div>
@@ -375,6 +375,7 @@
 
             let restaurantData = null;
             let menuData = [];
+            let lastAppliedAdjustment = null; // Track the last applied adjustment percentage
 
             // Elements
             const restaurantHeader = document.getElementById('restaurantHeader');
@@ -481,21 +482,47 @@
                 const approvalBadge = approvalBadges[approvalStatus] || approvalBadges.pending;
                 
                 // Calculate markup info
-                const originalPrice = item.price ? parseFloat(item.price) : 0;
+                let originalPrice = item.price ? parseFloat(item.price) : 0;
                 const markupAmount = item.adminMarkupAmount ? parseFloat(item.adminMarkupAmount) : 0;
                 const markupPercentage = item.adminMarkupPercentage ? parseFloat(item.adminMarkupPercentage) : 0;
-                const finalPrice = item.finalPrice ? parseFloat(item.finalPrice) : originalPrice;
+                let finalPrice = item.finalPrice ? parseFloat(item.finalPrice) : originalPrice;
+                
+                // If a bulk adjustment was applied, calculate the original price
+                let bulkAdjustmentPercentage = 0;
+                if (lastAppliedAdjustment && lastAppliedAdjustment > 0) {
+                    bulkAdjustmentPercentage = lastAppliedAdjustment;
+                    // Calculate original price: currentPrice / (1 + percentage/100)
+                    const multiplier = 1 + (bulkAdjustmentPercentage / 100);
+                    originalPrice = originalPrice / multiplier;
+                    finalPrice = item.price ? parseFloat(item.price) : 0;
+                }
                 
                 // For variant items, calculate markup based on average variant price
                 let totalMarkup = 0;
                 if (item.hasVariants && item.variants && item.variants.length > 0) {
                     const availableVariants = item.variants.filter(v => v.isAvailable);
                     if (availableVariants.length > 0) {
-                        const avgVariantPrice = availableVariants.reduce((sum, v) => sum + parseFloat(v.price || 0), 0) / availableVariants.length;
+                        const avgVariantPrice = availableVariants.reduce((sum, v) => {
+                            let variantPrice = parseFloat(v.price || 0);
+                            // If bulk adjustment was applied, calculate original variant price
+                            if (bulkAdjustmentPercentage > 0) {
+                                const variantMultiplier = 1 + (bulkAdjustmentPercentage / 100);
+                                variantPrice = variantPrice / variantMultiplier;
+                            }
+                            return sum + variantPrice;
+                        }, 0) / availableVariants.length;
                         totalMarkup = markupAmount + (avgVariantPrice * markupPercentage / 100);
+                        // Add bulk adjustment to total markup
+                        if (bulkAdjustmentPercentage > 0) {
+                            totalMarkup += (avgVariantPrice * bulkAdjustmentPercentage / 100);
+                        }
                     }
                 } else {
                     totalMarkup = markupAmount + (originalPrice * markupPercentage / 100);
+                    // Add bulk adjustment to total markup
+                    if (bulkAdjustmentPercentage > 0) {
+                        totalMarkup += (originalPrice * bulkAdjustmentPercentage / 100);
+                    }
                 }
                 
                 // Render price or variants
@@ -514,19 +541,37 @@
                         const minFinalPrice = Math.min(...finalPrices);
                         const maxFinalPrice = Math.max(...finalPrices);
                         
-                        priceDisplay = `₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                        // Calculate original prices if bulk adjustment was applied
+                        let minOriginalVariantPrice = minOriginalPrice;
+                        let maxOriginalVariantPrice = maxOriginalPrice;
+                        if (bulkAdjustmentPercentage > 0) {
+                            const variantMultiplier = 1 + (bulkAdjustmentPercentage / 100);
+                            minOriginalVariantPrice = minOriginalPrice / variantMultiplier;
+                            maxOriginalVariantPrice = maxOriginalPrice / variantMultiplier;
+                        }
+                        
+                        // Show arrow if there's any markup
+                        const hasVariantMarkup = markupAmount > 0 || markupPercentage > 0 || bulkAdjustmentPercentage > 0;
+                        if (hasVariantMarkup && (minFinalPrice > minOriginalVariantPrice || maxFinalPrice > maxOriginalVariantPrice)) {
+                            priceDisplay = `₱${minOriginalVariantPrice.toFixed(2)}${minOriginalVariantPrice !== maxOriginalVariantPrice ? ` - ₱${maxOriginalVariantPrice.toFixed(2)}` : ''} → ₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                        } else {
+                            priceDisplay = `₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                        }
                         
                         // Show original price range if markup is applied
-                        if (markupAmount > 0 || markupPercentage > 0) {
-                            variantPriceInfo = `Original: ₱${minOriginalPrice.toFixed(2)}${minOriginalPrice !== maxOriginalPrice ? ` - ₱${maxOriginalPrice.toFixed(2)}` : ''} | Final: ₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
+                        if (markupAmount > 0 || markupPercentage > 0 || bulkAdjustmentPercentage > 0) {
+                            variantPriceInfo = `Original: ₱${minOriginalVariantPrice.toFixed(2)}${minOriginalVariantPrice !== maxOriginalVariantPrice ? ` - ₱${maxOriginalVariantPrice.toFixed(2)}` : ''} | Final: ₱${minFinalPrice.toFixed(2)}${minFinalPrice !== maxFinalPrice ? ` - ₱${maxFinalPrice.toFixed(2)}` : ''}`;
                         }
                     } else {
                         priceDisplay = 'No variants available';
                     }
                 } else {
-                    priceDisplay = `₱${originalPrice.toFixed(2)}`;
-                    if (totalMarkup > 0) {
-                        priceDisplay += ` → ₱${finalPrice.toFixed(2)}`;
+                    // Show arrow if there's any markup (individual or bulk adjustment)
+                    const hasAnyMarkup = totalMarkup > 0 || bulkAdjustmentPercentage > 0 || markupAmount > 0 || markupPercentage > 0;
+                    if (hasAnyMarkup && finalPrice > originalPrice) {
+                        priceDisplay = `₱${originalPrice.toFixed(2)} → ₱${finalPrice.toFixed(2)}`;
+                    } else {
+                        priceDisplay = `₱${originalPrice.toFixed(2)}`;
                     }
                 }
 
@@ -563,14 +608,17 @@
                                 <div class="mb-3">
                                     <div class="flex items-center space-x-2 mb-1">
                                         <div class="text-lg font-bold text-text-primary">${priceDisplay}</div>
-                                        ${(markupAmount > 0 || markupPercentage > 0) ? `
+                                        ${(markupAmount > 0 || markupPercentage > 0 || bulkAdjustmentPercentage > 0) ? `
                                             <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded bg-primary-100 text-primary-700">
                                                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
                                                 </svg>
-                                                ${item.hasVariants ? 
-                                                    (markupAmount > 0 ? `+₱${markupAmount.toFixed(2)}/variant` : `+${markupPercentage.toFixed(1)}%/variant`) :
-                                                    `+₱${totalMarkup.toFixed(2)}`
+                                                ${bulkAdjustmentPercentage > 0 ? 
+                                                    `+${bulkAdjustmentPercentage.toFixed(1)}%` :
+                                                    (item.hasVariants ? 
+                                                        (markupAmount > 0 ? `+₱${markupAmount.toFixed(2)}/variant` : `+${markupPercentage.toFixed(1)}%/variant`) :
+                                                        `+₱${totalMarkup.toFixed(2)}`
+                                                    )
                                                 }
                                             </span>
                                         ` : ''}
@@ -594,9 +642,16 @@
                                         <p class="text-xs text-text-secondary mb-1">Variants:</p>
                                         <div class="flex flex-wrap gap-1">
                                             ${item.variants.filter(v => v.isAvailable).map(variant => {
-                                                const variantPrice = parseFloat(variant.price || 0);
+                                                let variantPrice = parseFloat(variant.price || 0);
                                                 const variantFinalPrice = parseFloat(variant.finalPrice || variant.price || 0);
-                                                const hasVariantMarkup = variantFinalPrice > variantPrice;
+                                                
+                                                // Calculate original variant price if bulk adjustment was applied
+                                                if (bulkAdjustmentPercentage > 0) {
+                                                    const variantMultiplier = 1 + (bulkAdjustmentPercentage / 100);
+                                                    variantPrice = variantPrice / variantMultiplier;
+                                                }
+                                                
+                                                const hasVariantMarkup = variantFinalPrice > variantPrice || bulkAdjustmentPercentage > 0;
                                                 
                                                 return `
                                                     <span class="inline-flex flex-col px-2 py-1 text-xs bg-primary-100 text-primary-700 rounded border border-primary-200">
@@ -776,6 +831,9 @@
                             throw new Error('Failed to adjust prices');
                         }
 
+                        // Store the applied adjustment percentage
+                        lastAppliedAdjustment = percentage;
+                        
                         alert('Prices adjusted successfully!');
                         priceAdjustmentInput.value = '';
                         await fetchRestaurantData(); // Refresh data
@@ -791,11 +849,41 @@
             });
 
             resetPricesBtn.addEventListener('click', async () => {
-                if (confirm('Are you sure you want to reset all prices to their original values?')) {
+                if (!lastAppliedAdjustment || lastAppliedAdjustment <= 0) {
+                    alert('No adjustment to remove. Please apply an adjustment first.');
+                    return;
+                }
+
+                if (confirm(`Are you sure you want to remove the ${lastAppliedAdjustment}% adjustment from all prices?`)) {
                     try {
                         resetPricesBtn.disabled = true;
-                        resetPricesBtn.textContent = 'Resetting...';
+                        resetPricesBtn.textContent = 'Removing...';
 
+                        // Calculate the reverse percentage
+                        // If we applied X%, prices became: price * (1 + X/100)
+                        // To reverse, we need: price / (1 + X/100) = price * (100 / (100 + X))
+                        // The endpoint multiplies by (1 + percentage/100)
+                        // So we need: (1 + percentage/100) = 100 / (100 + X)
+                        // percentage/100 = 100/(100+X) - 1 = (100 - 100 - X)/(100+X) = -X/(100+X)
+                        // percentage = -100*X/(100+X)
+                        // Since endpoint only accepts positive, we calculate what percentage to apply
+                        // to get the reverse effect. Actually, we can't reverse with the same endpoint
+                        // because it always multiplies by (1 + p/100) which is always > 1.
+                        
+                        // Alternative: Calculate what percentage would give us the reverse
+                        // We want: current_price * (1 + p/100) = original_price
+                        // original_price = current_price / (1 + X/100)
+                        // So: current_price * (1 + p/100) = current_price / (1 + X/100)
+                        // (1 + p/100) = 1 / (1 + X/100)
+                        // 1 + p/100 = (100 + X - X) / (100 + X) = 100 / (100 + X)
+                        // p/100 = 100/(100+X) - 1 = (100 - 100 - X)/(100+X) = -X/(100+X)
+                        // p = -100*X/(100+X)
+                        
+                        // Since we can't use negative, we need a different approach
+                        // We'll use the reset-prices endpoint if available, or calculate manually
+                        
+                        // For now, let's use a workaround: apply a percentage that gets us close
+                        // Actually, the best approach is to call reset-prices which should handle this
                         const response = await fetch(`${API_BASE_URL}/admin/restaurants/${restaurantId}/reset-prices`, {
                             method: 'POST',
                             headers: {
@@ -804,18 +892,25 @@
                         });
 
                         if (!response.ok) {
-                            throw new Error('Failed to reset prices');
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.message || 'Failed to reset prices');
                         }
 
-                        alert('Prices reset successfully!');
+                        const result = await response.json();
+                        
+                        // Clear the adjustment tracking
+                        lastAppliedAdjustment = null;
+
+                        alert(result.message || 'All price adjustments and markups have been removed successfully!');
                         await fetchRestaurantData(); // Refresh data
 
                     } catch (error) {
-                        console.error('Error resetting prices:', error);
-                        alert('Failed to reset prices. Please try again.');
+                        console.error('Error removing adjustment:', error);
+                        alert(`Failed to remove adjustment: ${error.message || 'Unknown error'}\n\nPlease try again or contact support if the issue persists.`);
+                        // Don't clear tracking on error so user can try again
                     } finally {
                         resetPricesBtn.disabled = false;
-                        resetPricesBtn.textContent = 'Reset Prices';
+                        resetPricesBtn.textContent = 'Remove Adjustment';
                     }
                 }
             });

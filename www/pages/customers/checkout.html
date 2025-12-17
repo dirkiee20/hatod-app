@@ -1181,11 +1181,11 @@
                     if (orderSummaryContainer) {
                         // Find the first restaurant card or place order card
                         const firstCard = orderSummaryContainer.querySelector('.bg-surface.rounded-lg');
-                        if (firstCard && firstCard.parentNode === orderSummaryContainer) {
-                            // Insert before the first card if it's a direct child
+                        if (firstCard) {
+                            // Insert before the first card
                             orderSummaryContainer.insertBefore(warningDiv, firstCard);
                         } else {
-                            // Fallback: prepend to container
+                            // Fallback: append to container
                             orderSummaryContainer.insertBefore(warningDiv, orderSummaryContainer.firstChild);
                         }
                     }
@@ -1376,13 +1376,13 @@
             if (cashAmountElement) {
                 cashAmountElement.textContent = grandTotal.toFixed(2);
             }
-
+            
             // Update delivery info if it exists (for single restaurant view)
-            const deliveryInfo = document.querySelector('p.text-sm.text-secondary');
+            const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
             if (deliveryInfo) {
                 deliveryInfo.textContent = '25-35 min • Delivery fee calculated after address confirmation';
             }
-
+            
             // Calculate and store subtotal for later use (sum of all restaurant subtotals)
             let validSubtotal = 0;
             restaurantIds.forEach(restaurantId => {
@@ -1394,7 +1394,7 @@
                     validSubtotal += isNaN(itemTotal) ? 0 : itemTotal;
                 });
             });
-
+            
             // Store subtotal for later use
             window.checkoutSubtotal = validSubtotal;
         }
@@ -1519,6 +1519,7 @@
                     const profile = profileData.data;
                     
                     if (!profile.phone || profile.phone.trim() === '') {
+                        setPlaceOrderLoading(false);
                         const addMobile = confirm(
                             'You need to add your mobile number to your profile before placing an order.\n\n' +
                             'Would you like to go to your profile page to add it now?'
@@ -1540,6 +1541,7 @@
                 
                 // Validate that location was fetched (required)
                 if (!fullAddress || !latitude || !longitude) {
+                    setPlaceOrderLoading(false);
                     alert('Please fetch your location first by clicking "Fetch My Location" button');
                     return;
                 }
@@ -1549,6 +1551,7 @@
                 const purokInput = document.getElementById('purok-input');
                 
                 if (!barangayInput || !purokInput) {
+                    setPlaceOrderLoading(false);
                     alert('Please enter your barangay and purok');
                     return;
                 }
@@ -1558,6 +1561,7 @@
                 
                 // Validate barangay and purok are entered
                 if (!enteredBarangay || !enteredPurok) {
+                    setPlaceOrderLoading(false);
                     alert('Please enter both barangay and purok');
                     return;
                 }
@@ -1570,6 +1574,7 @@
                 // Validate barangay is in allowed list (using normalized comparison for delivery fee)
                 const matchingBarangay = findMatchingBarangay(enteredBarangay, allowedBarangays);
                 if (!matchingBarangay) {
+                    setPlaceOrderLoading(false);
                     alert(
                         `Delivery is not available to ${enteredBarangay}.\n\n` +
                         `We currently deliver to:\n${allowedBarangays.join(', ')}\n\n` +
