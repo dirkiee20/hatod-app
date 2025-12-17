@@ -1023,6 +1023,10 @@ body {
   height: 1rem;
 }
 
+.h-40{
+  height: 10rem;
+}
+
 .h-48{
   height: 12rem;
 }
@@ -1127,6 +1131,10 @@ body {
   width: 1rem;
 }
 
+.w-40{
+  width: 10rem;
+}
+
 .w-48{
   width: 12rem;
 }
@@ -1181,6 +1189,10 @@ body {
 
 .max-w-7xl{
   max-width: 80rem;
+}
+
+.max-w-\[120px\]{
+  max-width: 120px;
 }
 
 .max-w-lg{
@@ -1440,6 +1452,10 @@ body {
 
 .rounded{
   border-radius: 0.25rem;
+}
+
+.rounded-2xl{
+  border-radius: 1rem;
 }
 
 .rounded-full{
@@ -1984,6 +2000,11 @@ body {
   padding-bottom: 0.75rem;
 }
 
+.py-3\.5{
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
 .py-4{
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -2045,6 +2066,10 @@ body {
 
 .pr-10{
   padding-right: 2.5rem;
+}
+
+.pr-12{
+  padding-right: 3rem;
 }
 
 .pr-2{
@@ -2438,6 +2463,10 @@ body {
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.outline{
+  outline-style: solid;
 }
 
 .ring-2{
@@ -3022,6 +3051,14 @@ body {
     margin-left: 0.25rem;
   }
 
+  .sm\:ml-3{
+    margin-left: 0.75rem;
+  }
+
+  .sm\:mr-2{
+    margin-right: 0.5rem;
+  }
+
   .sm\:mt-0{
     margin-top: 0px;
   }
@@ -3046,6 +3083,10 @@ body {
     display: none;
   }
 
+  .sm\:h-10{
+    height: 2.5rem;
+  }
+
   .sm\:h-16{
     height: 4rem;
   }
@@ -3062,6 +3103,14 @@ body {
     height: 1rem;
   }
 
+  .sm\:h-48{
+    height: 12rem;
+  }
+
+  .sm\:h-6{
+    height: 1.5rem;
+  }
+
   .sm\:h-64{
     height: 16rem;
   }
@@ -3072,6 +3121,10 @@ body {
 
   .sm\:h-96{
     height: 24rem;
+  }
+
+  .sm\:w-10{
+    width: 2.5rem;
   }
 
   .sm\:w-16{
@@ -3090,6 +3143,14 @@ body {
     width: 1rem;
   }
 
+  .sm\:w-48{
+    width: 12rem;
+  }
+
+  .sm\:w-6{
+    width: 1.5rem;
+  }
+
   .sm\:w-8{
     width: 2rem;
   }
@@ -3100,6 +3161,10 @@ body {
 
   .sm\:min-w-0{
     min-width: 0px;
+  }
+
+  .sm\:max-w-none{
+    max-width: none;
   }
 
   .sm\:grid-cols-12{
@@ -3174,6 +3239,10 @@ body {
 
   .sm\:self-auto{
     align-self: auto;
+  }
+
+  .sm\:p-10{
+    padding: 2.5rem;
   }
 
   .sm\:p-6{

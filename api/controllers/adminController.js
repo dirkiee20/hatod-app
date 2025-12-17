@@ -751,6 +751,30 @@ export const adjustRestaurantPrices = asyncHandler(async (req, res) => {
 
   const multiplier = 1 + (percentage / 100);
 
+  // First, store original prices if not already stored (before first adjustment)
+  // This ensures we can reset later
+  await query(
+    `UPDATE menu_items
+     SET original_price = price
+     WHERE restaurant_id = $1 
+       AND has_variants = false 
+       AND price IS NOT NULL 
+       AND original_price IS NULL`,
+    [restaurantId]
+  );
+
+  // Store original prices for variants
+  await query(
+    `UPDATE menu_item_variants
+     SET original_price = price
+     WHERE menu_item_id IN (
+       SELECT id FROM menu_items WHERE restaurant_id = $1 AND has_variants = true
+     )
+     AND original_price IS NULL
+     AND price IS NOT NULL`,
+    [restaurantId]
+  );
+
   // Update menu item prices
   const itemsResult = await query(
     `UPDATE menu_items
@@ -786,14 +810,52 @@ export const adjustRestaurantPrices = asyncHandler(async (req, res) => {
 export const resetRestaurantPrices = asyncHandler(async (req, res) => {
   const { restaurantId } = req.params;
 
-  // For now, this is a placeholder - in a real implementation,
-  // you'd need to store original prices or have a way to reset them
-  // This could be implemented by storing price history or having a base_price field
+  // Reset menu item prices from original_price and remove all admin markups
+  const itemsResult = await query(
+    `UPDATE menu_items
+     SET price = COALESCE(original_price, price),
+         admin_markup_amount = 0.00,
+         admin_markup_percentage = 0.00,
+         updated_at = NOW()
+     WHERE restaurant_id = $1 
+       AND has_variants = false 
+       AND (original_price IS NOT NULL OR price IS NOT NULL)
+     RETURNING id, name, price`,
+    [restaurantId]
+  );
+
+  // Reset variant prices from original_price
+  const variantsResult = await query(
+    `UPDATE menu_item_variants
+     SET price = COALESCE(original_price, price),
+         updated_at = NOW()
+     WHERE menu_item_id IN (
+       SELECT id FROM menu_items WHERE restaurant_id = $1 AND has_variants = true
+     )
+     AND (original_price IS NOT NULL OR price IS NOT NULL)
+     RETURNING id, name, price`,
+    [restaurantId]
+  );
+
+  // Also reset markups for items with variants (they might have markups too)
+  await query(
+    `UPDATE menu_items
+     SET admin_markup_amount = 0.00,
+         admin_markup_percentage = 0.00,
+         updated_at = NOW()
+     WHERE restaurant_id = $1 
+       AND has_variants = true
+       AND (admin_markup_amount > 0 OR admin_markup_percentage > 0)`,
+    [restaurantId]
+  );
 
   res.json({
     status: 'success',
-    message: 'Price reset functionality not yet implemented',
-    note: 'This would require storing original prices in a separate table or field'
+    message: 'All price adjustments and markups have been removed',
+    data: {
+      itemsReset: itemsResult.rowCount,
+      variantsReset: variantsResult.rowCount
+    }
   });
 });
 
