@@ -1,10 +1,10 @@
 # PayMongo Setup Instructions
 
-## Your PayMongo Test Keys (Configured)
-✅ **Test Secret Key:** `sk_test_MXG8hdwTbR6oguQhcjYvBrC8`  
-✅ **Test Public Key:** `pk_test_4M5C3PMLA1L86jqW1gVfB1hZ`
+## Your PayMongo Test Keys
 
-**Note:** These are TEST keys - they won't process real payments. Perfect for development!
+⚠️ **IMPORTANT:** Add your actual keys to your `.env` file and Railway - never commit them to git!
+
+Get your keys from: [PayMongo Dashboard](https://dashboard.paymongo.com) → Settings → API Keys
 
 ## Next Steps
 
@@ -13,8 +13,9 @@ Create or update `api/.env` (or your main `.env` file) with:
 
 ```env
 # PayMongo API Configuration (TEST KEYS)
-PAYMONGO_SECRET_KEY=sk_test_MXG8hdwTbR6oguQhcjYvBrC8
-PAYMONGO_PUBLIC_KEY=pk_test_4M5C3PMLA1L86jqW1gVfB1hZ
+# Get your keys from: https://dashboard.paymongo.com/settings/api-keys
+PAYMONGO_SECRET_KEY=sk_test_YOUR_SECRET_KEY_HERE
+PAYMONGO_PUBLIC_KEY=pk_test_YOUR_PUBLIC_KEY_HERE
 PAYMONGO_API_BASE=https://api.paymongo.com/v1
 PAYMONGO_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxx  # Optional, for webhook verification
 ```

@@ -85,8 +85,8 @@ After deployment:
 
 Make sure you have these in Railway:
 
-- ✅ `PAYMONGO_SECRET_KEY` = `sk_test_MXG8hdwTbR6oguQhcjYvBrC8`
-- ✅ `PAYMONGO_PUBLIC_KEY` = `pk_test_4M5C3PMLA1L86jqW1gVfB1hZ`
+- ✅ `PAYMONGO_SECRET_KEY` = Your test secret key (starts with `sk_test_`)
+- ✅ `PAYMONGO_PUBLIC_KEY` = Your test public key (starts with `pk_test_`)
 - ✅ `PAYMONGO_API_BASE` = `https://api.paymongo.com/v1`
 - ✅ `APP_BASE_URL` = Your frontend URL
 - ⚠️ `PAYMONGO_WEBHOOK_SECRET` = (Optional, add after setting up webhook)
