@@ -43,7 +43,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     orderType = 'delivery',
     tipAmount = 0,
     items,
-    specialInstructions
+    specialInstructions,
+    paymentMethod = 'gcash'
   } = req.body;
 
   if (req.user.role !== 'admin' && req.user.sub !== customerId) {
@@ -52,6 +53,11 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   if (!Array.isArray(items) || items.length === 0) {
     throw badRequest('Order items are required');
+  }
+
+  // GCash-only payments
+  if (paymentMethod !== 'gcash') {
+    throw badRequest('Only GCash payment is supported');
   }
 
   const menuItemsResult = await query(
@@ -413,6 +419,28 @@ export const createOrder = asyncHandler(async (req, res) => {
       );
     }
 
+    // Create payment record (PayMongo will handle actual payment)
+    // Payment will be created when PayMongo source is generated
+    await client.query(
+      `INSERT INTO payments (
+          order_id,
+          payment_method,
+          payment_status,
+          amount,
+          currency,
+          payment_gateway
+       )
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        order.id,
+        'gcash',
+        'pending',
+        totalAmount,
+        'PHP',
+        'paymongo'
+      ]
+    );
+
     return order;
   });
 
@@ -478,6 +506,34 @@ export const getOrderById = asyncHandler(async (req, res) => {
     [orderId]
   );
 
+  // Get payment information
+  const paymentResult = await query(
+    `SELECT payment_method AS "paymentMethod",
+            payment_status AS "paymentStatus",
+            amount,
+            currency,
+            transaction_id AS "transactionId",
+            payment_gateway AS "paymentGateway",
+            qr_code_url AS "qrCodeUrl",
+            gateway_response AS "gatewayResponse"
+     FROM payments
+     WHERE order_id = $1
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [orderId]
+  );
+
+  const payment = paymentResult.rowCount > 0 ? {
+    paymentMethod: paymentResult.rows[0].paymentMethod,
+    paymentStatus: paymentResult.rows[0].paymentStatus,
+    amount: Number(paymentResult.rows[0].amount),
+    currency: paymentResult.rows[0].currency,
+    transactionId: paymentResult.rows[0].transactionId,
+    paymentGateway: paymentResult.rows[0].paymentGateway,
+    qrCodeUrl: paymentResult.rows[0].qrCodeUrl,
+    gatewayResponse: paymentResult.rows[0].gatewayResponse
+  } : null;
+
   res.json({
     status: 'success',
     data: {
@@ -513,7 +569,8 @@ export const getOrderById = asyncHandler(async (req, res) => {
             riderPhone: order.rider_phone,
             vehicleType: order.rider_vehicle_type
           }
-        : null
+        : null,
+      payment: payment
     }
   });
 });

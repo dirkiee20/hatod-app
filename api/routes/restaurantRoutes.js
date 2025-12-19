@@ -22,7 +22,9 @@ import {
   uploadRestaurantBanner,
   uploadMenuItemImage,
   getBusinessHours,
-  updateBusinessHours
+  updateBusinessHours,
+  updateGcashSettings,
+  getGcashSettings
 } from '../controllers/restaurantsController.js';
 import { authenticate, optionalAuthenticate, requireRoles } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -236,6 +238,26 @@ router.put(
   ],
   validate,
   updateBusinessHours
+);
+
+router.get(
+  '/:restaurantId/gcash-settings',
+  [param('restaurantId').isUUID()],
+  validate,
+  getGcashSettings
+);
+
+router.put(
+  '/:restaurantId/gcash-settings',
+  [
+    param('restaurantId').isUUID(),
+    body('gcashMobileNumber').optional().matches(/^09\d{9}$/).withMessage('Invalid GCash mobile number format'),
+    body('gcashQrCodeUrl').optional().isURL(),
+    body('gcashAccountName').optional().isString(),
+    body('gcashEnabled').optional().isBoolean()
+  ],
+  validate,
+  updateGcashSettings
 );
 
 export default router;

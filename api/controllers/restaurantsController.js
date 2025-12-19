@@ -294,6 +294,10 @@ export const getRestaurant = asyncHandler(async (req, res) => {
             r.is_open AS "isOpen",
             r.image_url AS "imageUrl",
             r.banner_url AS "bannerUrl",
+            r.gcash_mobile_number AS "gcashMobileNumber",
+            r.gcash_qr_code_url AS "gcashQrCodeUrl",
+            r.gcash_account_name AS "gcashAccountName",
+            r.gcash_enabled AS "gcashEnabled",
             'approved' AS "approvalStatus",
             NULL AS "approvedAt",
             u.full_name AS "ownerName",
@@ -1120,8 +1124,12 @@ export const updateRestaurantDetails = asyncHandler(async (req, res) => {
          is_open = COALESCE($13, is_open),
          image_url = COALESCE($14, image_url),
          banner_url = COALESCE($15, banner_url),
+         gcash_mobile_number = COALESCE($16, gcash_mobile_number),
+         gcash_qr_code_url = COALESCE($17, gcash_qr_code_url),
+         gcash_account_name = COALESCE($18, gcash_account_name),
+         gcash_enabled = COALESCE($19, gcash_enabled),
          updated_at = NOW()
-     WHERE id = $16
+     WHERE id = $20
      RETURNING id,
                name,
                description,
@@ -1137,7 +1145,11 @@ export const updateRestaurantDetails = asyncHandler(async (req, res) => {
                minimum_order AS "minimumOrder",
                is_open AS "isOpen",
                image_url AS "imageUrl",
-               banner_url AS "bannerUrl"`,
+               banner_url AS "bannerUrl",
+               gcash_mobile_number AS "gcashMobileNumber",
+               gcash_qr_code_url AS "gcashQrCodeUrl",
+               gcash_account_name AS "gcashAccountName",
+               gcash_enabled AS "gcashEnabled"`,
     [
       name ?? null,
       description ?? null,
@@ -1154,6 +1166,10 @@ export const updateRestaurantDetails = asyncHandler(async (req, res) => {
       isOpen ?? null,
       imageUrl ?? null,
       bannerUrl ?? null,
+      req.body.gcashMobileNumber ?? null,
+      req.body.gcashQrCodeUrl ?? null,
+      req.body.gcashAccountName ?? null,
+      req.body.gcashEnabled ?? null,
       restaurantId
     ]
   );
@@ -1398,5 +1414,79 @@ export const uploadMenuItemImage = asyncHandler(async (req, res) => {
       imageUrl: url
     }
   });
+});
+
+// Update GCash payment settings for restaurant
+export const updateGcashSettings = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+  await assertRestaurantOwner(req.user, restaurantId);
+
+  const {
+    gcashMobileNumber,
+    gcashQrCodeUrl,
+    gcashAccountName,
+    gcashEnabled
+  } = req.body;
+
+  // Validate mobile number format if provided (Philippines format: 09XXXXXXXXX)
+  if (gcashMobileNumber && !/^09\d{9}$/.test(gcashMobileNumber)) {
+    throw badRequest('GCash mobile number must be in format 09XXXXXXXXX (11 digits)');
+  }
+
+  // If enabling GCash, require at least mobile number or QR code
+  if (gcashEnabled === true && !gcashMobileNumber && !gcashQrCodeUrl) {
+    throw badRequest('GCash mobile number or QR code URL is required when enabling GCash');
+  }
+
+  const result = await query(
+    `UPDATE restaurants
+     SET gcash_mobile_number = COALESCE($1, gcash_mobile_number),
+         gcash_qr_code_url = COALESCE($2, gcash_qr_code_url),
+         gcash_account_name = COALESCE($3, gcash_account_name),
+         gcash_enabled = COALESCE($4, gcash_enabled),
+         updated_at = NOW()
+     WHERE id = $5
+     RETURNING id,
+               gcash_mobile_number AS "gcashMobileNumber",
+               gcash_qr_code_url AS "gcashQrCodeUrl",
+               gcash_account_name AS "gcashAccountName",
+               gcash_enabled AS "gcashEnabled"`,
+    [
+      gcashMobileNumber ?? null,
+      gcashQrCodeUrl ?? null,
+      gcashAccountName ?? null,
+      gcashEnabled ?? null,
+      restaurantId
+    ]
+  );
+
+  if (result.rowCount === 0) {
+    throw notFound('Restaurant not found');
+  }
+
+  res.json({ status: 'success', data: result.rows[0] });
+});
+
+// Get GCash settings for restaurant
+export const getGcashSettings = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+  await assertRestaurantOwner(req.user, restaurantId);
+
+  const result = await query(
+    `SELECT id,
+            gcash_mobile_number AS "gcashMobileNumber",
+            gcash_qr_code_url AS "gcashQrCodeUrl",
+            gcash_account_name AS "gcashAccountName",
+            gcash_enabled AS "gcashEnabled"
+     FROM restaurants
+     WHERE id = $1`,
+    [restaurantId]
+  );
+
+  if (result.rowCount === 0) {
+    throw notFound('Restaurant not found');
+  }
+
+  res.json({ status: 'success', data: result.rows[0] });
 });
 

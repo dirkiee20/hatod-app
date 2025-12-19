@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Payment Setup - HATOD</title>
+    <title>GCash Payment Setup - HATOD</title>
     <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/pages.css">
     <style>
@@ -155,75 +155,66 @@
                     <span>Back to Profile</span>
                 </button>
             </div>
-            <h2 class="text-3xl font-bold text-text-primary mb-2">Payment Setup</h2>
-            <p class="text-text-secondary">Set up your bank account to receive payments from customer orders</p>
+            <h2 class="text-3xl font-bold text-text-primary mb-2">GCash Payment Setup</h2>
+            <p class="text-text-secondary">Set up your GCash account to receive payments directly from customer orders</p>
         </div>
 
         <!-- Payment Setup Form -->
         <div class="bg-surface rounded-lg p-6 lg:p-8 shadow-card border border-border">
             <div class="mb-6">
-                <h3 class="text-xl font-semibold text-text-primary mb-2">Bank Account Information</h3>
-                <p class="text-text-secondary">This account will receive cumulative daily payments from all your orders processed through the platform.</p>
+                <h3 class="text-xl font-semibold text-text-primary mb-2">GCash Payment Configuration</h3>
+                <p class="text-text-secondary">Enable GCash to receive payments directly to your GCash account. Customers will pay you directly when they choose GCash payment.</p>
             </div>
 
+            <!-- GCash Setup Section -->
             <form id="paymentSetupForm" class="space-y-6">
-                <!-- Account Holder Name -->
-                <div>
-                    <label for="accountHolderName" class="block text-sm font-medium text-text-primary mb-2">Account Holder Name *</label>
-                    <input type="text" id="accountHolderName" name="accountHolderName" required
-                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                           placeholder="Enter the name on the bank account">
-                </div>
-
-                <!-- Bank Name -->
-                <div>
-                    <label for="bankName" class="block text-sm font-medium text-text-primary mb-2">Bank Name *</label>
-                    <input type="text" id="bankName" name="bankName" required
-                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                           placeholder="Enter your bank name">
-                </div>
-
-                <!-- Account Number -->
-                <div>
-                    <label for="accountNumber" class="block text-sm font-medium text-text-primary mb-2">Account Number *</label>
-                    <input type="text" id="accountNumber" name="accountNumber" required pattern="[0-9]{8,17}"
-                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                           placeholder="Enter your account number (8-17 digits)">
-                    <p class="text-xs text-text-secondary mt-1">Account number should be 8-17 digits long</p>
-                </div>
-
-                <!-- Routing Number -->
-                <div>
-                    <label for="routingNumber" class="block text-sm font-medium text-text-primary mb-2">Routing Number *</label>
-                    <input type="text" id="routingNumber" name="routingNumber" required pattern="[0-9]{9}"
-                           class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                           placeholder="Enter 9-digit routing number">
-                    <p class="text-xs text-text-secondary mt-1">9-digit routing number (ABA routing number)</p>
-                </div>
-
-                <!-- Account Type -->
-                <div>
-                    <label for="accountType" class="block text-sm font-medium text-text-primary mb-2">Account Type *</label>
-                    <select id="accountType" name="accountType" required
-                            class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                        <option value="">Select account type</option>
-                        <option value="checking">Checking Account</option>
-                        <option value="savings">Savings Account</option>
-                        <option value="business_checking">Business Checking</option>
-                        <option value="business_savings">Business Savings</option>
-                    </select>
-                </div>
-
-                <!-- Terms and Conditions -->
-                <div class="flex items-start space-x-3">
-                    <input type="checkbox" id="termsAccepted" name="termsAccepted" required
-                           class="mt-1 h-4 w-4 text-primary focus:ring-primary border-border rounded">
-                    <label for="termsAccepted" class="text-sm text-text-primary">
-                        I agree to the <a href="#" class="text-primary hover:text-primary-600">Payment Terms</a> and
-                        <a href="#" class="text-primary hover:text-primary-600">Privacy Policy</a>.
-                        I authorize HATOD to deposit payments to this account.
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h4 class="text-lg font-semibold text-text-primary mb-1">GCash Payment</h4>
+                        <p class="text-sm text-text-secondary">Enable GCash to receive payments directly to your GCash account</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="gcashEnabled" name="gcashEnabled" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                 </div>
+
+                <div id="gcashFields" class="space-y-4 hidden">
+                    <!-- GCash Mobile Number -->
+                    <div>
+                        <label for="gcashMobileNumber" class="block text-sm font-medium text-text-primary mb-2">GCash Mobile Number *</label>
+                        <input type="text" id="gcashMobileNumber" name="gcashMobileNumber" 
+                               pattern="^09\d{9}$" maxlength="11"
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="09XXXXXXXXX">
+                        <p class="text-xs text-text-secondary mt-1">Enter your 11-digit GCash mobile number (e.g., 09123456789)</p>
+                    </div>
+
+                    <!-- GCash Account Name -->
+                    <div>
+                        <label for="gcashAccountName" class="block text-sm font-medium text-text-primary mb-2">GCash Account Name</label>
+                        <input type="text" id="gcashAccountName" name="gcashAccountName"
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Enter the name on your GCash account">
+                    </div>
+
+                    <!-- GCash QR Code URL -->
+                    <div>
+                        <label for="gcashQrCodeUrl" class="block text-sm font-medium text-text-primary mb-2">GCash QR Code URL (Optional)</label>
+                        <input type="url" id="gcashQrCodeUrl" name="gcashQrCodeUrl"
+                               class="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="https://example.com/qr-code.png">
+                        <p class="text-xs text-text-secondary mt-1">Upload your GCash QR code image and paste the URL here. Customers will scan this to pay you directly.</p>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>How it works:</strong> When customers choose GCash payment, they will pay directly to your GCash account. The payment will be sent immediately to your GCash mobile number or via QR code scan.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-border">
@@ -233,7 +224,7 @@
                     </button>
                     <button type="submit"
                             class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-smooth btn-hover">
-                        <span id="submitBtnText">Save Bank Account</span>
+                        <span id="submitBtnText">Save GCash Settings</span>
                     </button>
                 </div>
             </form>
@@ -246,10 +237,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <div>
-                    <h4 class="text-sm font-medium text-blue-900 mb-1">Payment Processing</h4>
+                    <h4 class="text-sm font-medium text-blue-900 mb-1">GCash Payment Processing</h4>
                     <p class="text-sm text-blue-800">
-                        Payments are processed daily. You'll receive cumulative payments from all orders completed the previous day.
-                        Funds typically arrive in your account within 1-3 business days after processing.
+                        When customers pay via GCash, payments are sent directly to your GCash account in real-time. 
+                        You'll receive the payment immediately when the customer completes the transaction through their GCash app.
                     </p>
                 </div>
             </div>
@@ -354,6 +345,41 @@
         window.location.href = 'restaurant_profile.html';
     }
 
+    // Toggle GCash fields visibility
+    function toggleGcashFields() {
+        const gcashEnabled = document.getElementById('gcashEnabled').checked;
+        const gcashFields = document.getElementById('gcashFields');
+        
+        if (gcashEnabled) {
+            gcashFields.classList.remove('hidden');
+            // Make mobile number required when enabled
+            document.getElementById('gcashMobileNumber').required = true;
+        } else {
+            gcashFields.classList.add('hidden');
+            document.getElementById('gcashMobileNumber').required = false;
+        }
+    }
+
+    // Load existing GCash settings
+    async function loadGcashSettings() {
+        try {
+            const restaurantId = await getRestaurantId();
+            if (!restaurantId) return;
+
+            const data = await apiRequest(`/restaurants/${restaurantId}/gcash-settings`);
+            
+            if (data.data) {
+                document.getElementById('gcashEnabled').checked = data.data.gcashEnabled || false;
+                document.getElementById('gcashMobileNumber').value = data.data.gcashMobileNumber || '';
+                document.getElementById('gcashAccountName').value = data.data.gcashAccountName || '';
+                document.getElementById('gcashQrCodeUrl').value = data.data.gcashQrCodeUrl || '';
+                toggleGcashFields();
+            }
+        } catch (error) {
+            console.error('Error loading GCash settings:', error);
+        }
+    }
+
     // Handle form submission
     async function handlePaymentSetup(formData) {
         try {
@@ -363,28 +389,42 @@
                 return;
             }
 
-            const paymentData = {
-                accountHolderName: formData.get('accountHolderName'),
-                bankName: formData.get('bankName'),
-                accountNumber: formData.get('accountNumber'),
-                routingNumber: formData.get('routingNumber'),
-                accountType: formData.get('accountType'),
-                termsAccepted: formData.get('termsAccepted') === 'on'
-            };
+            const gcashEnabled = document.getElementById('gcashEnabled').checked;
+            
+            // Save GCash settings
+            if (gcashEnabled) {
+                const gcashData = {
+                    gcashMobileNumber: formData.get('gcashMobileNumber'),
+                    gcashQrCodeUrl: formData.get('gcashQrCodeUrl') || null,
+                    gcashAccountName: formData.get('gcashAccountName') || null,
+                    gcashEnabled: true
+                };
 
-            // Here you would typically send this data to your backend
-            // For now, we'll simulate a successful save
-            console.log('Payment setup data:', paymentData);
+                // Validate mobile number if enabled
+                if (!gcashData.gcashMobileNumber && !gcashData.gcashQrCodeUrl) {
+                    alert('Please provide either GCash mobile number or QR code URL when enabling GCash.');
+                    return;
+                }
 
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+                await apiRequest(`/restaurants/${restaurantId}/gcash-settings`, {
+                    method: 'PUT',
+                    body: JSON.stringify(gcashData)
+                });
+            } else {
+                // Disable GCash
+                await apiRequest(`/restaurants/${restaurantId}/gcash-settings`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ gcashEnabled: false })
+                });
+            }
 
-            alert('Bank account information saved successfully! You will now receive payments from customer orders.');
+            alert('GCash settings saved successfully!');
             goBack();
 
         } catch (error) {
             console.error('Error saving payment information:', error);
-            alert('Failed to save payment information. Please try again.');
+            const errorMessage = error.message || 'Failed to save payment information. Please try again.';
+            alert(errorMessage);
         }
     }
 
@@ -394,6 +434,12 @@
             window.location.href = '../login.html';
             return;
         }
+
+        // Load existing GCash settings
+        loadGcashSettings();
+
+        // Toggle GCash fields when checkbox changes
+        document.getElementById('gcashEnabled').addEventListener('change', toggleGcashFields);
 
         // Handle form submission
         const paymentSetupForm = document.getElementById('paymentSetupForm');

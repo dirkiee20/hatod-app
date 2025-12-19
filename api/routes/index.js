@@ -7,6 +7,7 @@ import orderRoutes from './orderRoutes.js';
 import deliveryRoutes from './deliveryRoutes.js';
 import cartRoutes from './cartRoutes.js';
 import deliveryFeesRoutes from './deliveryFeesRoutes.js';
+import paymentRoutes from './paymentRoutes.js';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use('/orders', orderRoutes);
 router.use('/delivery', deliveryRoutes);
 router.use('/cart', cartRoutes);
 router.use('/delivery-fees', deliveryFeesRoutes);
+router.use('/payments', paymentRoutes);
 
 export default router;
 

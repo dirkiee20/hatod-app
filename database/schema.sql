@@ -243,6 +243,7 @@ CREATE TABLE payments (
     transaction_id VARCHAR(255),
     payment_gateway VARCHAR(50), -- 'stripe', 'paypal', etc.
     gateway_response JSONB,
+    qr_code_url VARCHAR(500),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
