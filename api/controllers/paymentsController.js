@@ -31,7 +31,7 @@ export const createPaymentSource = asyncHandler(async (req, res) => {
   // Verify order exists and belongs to user
   const orderResult = await query(
     `SELECT o.id, o.customer_id, o.restaurant_id, o.total_amount, o.status,
-            r.gcash_enabled, r.name AS restaurant_name
+            r.name AS restaurant_name
      FROM orders o
      LEFT JOIN restaurants r ON r.id = o.restaurant_id
      WHERE o.id = $1`,
@@ -47,11 +47,6 @@ export const createPaymentSource = asyncHandler(async (req, res) => {
   // Verify user owns the order (unless admin)
   if (req.user.role !== 'admin' && req.user.sub !== order.customer_id) {
     throw unauthorized('You can only create payments for your own orders');
-  }
-
-  // Verify restaurant accepts GCash
-  if (!order.gcash_enabled) {
-    throw badRequest('Restaurant does not accept GCash payments');
   }
 
   // Verify order amount matches
