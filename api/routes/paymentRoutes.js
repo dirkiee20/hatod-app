@@ -1,56 +1,32 @@
-import { Router } from 'express';
-import { body, param } from 'express-validator';
+import express from 'express';
 import {
-  createPaymentSource,
-  createPaymentFromSource,
-  handlePaymongoWebhook,
+  createCheckoutSession,
+  handleWebhook,
   getPaymentStatus
 } from '../controllers/paymentsController.js';
-import { authenticate, requireRoles } from '../middleware/auth.js';
-import { validate } from '../middleware/validate.js';
+import { authenticate } from '../middleware/auth.js';
 
-const router = Router();
+const router = express.Router();
 
-// Webhook endpoint (no auth required, uses signature verification)
-router.post(
-  '/webhook',
-  handlePaymongoWebhook
-);
+/**
+ * @route   POST /api/payments/create-checkout-session
+ * @desc    Create a PayMongo Payment Intent and get checkout URL
+ * @access  Private (Customer)
+ */
+router.post('/create-checkout-session', authenticate, createCheckoutSession);
 
-// Authenticated routes
-router.use(authenticate);
+/**
+ * @route   POST /api/payments/webhook
+ * @desc    Handle PayMongo webhook events (payment.paid, payment.failed)
+ * @access  Public (PayMongo webhooks)
+ */
+router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
-// Create GCash payment source
-router.post(
-  '/create-source',
-  [
-    body('orderId').isUUID().withMessage('Valid order ID is required'),
-    body('amount').isFloat({ gt: 0 }).withMessage('Amount must be greater than 0'),
-    body('redirectSuccess').optional().isURL().withMessage('Invalid success URL'),
-    body('redirectFailed').optional().isURL().withMessage('Invalid failed URL')
-  ],
-  validate,
-  createPaymentSource
-);
-
-// Create payment from source
-router.post(
-  '/create-payment',
-  [
-    body('sourceId').notEmpty().withMessage('Source ID is required'),
-    body('orderId').isUUID().withMessage('Valid order ID is required')
-  ],
-  validate,
-  createPaymentFromSource
-);
-
-// Get payment status
-router.get(
-  '/status/:orderId',
-  [param('orderId').isUUID()],
-  validate,
-  getPaymentStatus
-);
+/**
+ * @route   GET /api/payments/status/:paymentIntentId
+ * @desc    Get payment intent status
+ * @access  Private (Customer)
+ */
+router.get('/status/:paymentIntentId', authenticate, getPaymentStatus);
 
 export default router;
-

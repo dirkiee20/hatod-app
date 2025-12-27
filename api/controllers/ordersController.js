@@ -44,7 +44,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     tipAmount = 0,
     items,
     specialInstructions,
-    paymentMethod = 'gcash'
+    paymentMethod = 'cash'
   } = req.body;
 
   if (req.user.role !== 'admin' && req.user.sub !== customerId) {
@@ -53,11 +53,6 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   if (!Array.isArray(items) || items.length === 0) {
     throw badRequest('Order items are required');
-  }
-
-  // GCash-only payments
-  if (paymentMethod !== 'gcash') {
-    throw badRequest('Only GCash payment is supported');
   }
 
   const menuItemsResult = await query(
@@ -419,27 +414,23 @@ export const createOrder = asyncHandler(async (req, res) => {
       );
     }
 
-    // Create payment record (PayMongo will handle actual payment)
-    // Payment will be created when PayMongo source is generated
-    await client.query(
-      `INSERT INTO payments (
-          order_id,
-          payment_method,
-          payment_status,
-          amount,
-          currency,
-          payment_gateway
-       )
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [
-        order.id,
-        'gcash',
-        'pending',
-        totalAmount,
-        'PHP',
-        'paymongo'
-      ]
-    );
+    // Create payment record
+    if (paymentMethod === 'gcash') {
+      throw badRequest('GCash payments must be initiated via the payment checkout flow');
+    } else {
+      // Cash payment
+      await client.query(
+        `INSERT INTO payments (
+            order_id,
+            payment_method,
+            payment_status,
+            amount,
+            currency
+         )
+         VALUES ($1, $2, $3, $4, $5)`,
+        [order.id, 'cash', 'pending', totalAmount, 'PHP']
+      );
+    }
 
     return order;
   });

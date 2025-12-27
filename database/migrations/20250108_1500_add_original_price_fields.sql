@@ -25,3 +25,7 @@ WHERE original_price IS NULL AND price IS NOT NULL;
 
 
 
+
+
+
+

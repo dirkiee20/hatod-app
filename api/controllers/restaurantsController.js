@@ -162,6 +162,7 @@ export const listRestaurants = asyncHandler(async (req, res) => {
            r.is_open AS "isOpenBase",
            r.image_url AS "imageUrl",
            r.banner_url AS "bannerUrl",
+           r.gcash_enabled AS "gcashEnabled",
            'approved' AS "approvalStatus",
            u.full_name AS "ownerName",
            u.email AS "ownerEmail"
