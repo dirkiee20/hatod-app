@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - HATOD</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/pages.css">
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Loading State -->
+        <div id="loading-state" class="bg-surface rounded-lg p-8 shadow-card border border-border text-center">
+            <div class="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">Processing Your Payment</h2>
+            <p class="text-text-secondary">Please wait while we confirm your GCash payment...</p>
+        </div>
+
+        <!-- Success State -->
+        <div id="success-state" class="hidden bg-surface rounded-lg p-8 shadow-card border border-border text-center">
+            <div class="w-16 h-16 bg-success rounded-full mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">Payment Successful!</h2>
+            <p class="text-text-secondary mb-6">Your order has been placed and payment confirmed.</p>
+            <a href="order_tracking.html" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth">
+                View Your Orders
+            </a>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden bg-surface rounded-lg p-8 shadow-card border border-border text-center">
+            <div class="w-16 h-16 bg-error rounded-full mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">Payment Failed</h2>
+            <p class="text-text-secondary mb-6" id="error-message">Your payment could not be processed. Please try again.</p>
+            <div class="flex gap-3 justify-center">
+                <a href="shopping_cart.html" class="inline-block bg-text-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-80 transition-smooth">
+                    Back to Cart
+                </a>
+                <a href="checkout.html" class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-600 transition-smooth">
+                    Try Again
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../public/config.js"></script>
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:4000/api';
+
+        async function checkPaymentStatus() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    showError('Please log in to continue');
+                    setTimeout(() => window.location.href = '../login.html', 2000);
+                    return;
+                }
+
+                // Get payment intent ID from URL or localStorage
+                const urlParams = new URLSearchParams(window.location.search);
+                const paymentIntentIdFromUrl = urlParams.get('payment_intent_id');
+                const paymentIntentId = paymentIntentIdFromUrl || localStorage.getItem('pendingPaymentIntentId');
+
+                if (!paymentIntentId) {
+                    showError('No payment information found');
+                    setTimeout(() => window.location.href = 'shopping_cart.html', 2000);
+                    return;
+                }
+
+                // Poll for payment status
+                let maxAttempts = 30; // 30 seconds max
+                let attempts = 0;
+
+                const poll = async () => {
+                    attempts++;
+                    
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/payments/status/${paymentIntentId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Failed to check payment status');
+                        }
+
+                        const data = await response.json();
+                        const status = data.data.status;
+                        const orderId = data.data.orderId;
+
+                        console.log('Payment status:', status);
+
+                        if (status === 'paid' && orderId) {
+                            // Payment successful and order created
+                            localStorage.removeItem('pendingPaymentIntentId');
+                            
+                            // Clear cart
+                            await fetch(`${API_BASE_URL}/cart`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            }).catch(e => console.error('Failed to clear cart:', e));
+
+                            showSuccess();
+                            setTimeout(() => {
+                                window.location.href = `payment_confirmation.html?orderId=${orderId}`;
+                            }, 2000);
+                        } else if (status === 'failed' || status === 'cancelled') {
+                            // Payment failed
+                            localStorage.removeItem('pendingPaymentIntentId');
+                            showError('Payment was not completed. Please try again.');
+                        } else if (attempts >= maxAttempts) {
+                            // Timeout
+                            showError('Payment verification timeout. Please check your order history or contact support.');
+                        } else {
+                            // Still processing, poll again
+                            setTimeout(poll, 1000);
+                        }
+                    } catch (error) {
+                        console.error('Error checking payment status:', error);
+                        if (attempts >= maxAttempts) {
+                            showError('Unable to verify payment status. Please check your order history.');
+                        } else {
+                            setTimeout(poll, 1000);
+                        }
+                    }
+                };
+
+                poll();
+
+            } catch (error) {
+                console.error('Error in checkPaymentStatus:', error);
+                showError(error.message);
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('success-state').classList.remove('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('success-state').classList.add('hidden');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.textContent = message;
+            }
+            errorState.classList.remove('hidden');
+        }
+
+        // Start checking payment status when page loads
+        document.addEventListener('DOMContentLoaded', checkPaymentStatus);
+    </script>
+<script id="dhws-dataInjector" src="../../public/dhws-data-injector.js"></script>
+</body>
+</html>

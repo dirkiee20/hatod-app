@@ -18,8 +18,11 @@ const LOCAL_API_URL = 'http://localhost:4000/api';
         // Mobile apps always use Railway
         API_BASE_URL = RAILWAY_API_URL;
     } else {
-        // Web: Allow override, otherwise use Railway (since local server may not be running)
-        API_BASE_URL = window.__HATOD_API_BASE_URL__ || RAILWAY_API_URL;
+        // Web: Check if running on localhost or 127.0.0.1
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Use override if provided, otherwise use Local if on localhost, else Railway
+        API_BASE_URL = window.__HATOD_API_BASE_URL__ || (isLocal ? LOCAL_API_URL : RAILWAY_API_URL);
     }
     
     // Set on window object for use in other scripts

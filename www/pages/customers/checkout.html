@@ -321,45 +321,42 @@
                 <!-- Payment Method -->
                 <section class="bg-surface rounded-lg p-6 shadow-card border border-border">
                     <h3 class="text-lg font-semibold text-text-primary mb-4">Payment Method</h3>
-                    <div class="space-y-4">
-                        <div id="gcash-loading" class="bg-gray-50 border border-border rounded-lg p-4 text-sm text-text-secondary">
-                            Loading GCash payment details...
-                        </div>
-
-                        <div id="gcash-not-available" class="hidden bg-error-50 border border-error-200 rounded-lg p-4">
-                            <p class="font-medium text-error">GCash not available</p>
-                            <p class="text-sm text-error-600 mt-1">
-                                This restaurant is not yet set up to receive GCash payments. Please choose another restaurant.
-                            </p>
-                        </div>
-
-                        <!-- GCash Only -->
-                        <div id="gcash-payment-option" class="border border-primary rounded-lg bg-primary-50 hidden">
+                    <div class="space-y-4" id="payment-methods-container">
+                        <!-- GCash Payment Option -->
+                        <div id="gcash-payment-option" class="border border-primary rounded-lg bg-primary-50">
                             <div class="flex items-center p-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-text-primary">GCash (Required)</h3>
-                                        <p class="text-text-secondary">You must pay using GCash. Payment goes directly to the restaurant.</p>
+                                <input type="radio" name="payment_method" value="gcash" id="payment_gcash" class="h-5 w-5 text-primary focus:ring-primary border-border">
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-text-primary">GCash</h3>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- GCash Details -->
-                            <div id="gcash-details" class="mx-4 mb-4 px-4 py-3 bg-blue-50 rounded-lg">
-                                <p class="text-sm text-blue-800 mb-2">
-                                    <strong>GCash Payment Instructions:</strong>
-                                </p>
-                                <p class="text-sm text-blue-800 mt-2">
-                                    • Amount to pay: ₱<span id="gcash-amount">0.00</span><br>
-                                    • After placing your order, you will be redirected to PayMongo checkout<br>
-                                    • Complete payment using your GCash account<br>
-                                    • Payment will be processed securely through PayMongo
-                                </p>
+                        <!-- Cash Payment Option -->
+                        <div class="border border-primary rounded-lg bg-primary-50">
+                            <div class="flex items-center p-4">
+                                <input type="radio" name="payment_method" value="cash" id="payment_cash" checked class="h-5 w-5 text-primary focus:ring-primary border-border">
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-text-primary">Cash on Delivery</h3>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1210,200 +1207,10 @@
             }
         }
 
-        // -----------------------------
-        // GCash helpers (best-effort)
-        // -----------------------------
-        window.__HATOD_GCASH__ = window.__HATOD_GCASH__ || {
-            mobileNumber: null,
-            amount: null
-        };
-
-        async function copyToClipboard(text) {
-            if (!text) return false;
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    await navigator.clipboard.writeText(text);
-                    return true;
-                }
-            } catch (_) {
-                // fall back below
-            }
-
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.setAttribute('readonly', '');
-                textarea.style.position = 'absolute';
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                const ok = document.execCommand('copy');
-                document.body.removeChild(textarea);
-                return ok;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        /**
-         * Create PayMongo source and redirect to payment
-         */
-        async function redirectToPaymongoPayment(orderId, amount) {
-            try {
-                const token = localStorage.getItem('authToken');
-                if (!token) {
-                    alert('Please log in to continue');
-                    window.location.href = '../login.html';
-                    return;
-                }
-
-                // Create PayMongo payment source
-                const response = await fetch(`${API_BASE_URL}/payments/create-source`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        orderId: orderId,
-                        amount: amount,
-                        redirectSuccess: `${window.location.origin}/pages/customers/payment_confirmation.html?orderId=${orderId}&status=success`,
-                        redirectFailed: `${window.location.origin}/pages/customers/payment_confirmation.html?orderId=${orderId}&status=failed`
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ message: 'Failed to create payment' }));
-                    throw new Error(errorData.message || 'Failed to create payment');
-                }
-
-                const result = await response.json();
-                const checkoutUrl = result.data.checkoutUrl;
-
-                if (checkoutUrl) {
-                    // Redirect to PayMongo checkout
-                    window.location.href = checkoutUrl;
-                } else {
-                    throw new Error('No checkout URL received from PayMongo');
-                }
-            } catch (error) {
-                console.error('Error creating PayMongo payment:', error);
-                alert('Failed to initiate payment: ' + error.message);
-                setPlaceOrderLoading(false);
-            }
-        }
-
-        function openGcashApp() {
-            // Note: Most wallets don't allow pre-filling recipient/amount via public deep links.
-            // We open the GCash app (if installed) and provide copy buttons for details.
-            const hint = document.getElementById('gcash-open-hint');
-            if (hint) hint.classList.add('hidden');
-
-            const ua = navigator.userAgent || '';
-            const isAndroid = /Android/i.test(ua);
-            const isIOS = /iPhone|iPad|iPod/i.test(ua);
-
-            // Best-effort launch URLs
-            const androidIntent = 'intent://#Intent;scheme=gcash;package=com.globe.gcash.android;end';
-            const iosScheme = 'gcash://';
-            const webFallback = 'https://www.gcash.com/';
-
-            // Show hint after a short delay in case launch fails
-            window.setTimeout(() => {
-                const h = document.getElementById('gcash-open-hint');
-                if (h) h.classList.remove('hidden');
-            }, 1400);
-
-            try {
-                if (isAndroid) {
-                    window.location.href = androidIntent;
-                } else if (isIOS) {
-                    window.location.href = iosScheme;
-                } else {
-                    window.open(webFallback, '_blank', 'noopener');
-                }
-            } catch (error) {
-                console.error('Failed to open GCash:', error);
-                if (hint) hint.classList.remove('hidden');
-            }
-        }
-
         // Load payment methods based on restaurant GCash settings
         async function loadPaymentMethods(cart) {
-            if (cart.length === 0) return;
-
-            try {
-                const gcashLoading = document.getElementById('gcash-loading');
-                const gcashNotAvailable = document.getElementById('gcash-not-available');
-                const gcashOption = document.getElementById('gcash-payment-option');
-
-                const token = localStorage.getItem('authToken');
-                if (!token) return;
-
-                // Get unique restaurants from cart
-                const restaurantIds = [...new Set(cart.map(item => item.restaurantId))];
-
-                // GCash-only checkout currently supports one restaurant at a time
-                if (restaurantIds.length !== 1) {
-                    if (gcashLoading) gcashLoading.classList.add('hidden');
-                    if (gcashOption) gcashOption.classList.add('hidden');
-                    if (gcashNotAvailable) {
-                        gcashNotAvailable.classList.remove('hidden');
-                        gcashNotAvailable.querySelector('.font-medium').textContent = 'Multi-restaurant checkout not supported';
-                        gcashNotAvailable.querySelector('.text-sm').textContent =
-                            'Please checkout one restaurant at a time when using GCash-only payments.';
-                    }
-                    window.__HATOD_GCASH__.isAvailable = false;
-                    disablePlaceOrder('GCash checkout supports one restaurant only');
-                    return;
-                }
-                
-                // For now, check the first restaurant (for single restaurant orders)
-                // For multi-restaurant orders, we'd need to handle this differently
-                if (restaurantIds.length === 1) {
-                    const restaurantId = restaurantIds[0];
-                    
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (response.ok) {
-                            const restaurantData = await response.json();
-                            const restaurant = restaurantData.data;
-
-                            if (gcashLoading) gcashLoading.classList.add('hidden');
-
-                            // GCash is required
-                            if (!restaurant.gcashEnabled) {
-                                if (gcashOption) gcashOption.classList.add('hidden');
-                                if (gcashNotAvailable) gcashNotAvailable.classList.remove('hidden');
-                                window.__HATOD_GCASH__.isAvailable = false;
-                                disablePlaceOrder('Restaurant does not accept GCash');
-                                return;
-                            }
-
-                            // Show GCash details
-                            if (gcashNotAvailable) gcashNotAvailable.classList.add('hidden');
-                            if (gcashOption) gcashOption.classList.remove('hidden');
-                            window.__HATOD_GCASH__.isAvailable = true;
-
-                            // PayMongo handles payment flow - no need for restaurant GCash details in checkout
-                        }
-                    } catch (error) {
-                        console.error('Error loading restaurant GCash settings:', error);
-                        if (gcashLoading) gcashLoading.classList.add('hidden');
-                        if (gcashOption) gcashOption.classList.add('hidden');
-                        if (gcashNotAvailable) gcashNotAvailable.classList.remove('hidden');
-                        window.__HATOD_GCASH__.isAvailable = false;
-                        disablePlaceOrder('Failed to load GCash settings');
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading payment methods:', error);
-            }
+            // GCash is now always available via PayMongo
+            return;
         }
 
         function updateRestaurantInfo(cart) {
@@ -1582,15 +1389,16 @@
             }
 
             // Update cash payment instructions
+            const cashAmountElement = document.getElementById('cash-amount');
+            if (cashAmountElement) {
+                cashAmountElement.textContent = grandTotal.toFixed(2);
+            }
+
             // Update GCash payment amount
             const gcashAmountElement = document.getElementById('gcash-amount');
             if (gcashAmountElement) {
                 gcashAmountElement.textContent = grandTotal.toFixed(2);
             }
-
-            // Keep amount available for copy button
-            window.__HATOD_GCASH__ = window.__HATOD_GCASH__ || {};
-            window.__HATOD_GCASH__.amount = grandTotal.toFixed(2);
             
             // Update delivery info if it exists (for single restaurant view)
             const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
@@ -1680,15 +1488,11 @@
                     totalElement.textContent = `₱${total.toFixed(2)}`;
                 }
 
-                // Update GCash payment amount
-                const gcashAmountElement = document.getElementById('gcash-amount');
-                if (gcashAmountElement) {
-                    gcashAmountElement.textContent = total.toFixed(2);
+                // Update cash payment instructions
+                const cashAmountElement = document.getElementById('cash-amount');
+                if (cashAmountElement) {
+                    cashAmountElement.textContent = total.toFixed(2);
                 }
-
-                // Keep amount available for copy button
-                window.__HATOD_GCASH__ = window.__HATOD_GCASH__ || {};
-                window.__HATOD_GCASH__.amount = total.toFixed(2);
 
                 // Update delivery info in order summary
                 const deliveryInfo = document.querySelector('p.text-sm.text-text-secondary');
@@ -1714,12 +1518,6 @@
             setPlaceOrderLoading(true);
             
             try {
-                if (window.__HATOD_GCASH__ && window.__HATOD_GCASH__.isAvailable === false) {
-                    setPlaceOrderLoading(false);
-                    alert('This restaurant does not accept GCash payments. Please choose another restaurant.');
-                    return;
-                }
-
                 const token = localStorage.getItem('authToken');
                 if (!token) {
                     setPlaceOrderLoading(false);
@@ -1933,7 +1731,96 @@
                     return;
                 }
 
-                // Create orders for each restaurant
+                // Get selected payment method
+                const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cash';
+
+                // ===== PAYMONGO GCASH INTEGRATION START =====
+                // For GCash payments, use PayMongo payment intent flow
+                if (selectedPaymentMethod === 'gcash') {
+                    // Only support single restaurant orders for now
+                    if (restaurantIds.length > 1) {
+                        setPlaceOrderLoading(false);
+                        alert('PayMongo GCash payment currently only supports orders from a single restaurant.');
+                        return;
+                    }
+
+                    const restaurantId = restaurantIds[0];
+                    const restaurant = restaurants[restaurantId];
+
+                    // Calculate totals for the PayMongo session
+                    let subtotal = 0;
+                    restaurant.items.forEach(item => {
+                        const price = item.variantPrice ? parseFloat(item.variantPrice) : (item.price ? parseFloat(item.price) : 0);
+                        const quantity = item.quantity || 1;
+                        subtotal += price * quantity;
+                    });
+
+                    // Get delivery fee for this restaurant
+                    const deliveryFeeElement = document.querySelector(`[data-restaurant-id="${restaurantId}"] .restaurant-delivery-fee`);
+                    const deliveryFee = deliveryFeeElement ? 
+                        parseFloat(deliveryFeeElement.textContent.replace('₱', '').replace(',', '')) : 0;
+                    const totalAmount = subtotal + deliveryFee;
+
+                    const items = restaurant.items.map(item => ({
+                        menuItemId: item.menuItemId,
+                        variantId: item.variantId || null,
+                        quantity: item.quantity,
+                        unitPrice: item.variantPrice || item.price,
+                        specialInstructions: item.specialInstructions || null
+                    }));
+
+                    const orderData = {
+                        customerId,
+                        restaurantId,
+                        deliveryAddressId,
+                        orderType: 'delivery',
+                        subtotal,
+                        deliveryFee,
+                        taxAmount: 0,
+                        tipAmount: 0,
+                        totalAmount,
+                        items,
+                        specialInstructions: null,
+                        paymentMethod: 'gcash'
+                    };
+
+                    try {
+                        const returnUrl = `${window.location.origin}/pages/customers/payment_success.html`;
+                        
+                        const paymentResponse = await fetch(`${API_BASE_URL}/payments/create-checkout-session`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ orderData, returnUrl })
+                        });
+
+                        if (!paymentResponse.ok) {
+                            const errorData = await paymentResponse.json().catch(() => ({ message: 'Failed to create payment session' }));
+                            throw new Error(errorData.message || 'Failed to create payment session');
+                        }
+
+                        const paymentResult = await paymentResponse.json();
+                        console.log('Payment intent created:', paymentResult);
+
+                        // Save intent ID to local storage for polling on success page
+                        localStorage.setItem('pendingPaymentIntentId', paymentResult.data.paymentIntentId);
+                        
+                        // Redirect to PayMongo
+                        window.location.href = paymentResult.data.checkoutUrl;
+                        return; // Exit function - no order creation here
+                        
+                    } catch (paymentError) {
+                        console.error('Error creating payment:', paymentError);
+                        setPlaceOrderLoading(false);
+                        alert('Failed to initiate GCash payment: ' + paymentError.message);
+                        return;
+                    }
+                }
+                // ===== PAYMONGO GCASH INTEGRATION END =====
+
+                // Create orders for each restaurant (Cash flow)
                 const orderResults = [];
                 const failedOrders = [];
 
@@ -1957,7 +1844,7 @@
                             tipAmount: 0,
                             items,
                             specialInstructions: null,
-                            paymentMethod: 'gcash'
+                            paymentMethod: selectedPaymentMethod
                         };
 
                         const response = await fetch(`${API_BASE_URL}/orders`, {
@@ -1975,13 +1862,9 @@
                         }
 
                         const result = await response.json();
-                        const orderId = result.data.orderId;
-                        const totalAmount = result.data.totalAmount;
-                        
                         orderResults.push({
                             restaurantName: restaurant.name,
-                            orderId: orderId,
-                            totalAmount: totalAmount
+                            orderId: result.data.orderId
                         });
                         console.log(`Order placed for ${restaurant.name}:`, result);
                     } catch (error) {
@@ -2008,14 +1891,14 @@
                             }
                         });
                         
-                        // Create PayMongo source and redirect to payment
-                        await redirectToPaymongoPayment(orderResults[0].orderId, orderResults[0].totalAmount);
+                        // Redirect to first successful order confirmation
+                        window.location.href = `payment_confirmation.html?orderId=${orderResults[0].orderId}`;
                     }
-                    setPlaceOrderLoading(false);
                     return;
                 }
 
-                // All orders successful - clear cart
+                // All orders successful
+                // Clear cart after successful orders
                 await fetch(`${API_BASE_URL}/cart`, {
                     method: 'DELETE',
                     headers: {
@@ -2023,12 +1906,16 @@
                     }
                 });
 
+                // Show success message
                 if (orderResults.length > 1) {
                     alert(`Successfully placed ${orderResults.length} orders!\n\n${orderResults.map(r => `• ${r.restaurantName}`).join('\n')}\n\nYou will be redirected to track your orders.`);
-                    window.location.href = 'order_history.html';
+                }
+
+                // Redirect to payment confirmation with first order ID (or order history if multiple)
+                if (orderResults.length === 1) {
+                    window.location.href = `payment_confirmation.html?orderId=${orderResults[0].orderId}`;
                 } else {
-                    // Single order - create PayMongo source and redirect to payment
-                    await redirectToPaymongoPayment(orderResults[0].orderId, orderResults[0].totalAmount);
+                    window.location.href = `order_history.html`;
                 }
 
             } catch (error) {

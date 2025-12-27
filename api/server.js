@@ -1,7 +1,14 @@
 import http from 'http';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load environment variables first
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Try to load .env from the api directory first (useful when running from root)
+dotenv.config({ path: path.join(__dirname, '.env') });
+// Fallback to standard search if not found
 dotenv.config();
 
 console.log('[STARTUP] Environment loaded');
