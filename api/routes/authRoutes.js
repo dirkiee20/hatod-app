@@ -48,6 +48,8 @@ router.post(
   refresh
 );
 
+// Email verification routes (to be implemented)
+/*
 router.post(
   '/verify-email',
   [body('token').notEmpty().withMessage('Verification token is required')],
@@ -61,6 +63,7 @@ router.post(
   validate,
   resendVerificationEmail
 );
+*/
 
 export default router;
 

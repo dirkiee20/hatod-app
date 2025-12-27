@@ -1,0 +1,23 @@
+# Exclude frontend files from Railway build context
+/android/
+/css/
+/download-page/
+/pages/
+/www/
+/docs/
+/scripts/
+/uploads/
+/download.html
+/index.html
+/capacitor.config.json
+/tailwind.config.js
+/public/
+
+# Node.js
+node_modules/
+npm-debug.log
+.env
+.env.*
+.vscode/
+.git/
+.gitignore

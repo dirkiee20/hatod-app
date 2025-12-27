@@ -1,0 +1,22 @@
+# Exclude frontend files from Nixpacks build context
+/android/
+/css/
+/download-page/
+/pages/
+/www/
+/docs/
+/scripts/
+/uploads/
+/download.html
+/index.html
+/capacitor.config.json
+/tailwind.config.js
+/public/
+
+# Node.js
+node_modules/
+.env
+.env.*
+.vscode/
+.git/
+.gitignore
